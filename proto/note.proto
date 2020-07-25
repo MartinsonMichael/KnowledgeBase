@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+message NoteHeader {
+    string id = 1;
+    string name = 2;
+}
+
+message NoteHeaderList {
+    repeated NoteHeader list = 1;
+}
+
+message Null {}
+
+service NoteService {
+  rpc getAllNotesHeaders(Null) returns (NoteHeaderList) {}
+}
