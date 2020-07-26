@@ -1,11 +1,12 @@
 import * as React from "react";
-import { changeTestValue } from "../store/note/note_actions";
+import { changeTestValue, asyncChangeTestValue } from "../store/test/test_actions";
 import { connect, ConnectedProps } from 'react-redux'
 import {RootState} from "../store";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    value: store.note.testValue
+    testValue: store.test.testValue,
+    asyncValue: store.test.ayncTestValue,
 });
 const connector = connect(mapStoreStateToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
@@ -31,7 +32,7 @@ class ValueController extends React.Component<ValueControllerProps, ValueControl
 
     submitValue() {
         this.props.dispatch(
-            changeTestValue(this.state.change + this.props.value)
+            changeTestValue(this.state.change + this.props.testValue)
         );
     }
 
@@ -43,7 +44,7 @@ class ValueController extends React.Component<ValueControllerProps, ValueControl
                 >
                     -
                 </button>
-                {this.props.value} + {this.state.change}
+                {this.props.testValue} + {this.state.change}
                 <button
                     onClick={() => this.setState({change: this.state.change + 1})}
                 >
@@ -61,4 +62,4 @@ class ValueController extends React.Component<ValueControllerProps, ValueControl
     }
 }
 
-export const CValueController = connector(ValueController);
+export default connector(ValueController);

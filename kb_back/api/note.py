@@ -59,11 +59,9 @@ class Note:
     def get_file_name(note_id) -> str:
         return f"note_{note_id}.txt"
 
-    def save_to_file(self) -> None:
+    def save_to_file(self):
         if not os.path.exists(NOTE_DIR):
             os.makedirs(NOTE_DIR)
-
-        print(self)
 
         with open(os.path.join(NOTE_DIR, self.get_file_name(self.id)), "w") as file:
             file.write(f"ID:{self.id}\n")
@@ -71,6 +69,8 @@ class Note:
             file.write(f"TAGS:{';'.join(['#'+x for x in self.tags])}\n")
             file.write(f"LINKS:{';'.join(self.links)}\n")
             file.write(self.body)
+
+        return self
 
     def load_by_id(self, note_id: str):
         return self.load_from_file(os.path.join(NOTE_DIR, self.get_file_name(note_id)))
@@ -98,11 +98,17 @@ class Note:
 
         return self
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self) -> Dict[str, str]:
         return {
             'id': self.id,
             'name': self.name,
             'tags': self.tags,
             'links': self.links,
             'body': self.body,
+        }
+
+    def header_to_json(self) -> Dict[str, str]:
+        return {
+            'id': self.id,
+            'name': self.name,
         }

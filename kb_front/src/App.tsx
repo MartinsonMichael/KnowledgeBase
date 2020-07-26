@@ -8,12 +8,41 @@ import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/ControlPoint';
 
 import ListIcon from '@material-ui/icons/List';
-// import NotificationsIcon from '@material-ui/icons/Notifications';
 
-import { CValueController } from './components/test_component'
 
-export class App extends React.Component<{}, {}>{
+import NoteHeadViewer from './components/NoteListViewer'
+import { loadHeadList } from "./store/system/system_actions";
+import {RootState} from "./store";
+import {connect, ConnectedProps} from "react-redux";
 
+
+const mapStoreStateToProps = (store: RootState) => ({
+    noteHeadList: store.systemState.noteHeadList,
+});
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    onUpdateHeadList: () => dispatch(loadHeadList())
+  }
+};
+
+const connector = connect(mapStoreStateToProps, mapDispatchToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>
+
+export type AppProps = PropsFromRedux & {
+
+}
+
+class App extends React.Component<AppProps, {}>{
+
+  constructor(props: AppProps) {
+    super(props);
+  }
+
+  componentDidMount(): void {
+    // this.props.dispatch(loadHeadList());
+    // this.props.dispatch(loadHeadList());
+    this.props.onUpdateHeadList()
+  }
 
   renderAppBar(): React.ReactNode {
     return (
@@ -58,9 +87,12 @@ export class App extends React.Component<{}, {}>{
     return (
       <div>
         {this.renderAppBar()}
-        <CValueController/>
+        {/*<ValueController/>*/}
+
+        <NoteHeadViewer/>
       </div>
     );
   }
 }
 
+export default connector(App);

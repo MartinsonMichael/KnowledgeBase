@@ -17,11 +17,6 @@ export function NoteReducer(state = initialState, action: NoteActionTypes): Note
                 ...state,
                 note: action.payload,
             };
-        case "TestStoreValue":
-            return {
-                ...state,
-                testValue: action.payload,
-            };
         default:
             return state
     }

@@ -1,5 +1,5 @@
-import {NoteID, Note} from "../messages";
-
+import {NoteID, Note, construct_Note} from "../messages";
+import axios from "../client"
 
 export const LoadNote = 'LoadNote';
 interface LoadNoteAction {
@@ -7,25 +7,17 @@ interface LoadNoteAction {
     payload: Note
 }
 
-export const TestStoreValue = 'TestStoreValue';
-interface TestValueAction {
-    type: typeof TestStoreValue
-    payload: number
-}
-
-export type NoteActionTypes = LoadNoteAction | TestValueAction
+export type NoteActionTypes = LoadNoteAction
 
 
-// export function loadNote(id: NoteID): NoteActionTypes {
-//     return {
-//         type: LoadNote,
-//         payload: "",
-//     }
-// }
+export const loadNote = (noteID: NoteID) => {
+    return async (dispatch: any) => {
+        const response = await axios.get(`get_note/${noteID}`);
 
-export function changeTestValue(newValue: number): NoteActionTypes {
-    return {
-        type: TestStoreValue,
-        payload: newValue,
-    }
-}
+        dispatch({
+            type: LoadNote,
+            payload: construct_Note(response.data),
+        });
+    };
+};
+

@@ -1,72 +1,67 @@
-import json
-
 from django.http import HttpResponse
 
 from api.note import Note
+from api.utils import createHTTPResponseOK, createHTTPResponseBAD
 
 
 def get_note(request, **kwargs):
     note_id = kwargs.get('note_id', None)
     if note_id is None:
-        return HttpResponse(f"bad: no note_id - must be not empty string, but got {note_id}", status_code=400)
+        return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
     note = Note().load_by_id(note_id)
     if note is None:
-        return HttpResponse(f"bad: note_id is incorrect - no such note - {note_id}", status_code=400)
+        return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
-    response = HttpResponse('ok')
-    response.content = json.dumps(note.to_json())
-    return response
+    return createHTTPResponseOK(note.to_json())
 
 
 def create_note(request, **kwargs):
     note_id = kwargs.get('note_id', None)
     if note_id is None:
-        return HttpResponse('bad: no note_id - must be string', status_code=400)
+        return createHTTPResponseBAD('bad: no note_id - must be string')
 
-    Note().create_new(note_id).save_to_file()
+    note = Note().create_new(note_id).save_to_file()
 
-    return HttpResponse('ok')
+    return createHTTPResponseOK(note.header_to_json())
 
 
 def update_name(request, **kwargs):
     note_id = kwargs.get('note_id', None)
     if note_id is None:
-        return HttpResponse(f"bad: no note_id - must be not empty string, but got {note_id}", status_code=400)
+        return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
     note = Note().load_by_id(note_id)
     if note is None:
-        return HttpResponse(f"bad: note_id is incorrect - no such note - {note_id}", status_code=400)
+        return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
     new_name = kwargs.get('name', None)
     note.update_name(new_name)
     note.save_to_file()
 
-    return HttpResponse("ok")
+    return createHTTPResponseOK()
 
 
 def add_tag(request, **kwargs):
     note_id = kwargs.get('note_id', None)
     if note_id is None:
-        return HttpResponse(f"bad: no note_id - must be not empty string, but got {note_id}", status_code=400)
+        return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
     note = Note().load_by_id(note_id)
     if note is None:
-        return HttpResponse(f"bad: note_id is incorrect - no such note - {note_id}", status_code=400)
-
-    # print(f'load note from memory:\n{note}')
+        return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
     new_tag = kwargs.get('tag', None)
     note.add_tag(new_tag)
     note.save_to_file()
 
-    return HttpResponse("ok")
+    return createHTTPResponseOK()
 
 
 def del_tag(request, **kwargs):
     note_id = kwargs.get('note_id', None)
     if note_id is None:
-        return HttpResponse(f"bad: no note_id - must be not empty string, but got {note_id}", status_code=400)
+        return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
     note = Note().load_by_id(note_id)
     if note is None:
-        return HttpResponse(f"bad: note_id is incorrect - no such note - {note_id}", status_code=400)
+        return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
     # print(f'load note from memory:\n{note}')
 
@@ -74,7 +69,7 @@ def del_tag(request, **kwargs):
     note.del_tag(tag)
     note.save_to_file()
 
-    return HttpResponse("ok")
+    return createHTTPResponseOK()
 
 
 def add_link(request, **kwargs):
@@ -88,10 +83,10 @@ def del_link(request, **kwargs):
 def update_body(request, **kwargs):
     note_id = kwargs.get('note_id', None)
     if note_id is None:
-        return HttpResponse(f"bad: no note_id - must be not empty string, but got {note_id}", status_code=400)
+        return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
     note = Note().load_by_id(note_id)
     if note is None:
-        return HttpResponse(f"bad: note_id is incorrect - no such note - {note_id}", status_code=400)
+        return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
     # print(f'load note from memory:\n{note}')
 
@@ -99,4 +94,4 @@ def update_body(request, **kwargs):
     # note.add_tag(new_tag)
     # note.save_to_file()
 
-    return HttpResponse("ok")
+    return createHTTPResponseOK()
