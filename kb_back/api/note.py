@@ -89,7 +89,6 @@ class Note:
                     if note_attr == 'NAME':
                         self.name = value
                     if note_attr == 'TAGS':
-                        print(value)
                         self.tags = [x[1:] for x in value.split(';')]
                     if note_attr == 'LINKS':
                         self.links = value.split(';')

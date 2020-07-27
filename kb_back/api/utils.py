@@ -8,14 +8,17 @@ def createHTTPResponseOK(content: Optional[Union[List, Dict]] = None) -> HttpRes
     response = HttpResponse()
     if content is not None:
         response.content = json.dumps(content)
-    response["Access-Control-Allow-Origin"] = '*'
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Headers"] = "*"
     response.status_code = 200
     return response
 
 
-def createHTTPResponseBAD(msg: str) -> HttpResponse:
+def createHTTPResponseBAD(msg: Optional[str] = None) -> HttpResponse:
     response = HttpResponse()
-    response.content = json.dumps({"error_msg": msg})
-    response["Access-Control-Allow-Origin"] = '*'
+    if msg is not None:
+        response.content = json.dumps({"msg": msg})
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Headers"] = "*"
     response.status_code = 400
     return response

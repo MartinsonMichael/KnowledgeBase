@@ -1,10 +1,6 @@
-import {construct_NoteHeadList, NoteHeadList} from "../messages";
+import { construct_NoteHeadList, NoteHeadList } from "../messages";
 import axios from "../client"
-import {RootState} from "../index";
-import {Action, ActionCreator} from "redux";
-import { ThunkAction } from 'redux-thunk'
-import { Dispatch } from "redux"
-import {SystemState} from "./system_reducer";
+
 
 export const UpdateHeadList = 'UpdateHeadList';
 interface UpdateHeadListAction {

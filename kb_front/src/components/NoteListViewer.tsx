@@ -1,9 +1,9 @@
 import * as React from "react";
-import { loadNote } from "../store/note/note_actions";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
 import { loadHeadList } from "../store/system/system_actions";
 import { NoteHead, NoteID } from "../store/messages";
+import {renderNoteLink} from "./NoteLink";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -12,7 +12,7 @@ const mapStoreStateToProps = (store: RootState) => ({
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        loadNote: (note_id: NoteID) => dispatch(loadNote(note_id)),
+        loadHeadList: () => dispatch(loadHeadList()),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
@@ -29,21 +29,13 @@ class NoteHeadViewer extends React.Component<NoteListViewerProps, NoteListViewer
         this.state = {};
     }
 
-    static renderNoteHead(noteHead: NoteHead): React.ReactNode {
-        return (
-            <div style={{"display": "flex"}}>
-                { noteHead.name }
-            </div>
-        )
-    }
-
     render(): React.ReactNode {
         return (
             <div>
                 { this.props.isLoading ? ("Loading NoteHead from server...") : null }
 
                 { this.props.noteHeadList !== undefined ? (
-                    this.props.noteHeadList.list.map((noteHead: NoteHead) => NoteHeadViewer.renderNoteHead(noteHead))
+                    this.props.noteHeadList.list.map((noteHead: NoteHead) => renderNoteLink(noteHead))
                 ) : (
                     "No Notes on server"
                 )}

@@ -12,8 +12,14 @@ import ListIcon from '@material-ui/icons/List';
 
 import NoteHeadViewer from './components/NoteListViewer'
 import { loadHeadList } from "./store/system/system_actions";
-import {RootState} from "./store";
-import {connect, ConnectedProps} from "react-redux";
+import { RootState } from "./store";
+import { connect, ConnectedProps } from "react-redux";
+
+import {Route, Switch, Redirect, withRouter, Router, Link} from "react-router-dom";
+import { useHistory } from 'react-router-dom';
+import { RouteComponentProps } from "react-router";
+import NoteViewer from "./components/NoteViewer";
+import {NoteID} from "./store/messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -28,9 +34,12 @@ const mapDispatchToProps = (dispatch: any) => {
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-export type AppProps = PropsFromRedux & {
 
+type PathParamsType = {
+  pathNoteID: NoteID
 }
+
+export type AppProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {}
 
 class App extends React.Component<AppProps, {}>{
 
@@ -45,18 +54,18 @@ class App extends React.Component<AppProps, {}>{
   }
 
   renderAppBar(): React.ReactNode {
+
     return (
         <AppBar position="static">
           <Toolbar>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={() => null}
-              >
-              <ListIcon/>
-              <Typography variant="body2" noWrap>show all notes</Typography>
-            </IconButton>
+            <div style={{marginRight: "10px"}}>
+              <Link to="/fullList">
+                <div style={{display: "flex"}}>
+                  <ListIcon/>
+                  <span>show all notes</span>
+                </div>
+              </Link>
+            </div>
 
             <IconButton
               edge="start"
@@ -87,12 +96,16 @@ class App extends React.Component<AppProps, {}>{
     return (
       <div>
         {this.renderAppBar()}
-        {/*<ValueController/>*/}
+        <Switch>
+          <Route path={'/home'} render={() => <NoteHeadViewer/>} />
+          <Route path={'/fullList'} render={() => <NoteHeadViewer/>} />
+          <Route path={'/note/:pathNoteID'} render={() => <NoteViewer/>} />
 
-        <NoteHeadViewer/>
+          <Redirect from="/" to="/home" />
+        </Switch>
       </div>
     );
   }
 }
 
-export default connector(App);
+export default withRouter(connector(App));

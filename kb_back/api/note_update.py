@@ -1,4 +1,7 @@
-from django.http import HttpResponse
+import json
+
+from django.http import HttpResponse, HttpRequest
+from django.views.decorators.csrf import csrf_exempt
 
 from api.note import Note
 from api.utils import createHTTPResponseOK, createHTTPResponseBAD
@@ -63,8 +66,6 @@ def del_tag(request, **kwargs):
     if note is None:
         return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
-    # print(f'load note from memory:\n{note}')
-
     tag = kwargs.get('tag', None)
     note.del_tag(tag)
     note.save_to_file()
@@ -80,7 +81,8 @@ def del_link(request, **kwargs):
     pass
 
 
-def update_body(request, **kwargs):
+@csrf_exempt
+def update_body(request: HttpRequest, **kwargs):
     note_id = kwargs.get('note_id', None)
     if note_id is None:
         return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
@@ -88,10 +90,8 @@ def update_body(request, **kwargs):
     if note is None:
         return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
-    # print(f'load note from memory:\n{note}')
-
-    # new_tag = request.
-    # note.add_tag(new_tag)
-    # note.save_to_file()
+    body = request.body.decode("utf-8")
+    print(f"body update: {body}")
+    note.update_body(body).save_to_file()
 
     return createHTTPResponseOK()
