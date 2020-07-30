@@ -1,7 +1,16 @@
 import json
-from typing import Union, List, Dict, Optional
+import os
+from typing import Union, List, Dict, Optional, Iterator
 
 from django.http import HttpResponse
+
+from api import NOTE_DIR
+
+
+def iterate_over_notes_files() -> Iterator[str]:
+    for file in os.listdir(NOTE_DIR):
+        if file.startswith('note'):
+            yield os.path.join(NOTE_DIR, file)
 
 
 def createHTTPResponseOK(content: Optional[Union[List, Dict]] = None) -> HttpResponse:

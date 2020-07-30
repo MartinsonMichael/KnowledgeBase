@@ -1,15 +1,22 @@
 from django.urls import re_path, path
 
+from api.graph_structure_api import get_graph_structure
 from api.note_list import note_list
+from api.tag_list import tag_list
+from api.filter_notes import filter_notes
 from api.note_update import *
 
 urlpatterns = [
-    path('note_list', note_list),
+    path('get_structure', get_graph_structure),
+    path('filter_notes', filter_notes),
+
     path('create_note/<str:note_id>', create_note),
-    path('update_note/<str:note_id>/name/<str:name>', update_name),
     path('get_note/<str:note_id>', get_note),
 
+    # NoteUpdate
+    path('update_note/<str:note_id>/name/<str:name>', update_name),
     # tags
+    path('tag_list', tag_list),
     path('update_note/<str:note_id>/add_tag/<str:tag>', add_tag),
     path('update_note/<str:note_id>/del_tag/<str:tag>', del_tag),
 

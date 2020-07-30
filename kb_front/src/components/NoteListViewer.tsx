@@ -7,7 +7,7 @@ import {renderNoteLink} from "./NoteLink";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadList: store.systemState.noteHeadList,
+    noteHeadStore: store.systemState.noteHeadStore,
     isLoading: store.systemState.isLoading,
 });
 const mapDispatchToProps = (dispatch: any) => {
@@ -34,8 +34,13 @@ class NoteHeadViewer extends React.Component<NoteListViewerProps, NoteListViewer
             <div>
                 { this.props.isLoading ? ("Loading NoteHead from server...") : null }
 
-                { this.props.noteHeadList !== undefined ? (
-                    this.props.noteHeadList.list.map((noteHead: NoteHead) => renderNoteLink(noteHead))
+                { this.props.noteHeadStore !== undefined ? (
+                    Object.keys(this.props.noteHeadStore).map((noteID: NoteID) => {
+                        if (this.props.noteHeadStore !== undefined) {
+                            return renderNoteLink(this.props.noteHeadStore[noteID])
+                        }
+                        return null
+                    })
                 ) : (
                     "No Notes on server"
                 )}

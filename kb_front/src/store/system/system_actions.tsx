@@ -1,11 +1,12 @@
-import { construct_NoteHeadList, NoteHeadList } from "../messages";
 import axios from "../client"
+import {NoteHeadStore} from "../messages";
+import {construct_NoteHeadStore} from "../messages";
 
 
 export const UpdateHeadList = 'UpdateHeadList';
 interface UpdateHeadListAction {
     type: typeof UpdateHeadList
-    payload: NoteHeadList
+    payload: NoteHeadStore
 }
 
 export type SystemActionTypes = UpdateHeadListAction
@@ -13,11 +14,11 @@ export type SystemActionTypes = UpdateHeadListAction
 
 export const loadHeadList = () => {
     return async (dispatch: any) => {
-        const response = await axios.get('note_list');
+        const response = await axios.get('get_structure');
 
         dispatch({
             type: UpdateHeadList,
-            payload: construct_NoteHeadList(response.data),
+            payload: construct_NoteHeadStore(response.data['note_head']),
         });
     };
 };

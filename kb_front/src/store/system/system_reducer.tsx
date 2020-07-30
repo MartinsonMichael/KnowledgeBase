@@ -1,9 +1,9 @@
 import {SystemActionTypes} from "./system_actions";
 
-import { NoteHeadList } from "../messages";
+import {NoteHeadStore} from "../messages";
 
 export interface SystemState {
-    noteHeadList?: NoteHeadList
+    noteHeadStore?: NoteHeadStore
     tagList?: string[]
 
     isLoading: boolean
@@ -11,7 +11,7 @@ export interface SystemState {
 }
 
 const initialState: SystemState = {
-    noteHeadList: undefined,
+    noteHeadStore: undefined,
     tagList: undefined,
 
     isLoading: false,
@@ -23,7 +23,7 @@ export function systemReducer(state = initialState, action: SystemActionTypes): 
         case "UpdateHeadList":
             return {
                 ...state,
-                noteHeadList: action.payload,
+                noteHeadStore: action.payload,
             };
 
         default:

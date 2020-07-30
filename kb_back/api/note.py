@@ -1,7 +1,8 @@
 import os
 import time
-from typing import List, Dict, Any
+from typing import List, Dict
 
+from api.models import NoteDB, NoteTag, create_new_tag, NoteLink, get_link
 from . import NOTE_DIR
 
 
@@ -11,9 +12,42 @@ class Note:
         self.id: str = None
         self.name: str = ""
         self.tags: List = []
-        # self.metainfo: Dict[str, Any] = {}
         self.links: List[str] = []
         self.body: str = ""
+
+        self._noteDB = None
+
+    def load_noteDB(self) -> None:
+        self._noteDB = NoteDB.objects.filter(id=self.id).first()
+
+    def save_to_DB(self) -> None:
+        self.load_noteDB()
+        if self._noteDB is None:
+            self._noteDB = NoteDB(
+                id=self.id,
+                name=self.name,
+                body=self.body,
+            )
+            self._noteDB.save()
+        else:
+            self._noteDB.name = self.name
+            self._noteDB.body = self.body
+
+        # create tags
+        self._noteDB.links.clear()
+        for tag in self.tags:
+            tag_BD = NoteTag.objects.filter(tag_name=tag).first()
+            if tag_BD is None:
+                tag_BD = create_new_tag(tag)
+            self._noteDB.tags.add(tag_BD)
+
+        # create links
+        self._noteDB.links.clear()
+        for link_to_id in self.links:
+            link_obj = get_link(self.id, link_to_id)
+            self._noteDB.links.add(link_obj)
+
+        self._noteDB.save()
 
     def __str__(self):
         return f"ID: {self.id}\n" \
@@ -89,9 +123,10 @@ class Note:
                     if note_attr == 'NAME':
                         self.name = value
                     if note_attr == 'TAGS':
-                        self.tags = [x[1:] for x in value.split(';')]
+                        self.tags = [x[1:] for x in value.split(';') if x.startswith('#')]
                     if note_attr == 'LINKS':
-                        self.links = value.split(';')
+                        self.links = [x for x in value.split(';') if len(x) > 5]
+                        print(f"loaded links : {self.links}")
                 else:
                     self.body += line
 

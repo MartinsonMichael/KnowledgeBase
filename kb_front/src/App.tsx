@@ -23,7 +23,7 @@ import {NoteID} from "./store/messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadList: store.systemState.noteHeadList,
+    // noteHeadList: store.systemState.noteHeadList,
 });
 const mapDispatchToProps = (dispatch: any) => {
   return {
