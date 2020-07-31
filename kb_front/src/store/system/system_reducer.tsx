@@ -1,10 +1,10 @@
 import {SystemActionTypes} from "./system_actions";
 
-import {NoteHeadStore} from "../messages";
+import {NoteHeadStore, NoteTag} from "../messages";
 
 export interface SystemState {
     noteHeadStore?: NoteHeadStore
-    tagList?: string[]
+    tagList?: NoteTag[]
 
     isLoading: boolean
     error?: string
@@ -24,6 +24,11 @@ export function systemReducer(state = initialState, action: SystemActionTypes): 
             return {
                 ...state,
                 noteHeadStore: action.payload,
+            };
+        case "UpdateTagList":
+            return {
+                ...state,
+                tagList: action.payload,
             };
 
         default:
