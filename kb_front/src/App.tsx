@@ -8,6 +8,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/ControlPoint';
 
 import ListIcon from '@material-ui/icons/List';
+import TextField from '@material-ui/core/TextField';
 
 
 import NoteHeadViewer from './components/NoteListViewer'
@@ -20,6 +21,7 @@ import { useHistory } from 'react-router-dom';
 import { RouteComponentProps } from "react-router";
 import NoteViewer from "./components/NoteViewer";
 import {NoteID} from "./store/messages";
+import {stringify} from "querystring";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -41,16 +43,61 @@ type PathParamsType = {
 
 export type AppProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {}
 
-class App extends React.Component<AppProps, {}>{
+interface AppState {
+  newNoteID: string
+  showNoteCreatePost: boolean
+}
+
+
+class App extends React.Component<AppProps, AppState>{
 
   constructor(props: AppProps) {
     super(props);
+    this.state = {
+      newNoteID: "",
+      showNoteCreatePost: false,
+    }
   }
 
   componentDidMount(): void {
-    // this.props.dispatch(loadHeadList());
-    // this.props.dispatch(loadHeadList());
     this.props.onUpdateHeadList()
+  }
+
+  generateRandomNoteId(): string {
+    const curDate = new Date();
+    return curDate.toISOString();
+  }
+
+  renderNewNotePart(): React.ReactNode {
+    return (
+      <div>
+      <IconButton
+        edge="start"
+        color="inherit"
+        aria-label="open drawer"
+        onClick={() => {
+          if (this.state.showNoteCreatePost) {
+
+          } else {
+            this.setState({showNoteCreatePost: true})
+          }
+        }}
+      >
+        <AddIcon/>
+        <span>{ this.state.showNoteCreatePost ? "confirm noteID" : "add new note" }</span>
+      </IconButton>
+
+        { this.state.showNoteCreatePost ?
+            (
+            <TextField
+              defaultValue={ this.generateRandomNoteId() }
+              onChange={event => this.setState({newNoteID: event.target.value})}
+            />
+            ) : null
+        }
+
+        </div>
+    )
   }
 
   renderAppBar(): React.ReactNode {
@@ -66,18 +113,7 @@ class App extends React.Component<AppProps, {}>{
                 </div>
               </Link>
             </div>
-
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={() => null}
-            >
-              <AddIcon/>
-              <Typography variant="body2" noWrap>add new note</Typography>
-            </IconButton>
-
-
+            { this.renderNewNotePart() }
             <div>
               <SearchIcon/>
               <InputBase

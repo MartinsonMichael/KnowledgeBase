@@ -1,5 +1,5 @@
 import axios from "../client"
-import {construct_NoteTag, NoteHeadStore, NoteTag} from "../messages";
+import {construct_NoteTag, NoteHead, NoteHeadStore, NoteTag} from "../messages";
 import {construct_NoteHeadStore} from "../messages";
 
 
@@ -15,7 +15,19 @@ interface UpdateTagListAction {
     payload: NoteTag[]
 }
 
-export type SystemActionTypes = UpdateHeadListAction | UpdateTagListAction
+export const CreateNewNote = 'CreateNewNote';
+interface CreateNewNoteAction {
+    type: typeof CreateNewNote
+    payload: NoteHead
+}
+
+export const ServerApiError = 'ServerApiError';
+interface ServerApiErrorAction {
+    type: typeof ServerApiError
+    payload: string
+}
+
+export type SystemActionTypes = ServerApiErrorAction| UpdateHeadListAction | UpdateTagListAction | CreateNewNoteAction
 
 
 export const loadHeadList = () => {
@@ -31,5 +43,23 @@ export const loadHeadList = () => {
            type: UpdateTagList,
            payload: [...response.data['tag_list'].map((x: any) => construct_NoteTag(x))]
         });
+    };
+};
+
+export const createNewNote = (noteID: string) => {
+  return async (dispatch: any) => {
+        const response = await axios.get(`create_note/${noteID}`);
+
+        if (response.status === 200) {
+            dispatch({
+                type: CreateNewNote,
+                payload: response.data,
+            });
+        } else {
+            dispatch({
+                type: ServerApiError,
+                payload: response.data,
+            });
+        }
     };
 };

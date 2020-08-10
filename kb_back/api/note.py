@@ -145,4 +145,6 @@ class Note:
         return {
             'id': self.id,
             'name': self.name,
+            'tags': self.tags,
+            'links': self.links,
         }
