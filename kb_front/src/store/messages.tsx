@@ -24,11 +24,13 @@ export function construct_Note(x: any): Note {
 export interface NoteTag {
     name: string
     color: string
+    description: string,
 }
 export function construct_NoteTag(x: any): NoteTag {
     return {
-        'name': x['name'],
-        'color': x['color'],
+        'name': x['tag_name'],
+        'color': x['tag_color'],
+        'description': x['tag_description'],
     } as NoteTag
 }
 

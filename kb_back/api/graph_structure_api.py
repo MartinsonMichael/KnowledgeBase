@@ -8,7 +8,7 @@ from api.utils import createHTTPResponseOK
 def get_graph_structure(request, **kwargs) -> HttpResponse:
     # sent Dict[str - note id : "tags", "links", "name"
 
-    tag_list = NoteTag.objects.all().values('tag_name', 'tag_color')
+    tag_list = NoteTag.objects.all().values('tag_name', 'tag_color', 'tag_description')
 
     note_attributes = (
         NoteDB.objects

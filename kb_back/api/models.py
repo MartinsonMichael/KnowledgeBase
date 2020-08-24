@@ -6,8 +6,9 @@ ID_MAX_LEN = 50
 
 
 class NoteTag(models.Model):
-    tag_name = models.TextField('tag_name', null=False, max_length=20, primary_key=True)
-    tag_color = models.TextField('tag_color', max_length=10)
+    tag_name = models.TextField('name', null=False, max_length=20, primary_key=True)
+    tag_color = models.TextField('color', max_length=10, null=True)
+    tag_description = models.TextField('description', max_length=100, null=True)
 
 
 class NoteLink(models.Model):

@@ -5,12 +5,13 @@ from api.note_list import note_list
 from api.tag_list import tag_list
 from api.filter_notes import filter_notes
 from api.note_update import *
+from api.tag_actions import update_tag_color, update_tag_description
 
 urlpatterns = [
     path('get_structure', get_graph_structure),
     path('filter_notes', filter_notes),
 
-    path('create_note/<str:note_id>', create_note),
+    path('create_note/<str:note_id>/<str:note_name>', create_note),
     path('get_note/<str:note_id>', get_note),
 
     # NoteUpdate
@@ -26,4 +27,8 @@ urlpatterns = [
 
     # body
     path('update_note/<str:note_id>/body', update_body),
+
+    # tag
+    path('update_tag_description/<str:tag_name>/<str:new_tag_description>', update_tag_description),
+    path('update_tag_color/<str:tag_name>/<str:new_tag_color>', update_tag_color),
 ]

@@ -11,7 +11,6 @@ import ListIcon from '@material-ui/icons/List';
 import TextField from '@material-ui/core/TextField';
 
 
-import NoteHeadViewer from './components/NoteListViewer'
 import { loadHeadList } from "./store/system/system_actions";
 import { RootState } from "./store";
 import { connect, ConnectedProps } from "react-redux";
@@ -19,9 +18,12 @@ import { connect, ConnectedProps } from "react-redux";
 import {Route, Switch, Redirect, withRouter, Router, Link} from "react-router-dom";
 import { useHistory } from 'react-router-dom';
 import { RouteComponentProps } from "react-router";
-import NoteViewer from "./components/NoteViewer";
 import {NoteID} from "./store/messages";
 import {stringify} from "querystring";
+import TagPage from "./pages/TagPage";
+import NoteListPage from "./pages/NoteListPage";
+import NotePage from "./pages/NotePage";
+import NewNotePage from "./pages/NewNotePage";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -63,43 +65,6 @@ class App extends React.Component<AppProps, AppState>{
     this.props.onUpdateHeadList()
   }
 
-  generateRandomNoteId(): string {
-    const curDate = new Date();
-    return curDate.toISOString();
-  }
-
-  renderNewNotePart(): React.ReactNode {
-    return (
-      <div>
-      <IconButton
-        edge="start"
-        color="inherit"
-        aria-label="open drawer"
-        onClick={() => {
-          if (this.state.showNoteCreatePost) {
-
-          } else {
-            this.setState({showNoteCreatePost: true})
-          }
-        }}
-      >
-        <AddIcon/>
-        <span>{ this.state.showNoteCreatePost ? "confirm noteID" : "add new note" }</span>
-      </IconButton>
-
-        { this.state.showNoteCreatePost ?
-            (
-            <TextField
-              defaultValue={ this.generateRandomNoteId() }
-              onChange={event => this.setState({newNoteID: event.target.value})}
-            />
-            ) : null
-        }
-
-        </div>
-    )
-  }
-
   renderAppBar(): React.ReactNode {
 
     return (
@@ -113,7 +78,14 @@ class App extends React.Component<AppProps, AppState>{
                 </div>
               </Link>
             </div>
-            { this.renderNewNotePart() }
+            <div>
+              <Link to="/new_note">
+                <div style={{display: "flex"}}>
+                <AddIcon/>
+                <span>add new note</span>
+                </div>
+              </Link>
+            </div>
             <div>
               <SearchIcon/>
               <InputBase
@@ -133,9 +105,11 @@ class App extends React.Component<AppProps, AppState>{
       <div>
         {this.renderAppBar()}
         <Switch>
-          <Route path={'/home'} render={() => <NoteHeadViewer/>} />
-          <Route path={'/fullList'} render={() => <NoteHeadViewer/>} />
-          <Route path={'/note/:pathNoteID'} render={() => <NoteViewer/>} />
+          <Route path={'/home'} render={() => <NoteListPage/>} />
+          <Route path={'/fullList'} render={() => <NoteListPage/>} />
+          <Route path={'/note/:pathNoteID'} render={() => <NotePage/>} />
+          <Route path={'/tag/:pathTagName'} render={() => <TagPage/>} />
+          <Route path={'/new_note'} render={() => <NewNotePage/>} />
 
           <Redirect from="/" to="/home" />
         </Switch>

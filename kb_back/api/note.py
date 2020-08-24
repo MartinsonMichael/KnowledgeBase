@@ -11,7 +11,7 @@ class Note:
     def __init__(self):
         self.id: str = None
         self.name: str = ""
-        self.tags: List = []
+        self.tags: List[str] = []
         self.links: List[str] = []
         self.body: str = ""
 
@@ -20,7 +20,7 @@ class Note:
     def load_noteDB(self) -> None:
         self._noteDB = NoteDB.objects.filter(id=self.id).first()
 
-    def save_to_DB(self) -> None:
+    def save_to_DB(self):
         self.load_noteDB()
         if self._noteDB is None:
             self._noteDB = NoteDB(
@@ -48,6 +48,7 @@ class Note:
             self._noteDB.links.add(link_obj)
 
         self._noteDB.save()
+        return self
 
     def __str__(self):
         return f"ID: {self.id}\n" \
@@ -119,14 +120,42 @@ class Note:
                     value = value[:-1]
 
                     if note_attr == 'ID':
-                        self.id = value
+                        self.id = value.replace('\n', '')
                     if note_attr == 'NAME':
-                        self.name = value
+                        self.name = value.replace('\n', '')
                     if note_attr == 'TAGS':
-                        self.tags = [x[1:] for x in value.split(';') if x.startswith('#')]
+                        self.tags = [
+                            Note.clean_line(x[1:])
+                            for x in value.split(';') if x.startswith('#')
+                        ]
                     if note_attr == 'LINKS':
                         self.links = [x for x in value.split(';') if len(x) > 5]
                         print(f"loaded links : {self.links}")
+                else:
+                    self.body += line
+
+        return self
+
+    @staticmethod
+    def clean_line(x: str) -> str:
+        return x.replace('\n', '').replace(' ', '')
+
+    def load_from_free_file(self, file_name: str):
+        self.__init__()
+        with open(file_name, "r") as file:
+            new_id = os.path.basename(file_name)
+            if new_id.endswith('.txt'):
+                new_id = new_id[:-4]
+            self.id = self.create_new(new_id).id
+            for index, line in enumerate(file.readlines()):
+                if index == 0:
+                    self.name = line.replace('\n', '')
+                    continue
+                elif index == 1:
+                    self.tags = [
+                        Note.clean_line(x[1:])
+                        for x in line.split(';') if x.startswith('#')
+                    ]
                 else:
                     self.body += line
 

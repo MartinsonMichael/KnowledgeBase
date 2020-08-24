@@ -3,9 +3,9 @@ import Editor from "rich-markdown-editor";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
 import {Note, NoteID} from "../store/messages";
-import {loadNote, updateBody} from "../store/note/note_actions";
+import {addTag, delTag, loadNote, updateBody} from "../store/note/note_actions";
 import {RouteComponentProps, withRouter} from "react-router";
-import {renderTagBar} from "./TagBar";
+import { TagBar } from "../components/TagBar";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -17,13 +17,16 @@ const mapStoreStateToProps = (store: RootState) => ({
 const mapDispatchToProps = (dispatch: any) => {
     return {
         loadNote: (note_id: NoteID) => dispatch(loadNote(note_id)),
-        updateBody: (note_id: NoteID, body: string, locally: boolean = false) => dispatch(updateBody(note_id, body, locally))
+        updateBody: (note_id: NoteID, body: string, locally: boolean = false) => dispatch(updateBody(note_id, body, locally)),
+
+        addNoteTag: (note: Note, tagName: string) => dispatch(addTag(note, tagName)),
+        delNoteTag: (note: Note, tagName: string) => dispatch(delTag(note, tagName)),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-export interface NoteViewerState {
+export interface NotePageState {
     localNoteBody?: string,
     unsavedChangesNumber: number,
 }
@@ -33,13 +36,13 @@ type PathParamsType = {
   pathNoteID: NoteID
 }
 
-export type NoteViewerProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {
+export type NotePageProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {
     noteID?: NoteID,
 }
 
 
-class NoteViewer extends React.Component<NoteViewerProps, NoteViewerState>{
-    constructor(props: NoteViewerProps) {
+class NotePage extends React.Component<NotePageProps, NotePageState>{
+    constructor(props: NotePageProps) {
         super(props);
         this.state = {
             localNoteBody: undefined,
@@ -69,8 +72,8 @@ class NoteViewer extends React.Component<NoteViewerProps, NoteViewerState>{
         }
 
         window.addEventListener("beforeunload", (ev) => {
-            this.forceUpdateBody()
-            ev.preventDefault()
+            this.forceUpdateBody();
+            ev.preventDefault();
         });
     }
 
@@ -124,7 +127,21 @@ class NoteViewer extends React.Component<NoteViewerProps, NoteViewerState>{
                 <div style={{display: "flex"}}>
                     Name: { name }
                 </div>
-                { renderTagBar(tags) }
+                <TagBar
+                    tags={tags}
+                    showTagsLabel={true}
+                    size={16}
+                    onTagAdd={(tagName) => {
+                        if (this.props.note !== undefined) {
+                            this.props.addNoteTag(this.props.note, tagName)
+                        }
+                    }}
+                    onDelete={(tagName) => {
+                        if (this.props.note !== undefined) {
+                            this.props.delNoteTag(this.props.note, tagName)
+                        }
+                    }}
+                />
                 <Editor
                     defaultValue={body}
                     onChange={(valueGetter: () => string) => this.updateBody(valueGetter())}
@@ -143,4 +160,4 @@ class NoteViewer extends React.Component<NoteViewerProps, NoteViewerState>{
     }
 }
 
-export default withRouter(connector(NoteViewer));
+export default withRouter(connector(NotePage));

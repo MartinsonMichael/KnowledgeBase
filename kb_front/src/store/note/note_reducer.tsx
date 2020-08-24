@@ -21,11 +21,29 @@ export function NoteReducer(state = initialState, action: NoteActionTypes): Note
             return {
                 ...state,
                 isLoading: true,
+                error: undefined,
             };
+
+        case "ServerError":
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            };
+
         case "LoadNote":
             return {
                 ...state,
                 isLoading: false,
+                error: undefined,
+                note: action.payload,
+            };
+
+        case "CreateNewNote":
+            return {
+                ...state,
+                isLoading: false,
+                error: undefined,
                 note: action.payload,
             };
 
@@ -33,6 +51,7 @@ export function NoteReducer(state = initialState, action: NoteActionTypes): Note
             if (state.note === undefined) {
                 return {
                     ...state,
+                    isLoading: false,
                     error: "Can't update Note body, current Note object is undefined."
                 }
             }
@@ -43,6 +62,13 @@ export function NoteReducer(state = initialState, action: NoteActionTypes): Note
                     ...state.note,
                     body: action.payload,
                 }
+            };
+
+        case "UpdateNoteMetaInfo":
+            return {
+                ...state,
+                isLoading: false,
+                note: action.payload,
             };
         default:
             return state
