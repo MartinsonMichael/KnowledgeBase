@@ -64,7 +64,7 @@ export function NoteReducer(state = initialState, action: NoteActionTypes): Note
                 }
             };
 
-        case "UpdateNoteMetaInfo":
+        case "UpdateNote":
             return {
                 ...state,
                 isLoading: false,

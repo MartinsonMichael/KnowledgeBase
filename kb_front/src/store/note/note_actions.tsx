@@ -18,9 +18,9 @@ interface LoadNoteAction {
     payload: Note
 }
 
-export const UpdateNoteMetaInfo = "UpdateNoteMetaInfo";
-interface UpdateNoteMetaInfoAction {
-    type: typeof UpdateNoteMetaInfo
+export const UpdateNote = "UpdateNote";
+interface UpdateNoteAction {
+    type: typeof UpdateNote
     payload: Note
 }
 
@@ -41,18 +41,91 @@ interface UpdateTagDescriptionAction {
     type: typeof UpdateTagDescription
 }
 
-type NoteUpdateActions = UpdateBodyAction | UpdateNoteMetaInfoAction
+type NoteUpdateActions = UpdateBodyAction | UpdateNoteAction
 type TagUpdateActions = UpdateTagDescriptionAction
 export type NoteActionTypes = StartLoadAction | ServerErrorAction | LoadNoteAction | CreateNewNoteAction | NoteUpdateActions | TagUpdateActions
 
 
-export const addTag = (note: Note, tagName: string) => {
+export const updateNote = (
+    note: Note,
+    newName?: string, newBody?: string,
+    addTagName?: string, delTagName?: string,
+    addLinkID?: string, delLinkID?: string,
+    ) => {
     return async (dispatch: any) => {
-        const response = await axios.get(`update_note/${note.id}/add_tag/${tagName}`,);
+        const newNoteObj: Note = note;
+
+        if (newName !== undefined) {
+            newNoteObj.name = newName
+        }
+        if (newBody !== undefined) {
+            newNoteObj.body = newBody
+        }
+        if (addTagName !== undefined) {
+            newNoteObj.tags = [...newNoteObj.tags, addTagName]
+        }
+        if (delTagName !== undefined) {
+            newNoteObj.tags = newNoteObj.tags.filter(tagName => tagName !== delTagName)
+        }
+        if (addLinkID !== undefined) {
+            newNoteObj.links = [...newNoteObj.links, addLinkID]
+        }
+        if (delLinkID !== undefined) {
+            newNoteObj.links = newNoteObj.links.filter(linkID => linkID !== delLinkID)
+        }
+
+        const response = await axios.post(
+            `update_note/${note.id}/full`,
+            JSON.stringify(newNoteObj),
+            {
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            }
+        );
 
         if (response.status === 200) {
             dispatch({
-                type: UpdateNoteMetaInfo,
+                type: UpdateNote,
+                payload: newNoteObj,
+            });
+        } else {
+            dispatch({
+                type: ServerError,
+                payload: response.data['msg'],
+            });
+        }
+    }
+};
+
+
+export const updateNoteName = (note: Note, newName: string) => {
+    return async (dispatch: any) => {
+        const response = await axios.get(`update_note/${note.id}/name/${newName}`)
+
+        if (response.status === 200) {
+            dispatch({
+                type: UpdateNote,
+                payload: {
+                    ...note,
+                    name: newName,
+                } as Note
+            });
+        } else {
+            dispatch({type: ServerError, payload: response.data['msg']});
+        }
+    }
+};
+
+
+export const addTag = (note: Note, tagName: string) => {
+    return async (dispatch: any) => {
+        const response = await axios.get(`update_note/${note.id}/add_tag/${tagName}`);
+
+        if (response.status === 200) {
+            dispatch({
+                type: UpdateNote,
                 payload: {
                     ...note,
                     tags: [
@@ -77,7 +150,7 @@ export const delTag = (note: Note, tagName: string) => {
 
         if (response.status === 200) {
             dispatch({
-                type: UpdateNoteMetaInfo,
+                type: UpdateNote,
                 payload: {
                     ...note,
                     tags: [...note.tags.filter((tag: string) => tag !== tagName)]

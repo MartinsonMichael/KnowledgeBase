@@ -57,6 +57,7 @@ def add_tag(request, **kwargs):
 
     new_tag = kwargs.get('tag', None)
     note.add_tag(new_tag)
+    note.save_to_DB()
     note.save_to_file()
 
     return createHTTPResponseOK()
@@ -72,6 +73,7 @@ def del_tag(request, **kwargs):
 
     tag = kwargs.get('tag', None)
     note.del_tag(tag)
+    note.save_to_DB()
     note.save_to_file()
 
     return createHTTPResponseOK()
@@ -95,7 +97,43 @@ def update_body(request: HttpRequest, **kwargs):
         return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
     body = request.body.decode("utf-8")
-    print(f"body update: {body}")
-    note.update_body(body).save_to_file()
+    note.update_body(body).save_to_file().save_to_DB()
+
+    return createHTTPResponseOK()
+
+
+@csrf_exempt
+def update_note(request: HttpRequest, **kwargs):
+    note_id = kwargs.get('note_id', None)
+    if note_id is None:
+        return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
+    note = Note().load_by_id(note_id)
+    if note is None:
+        return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
+
+    if request.method == 'OPTIONS':
+        return createHTTPResponseOK()
+
+    print(request)
+
+    print('Pure body:')
+    print(request.body)
+
+    req_body = request.body.decode("utf-8")
+    print(f'decoded body : {req_body}')
+    print(f'req body : {request.body}')
+
+    note_dict = json.loads(req_body)
+
+    print('DEBUG')
+    print('note_dict')
+    print(note_dict)
+
+    note.update_body(note_dict['body'])
+    note.update_name(note_dict['name'])
+    note.set_tags(note_dict['tags'])
+    note.set_links(note_dict['links'])
+
+    note.save_to_file().save_to_DB()
 
     return createHTTPResponseOK()

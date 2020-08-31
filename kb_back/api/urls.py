@@ -15,6 +15,7 @@ urlpatterns = [
     path('get_note/<str:note_id>', get_note),
 
     # NoteUpdate
+    path('update_note/<str:note_id>/full', update_note),
     path('update_note/<str:note_id>/name/<str:name>', update_name),
     # tags
     path('tag_list', tag_list),

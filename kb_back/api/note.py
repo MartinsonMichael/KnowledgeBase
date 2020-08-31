@@ -64,30 +64,38 @@ class Note:
         self.id = note_pre_id + f"_{time.time()}"
         return self
 
-    def update_name(self, name):
+    def update_name(self, name: str):
         self.name = name
         return self
 
-    def update_body(self, body):
+    def update_body(self, body: str):
         self.body = body
         return self
 
-    def add_tag(self, tag):
+    def add_tag(self, tag: str):
         if tag not in self.tags:
             self.tags.append(tag)
         return self
 
-    def del_tag(self, tag):
+    def del_tag(self, tag: str):
         self.tags.remove(tag)
         return self
 
-    def add_link(self, link):
+    def set_tags(self, tag_list: List[str]):
+        self.tags = list(set(tag_list))
+        return self
+
+    def add_link(self, link: str):
         if link not in self.links:
             self.links.append(link)
         return self
 
-    def del_link(self, link):
+    def del_link(self, link: str):
         self.links.remove(link)
+        return self
+
+    def set_links(self, link_list: List[str]):
+        self.links = link_list
         return self
 
     @staticmethod
