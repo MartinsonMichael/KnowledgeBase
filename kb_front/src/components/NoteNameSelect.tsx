@@ -1,14 +1,14 @@
 import * as React from "react";
 // @ts-ignore
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { RootState } from "../store";
-import { connect, ConnectedProps } from "react-redux";
-import { NoteTag } from "../store/messages";
-import { tagStoreToList } from "./utils";
+import {RootState} from "../store";
+import {connect, ConnectedProps} from "react-redux";
+import {headStoreToList} from "./utils";
+import {NoteHead} from "../store/messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    tagList: tagStoreToList(store.note.tagStore),
+    noteList: headStoreToList(store.note.noteHeadStore),
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {}
@@ -16,31 +16,30 @@ const mapDispatchToProps = (dispatch: any) => {
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-export type TagSelectProps = PropsFromRedux & {
-    onSelect: (tagObj: NoteTag) => void,
+export type NoteNameSelectProps = PropsFromRedux & {
+    onSelect: (noteHead: NoteHead) => void,
     focusOnOpen?: boolean,
 }
 
-interface TagSelectState {
+interface NoteNameSelectState {
     input: string
 }
 
-class TagSelect extends React.Component<TagSelectProps, TagSelectState> {
+class NoteNameSelect extends React.Component<NoteNameSelectProps, NoteNameSelectState> {
     static defaultProps = {
         focusOnOpen: true,
     };
 
-    constructor(props: TagSelectProps) {
+    constructor(props: NoteNameSelectProps) {
         super(props);
-
         this.state = {
             input: "",
         }
     }
 
     render(): React.ReactNode {
-        if (this.props.tagList === undefined) {
-            return <span> no tag list </span>
+        if (this.props.noteList === undefined) {
+            return <span> no note list </span>
         }
         return (
             <Autocomplete
@@ -49,7 +48,7 @@ class TagSelect extends React.Component<TagSelectProps, TagSelectState> {
                       this.props.onSelect(value)
                     }
                 }}
-                options={this.props.tagList}
+                options={this.props.noteList}
                 getOptionLabel={(option: any) => option['name']}
                 renderInput={(params: any) => (
                     <div ref={params.InputProps.ref}>
@@ -66,4 +65,4 @@ class TagSelect extends React.Component<TagSelectProps, TagSelectState> {
     }
 }
 
-export default connector(TagSelect);
+export default connector(NoteNameSelect);

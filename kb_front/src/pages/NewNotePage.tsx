@@ -1,17 +1,11 @@
 import * as React from "react";
-import Editor from "rich-markdown-editor";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import {Note, NoteHead, NoteID, NoteTag} from "../store/messages";
-import {createNewNote, loadNote, updateBody} from "../store/note/note_actions";
-import {RouteComponentProps, withRouter} from "react-router";
-import {TagBar} from "../components/TagBar";
-import {renderNoteList} from "../components/NoteList";
-import {TextField} from "@material-ui/core";
+import { createNewNote } from "../store/note/note_actions";
+import { RouteComponentProps, withRouter } from "react-router";
+import { TextField } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
-
-import { useHistory } from 'react-router-dom';
-import {renderError} from "../components/ErrorPlate";
+import { renderError } from "../components/ErrorPlate";
 
 
 const mapStoreStateToProps = (store: RootState) => ({

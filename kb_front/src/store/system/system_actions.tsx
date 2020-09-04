@@ -1,44 +1,40 @@
-import axios from "../client"
-import {construct_NoteTag, NoteHead, NoteHeadStore, NoteTag} from "../messages";
-import {construct_NoteHeadStore} from "../messages";
+import { LinkSearchMode } from "../../components/LinkDialogSearch";
 
 
-export const UpdateHeadList = 'UpdateHeadList';
-interface UpdateHeadListAction {
-    type: typeof UpdateHeadList
-    payload: NoteHeadStore
+export const ChangeLinkSearchDialogType = 'ChangeLinkSearchDialogType';
+interface ChangeLinkSearchDialogAction {
+    type: typeof ChangeLinkSearchDialogType
+    payload: LinkSearchMode
 }
 
-export const ServerApiError = 'ServerApiError';
-interface ServerApiErrorAction {
-    type: typeof ServerApiError
-    payload: string
+export const OpenNewTagCreator = "OpenNewTagCreator";
+interface OpenNewTagCreatorAction {
+    type: typeof OpenNewTagCreator
 }
 
-export const UpdateTagList = 'UpdateTagList';
-interface UpdateTagListAction {
-    type: typeof UpdateTagList
-    payload: NoteTag[]
+export const CloseNewTagCreator = "CloseNewTagCreator";
+interface CloseNewTagCreatorAction {
+    type: typeof CloseNewTagCreator
 }
 
-export type SystemActionTypes = ServerApiErrorAction| UpdateHeadListAction | UpdateTagListAction
+export type SystemActionTypes = ChangeLinkSearchDialogAction | OpenNewTagCreatorAction | CloseNewTagCreatorAction
 
 
-export const loadHeadList = () => {
-    return async (dispatch: any) => {
-        const response = await axios.get('get_structure');
+export const OpenNewTagCreatorSystemAction = () => {
+  return (dispatch: any) => dispatch({
+      type: OpenNewTagCreator,
+  });
+};
 
-        dispatch({
-            type: UpdateHeadList,
-            payload: construct_NoteHeadStore(response.data['note_head']),
-        });
+export const CloseNewTagCreatorSystemAction = () => {
+  return (dispatch: any) => dispatch({
+      type: CloseNewTagCreator,
+  });
+};
 
-
-        console.log(response.data['tag_list'])
-
-        dispatch({
-           type: UpdateTagList,
-           payload: [...response.data['tag_list'].map((x: any) => construct_NoteTag(x))]
-        });
-    };
+export const ChangeLinkDialogState = (state: LinkSearchMode) => {
+  return (dispatch: any) => dispatch({
+      type: ChangeLinkSearchDialogType,
+      payload: state,
+  });
 };

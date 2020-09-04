@@ -1,32 +1,37 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import {NoteHead, NoteID, NoteTag} from "../store/messages";
+import { NoteHead, NoteTag } from "../store/messages";
 import { RouteComponentProps, withRouter } from "react-router";
 import { renderNoteList } from "../components/NoteList";
-import {TextField} from "@material-ui/core";
-import {renderError} from "../components/ErrorPlate";
-import {updateTagDescription} from "../store/note/note_actions";
+import { TextField } from "@material-ui/core";
+import { renderError } from "../components/ErrorPlate";
+import { updateTag } from "../store/note/note_actions";
+import { headStoreToList } from "../components/utils";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadStore: store.systemState.noteHeadStore,
-    tagList: store.systemState.tagList,
+    noteHeadStore: headStoreToList(store.note.noteHeadStore),
+    tagStore: store.note.tagStore,
 
     isLoading: store.note.isLoading,
     error: store.note.error,
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        updateTagDescription: (tagName: string, newDescr: string) => dispatch(updateTagDescription(tagName, newDescr)),
+        updateTag: (tagObj: NoteTag, description: string, color: string) => dispatch(
+            updateTag(tagObj, description, color)
+        ),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 export interface TagPageState {
-    updatedDescription?: string
+    currentTag?: NoteTag
     updateCount: number
+
+    isEditMode: boolean
 }
 
 
@@ -34,9 +39,7 @@ type PathParamsType = {
   pathTagName: string
 }
 
-export type TagPageProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {
-    tagName?: string,
-}
+export type TagPageProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {}
 
 
 class TagPage extends React.Component<TagPageProps, TagPageState>{
@@ -44,26 +47,60 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
         super(props);
         this.state = {
             updateCount: 0,
+            currentTag: undefined,
+            isEditMode: false,
         };
+
+        console.log(this.props.match.params.pathTagName);
 
         this.lightUpdateTagDescription = this.lightUpdateTagDescription.bind(this);
     }
 
-    lightUpdateTagDescription(tagName: string | undefined, newDescription: string) {
-        if (tagName === undefined) {
+    updateCurrentTag() {
+        if (this.props.tagStore === undefined) {
+            return
+        }
+        if (this.state.currentTag !== undefined && this.state.currentTag.name === this.props.match.params.pathTagName) {
+            return
+        }
+        this.setState({
+            currentTag: this.props.tagStore[this.props.match.params.pathTagName],
+        })
+    }
+
+    componentDidMount(): void {
+        if (this.props.tagStore === undefined) {
+            this.setState({currentTag: undefined})
+            return
+        }
+        this.setState({
+            currentTag: this.props.tagStore[this.props.match.params.pathTagName],
+        })
+    }
+
+    lightUpdateTagDescription(newDescription: string) {
+        if (this.state.currentTag === undefined) {
             return;
         }
         if (this.state.updateCount > 20) {
             this.setState({
                 updateCount: 0,
-                updatedDescription: newDescription,
+                currentTag: {
+                    ...this.state.currentTag,
+                    description: newDescription,
+                },
             });
-            this.props.updateTagDescription(tagName, newDescription);
+            this.props.updateTag(
+                this.state.currentTag, this.state.currentTag.description, this.state.currentTag.color,
+            );
             return
         }
         this.setState({
             updateCount: this.state.updateCount + 1,
-            updatedDescription: newDescription,
+            currentTag: {
+                ...this.state.currentTag,
+                description: newDescription,
+            }
         })
     }
 
@@ -77,62 +114,61 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
             return renderError(this.props.error);
         }
 
-        let needTagName: string | undefined = undefined;
-        if (this.props.tagName !== undefined) {
-            needTagName = this.props.tagName
-        } else if (this.props.match.params.pathTagName !== undefined) {
-            needTagName = this.props.match.params.pathTagName
-        }
+        this.updateCurrentTag();
 
-        if (needTagName === undefined) {
-            return <span>Something went wrong, to tag name...</span>
-        }
-
-        let tag = undefined;
-        if (this.props.tagList !== undefined) {
-            tag = this.props.tagList.filter((tag: NoteTag) => tag.name === needTagName)[0]
-        }
-
-        if (tag === undefined) {
+        if (this.state.currentTag === undefined || this.props.tagStore === undefined) {
             return <span>No such tag, khm, try to reload page.</span>
         }
 
-        if (this.state.updatedDescription === undefined) {
-            this.setState({updatedDescription: tag.description})
-        }
+        const { name, description } = this.state.currentTag;
 
         let noteList = [] as NoteHead[];
         if (this.props.noteHeadStore !== undefined) {
             noteList = Object.entries(this.props.noteHeadStore)
-                .filter((value) => needTagName !== undefined && value[1].tags.includes(needTagName))
+                .filter((value) => name !== undefined && value[1].tags.includes(name))
                 .map(value => value[1])
         }
 
-        const { color, name, description } = tag;
+        if (this.state.currentTag === undefined) {
+            return <span>Loading... (undefined)</span>
+        }
+
         return (
             <div style={{margin: "20px"}}>
-                <div style={{display: "flex"}}>
-                    Tag { name }
+                <button onClick={() => this.setState({ isEditMode: !this.state.isEditMode })}>
+                    { this.state.isEditMode ? "View" : "Edit" }
+                </button>
+                <div style={{ display: "flex" }}>
+                    <span style={{ marginRight: "10px" }}>Tag</span>
+                    <span style={{ fontWeight: "bold" }}>{ name }</span>
                 </div>
                 <div style={{display: "flex"}}>
                     Description:
-                    <TextField
-                        id="standard"
-                        placeholder="Add description"
-                        value={ this.state.updatedDescription }
-                        onChange={e => this.lightUpdateTagDescription(needTagName, e.target.value)}
-                        onKeyDown={e => {
-                            // cntr + S
-                            if (e.ctrlKey && (e.keyCode === 83)) {
-                                e.preventDefault();
-                                if (needTagName !== undefined && this.state.updatedDescription !== undefined) {
-                                    this.props.updateTagDescription(needTagName, this.state.updatedDescription);
+                    {this.state.isEditMode ?
+                        <TextField
+                            id="standard"
+                            placeholder="Add description"
+                            value={ description }
+                            onChange={e => this.lightUpdateTagDescription(e.target.value)}
+                            onKeyDown={e => {
+                                // cntr + S
+                                if (e.ctrlKey && (e.keyCode === 83)) {
+                                    e.preventDefault();
+                                    if (this.state.currentTag !== undefined) {
+                                        this.props.updateTag(
+                                            this.state.currentTag,
+                                            this.state.currentTag.description,
+                                            this.state.currentTag.color,
+                                        );
+                                    }
                                 }
-                            }
-                        }}
-                    />
+                            }}
+                        />
+                        :
+                        <span>{ description }</span>
+                    }
                 </div>
-                Notes containing { name } tag:
+                Notes containing this tag:
                 { renderNoteList(noteList, true) }
             </div>
         );

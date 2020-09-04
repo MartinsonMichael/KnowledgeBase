@@ -1,41 +1,32 @@
 import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/ControlPoint';
 
 import ListIcon from '@material-ui/icons/List';
-import TextField from '@material-ui/core/TextField';
 
-
-import { loadHeadList } from "./store/system/system_actions";
-import { RootState } from "./store";
+import { loadStructure } from "./store/note/note_actions";
 import { connect, ConnectedProps } from "react-redux";
 
-import {Route, Switch, Redirect, withRouter, Router, Link} from "react-router-dom";
-import { useHistory } from 'react-router-dom';
+import {Route, Switch, Redirect, withRouter, Link} from "react-router-dom";
 import { RouteComponentProps } from "react-router";
 import {NoteID} from "./store/messages";
-import {stringify} from "querystring";
 import TagPage from "./pages/TagPage";
 import NoteListPage from "./pages/NoteListPage";
 import NotePage from "./pages/NotePage";
 import NewNotePage from "./pages/NewNotePage";
 
 
-const mapStoreStateToProps = (store: RootState) => ({
-    // noteHeadList: store.systemState.noteHeadList,
-});
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    onUpdateHeadList: () => dispatch(loadHeadList())
+    load: () => dispatch(loadStructure())
   }
 };
 
-const connector = connect(mapStoreStateToProps, mapDispatchToProps);
+const connector = connect(undefined, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 
@@ -62,10 +53,10 @@ class App extends React.Component<AppProps, AppState>{
   }
 
   componentDidMount(): void {
-    this.props.onUpdateHeadList()
+    this.props.load()
   }
 
-  renderAppBar(): React.ReactNode {
+  static renderAppBar(): React.ReactNode {
 
     return (
         <AppBar position="static">
@@ -103,7 +94,7 @@ class App extends React.Component<AppProps, AppState>{
   render(): React.ReactNode {
     return (
       <div>
-        {this.renderAppBar()}
+        { App.renderAppBar() }
         <Switch>
           <Route path={'/home'} render={() => <NoteListPage/>} />
           <Route path={'/fullList'} render={() => <NoteListPage/>} />

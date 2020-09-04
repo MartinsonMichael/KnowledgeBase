@@ -1,5 +1,5 @@
-import {NoteHead, NoteHeadStore} from "../store/messages";
-import {renderNoteLink} from "./NoteLink";
+import { NoteHead } from "../store/messages";
+import { renderNoteLink } from "./NoteLink";
 import * as React from "react";
 
 

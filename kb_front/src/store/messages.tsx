@@ -1,7 +1,5 @@
 // potentially this can be generated
 
-import {keys} from "@material-ui/core/styles/createBreakpoints";
-
 export type NoteID = string
 
 export interface Note {
@@ -32,6 +30,25 @@ export function construct_NoteTag(x: any): NoteTag {
         'color': x['tag_color'],
         'description': x['tag_description'],
     } as NoteTag
+}
+export interface TagStore {
+    [key: string]: NoteTag
+}
+export function construct_TagStore(x: any): TagStore {
+    const tagList: NoteTag[] = [
+        ...x.map((tagObj: any) => {
+            return {
+                name: tagObj['tag_name'],
+                description: tagObj['tag_description'],
+                color: tagObj['tag_color'],
+            } as NoteTag
+        })
+    ];
+    const tagStore: TagStore = {};
+    tagList.forEach(tagObj => {
+       tagStore[tagObj.name] = tagObj
+    });
+    return tagStore
 }
 
 export interface NoteHead {

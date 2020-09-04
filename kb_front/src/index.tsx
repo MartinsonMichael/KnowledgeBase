@@ -6,7 +6,6 @@ import * as serviceWorker from './serviceWorker';
 import {createStore, applyMiddleware} from "redux";
 import {rootReducer} from "./store";
 import thunk from 'redux-thunk';
-import {loadHeadList} from "./store/system/system_actions";
 import {BrowserRouter} from "react-router-dom";
 
 const store = createStore(rootReducer, undefined, applyMiddleware(thunk));

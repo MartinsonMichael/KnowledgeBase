@@ -7,10 +7,10 @@ export function renderNoteLink(note: Note | NoteHead, showTags: boolean = false)
     const {id, name, tags} = note;
 
     return (
-        <div>
+        <div key={id}>
             <Link to={`/note/${id}`}> {name} </Link>
             { showTags ? (
-                <TagBar tags={tags} size={10}/>
+                <TagBar tags={tags} size={10} key={id}/>
             ) : null }
         </div>
     )

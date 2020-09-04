@@ -1,34 +1,35 @@
-import {SystemActionTypes} from "./system_actions";
-
-import {NoteHeadStore, NoteTag} from "../messages";
+import { SystemActionTypes } from "./system_actions";
+import { LinkSearchMode } from "../../components/LinkDialogSearch";
 
 export interface SystemState {
-    noteHeadStore?: NoteHeadStore
-    tagList?: NoteTag[]
-
-    isLoading: boolean
-    error?: string
+    linkSearchState: LinkSearchMode,
+    isNewTagCreatorOpen: boolean,
 }
 
 const initialState: SystemState = {
-    noteHeadStore: undefined,
-    tagList: undefined,
-
-    isLoading: false,
-    error: undefined,
+    isNewTagCreatorOpen: false,
+    linkSearchState: "close",
 };
 
 export function systemReducer(state = initialState, action: SystemActionTypes): SystemState {
     switch (action.type) {
-        case "UpdateHeadList":
+
+        case "ChangeLinkSearchDialogType":
             return {
                 ...state,
-                noteHeadStore: action.payload,
+                linkSearchState: action.payload,
             };
-        case "UpdateTagList":
+
+        case "OpenNewTagCreator":
             return {
                 ...state,
-                tagList: action.payload,
+                isNewTagCreatorOpen: true,
+            };
+
+        case "CloseNewTagCreator":
+            return {
+                ...state,
+                isNewTagCreatorOpen: false,
             };
 
         default:

@@ -1,4 +1,13 @@
-import {NoteID, Note, construct_Note} from "../messages";
+import {
+    NoteID,
+    Note,
+    construct_Note,
+    NoteTag,
+    NoteHeadStore,
+    construct_NoteHeadStore,
+    construct_TagStore,
+    TagStore,
+} from "../messages";
 import axios from "../client"
 
 export const StartLoading = 'StartLoading';
@@ -10,6 +19,18 @@ export const ServerError = 'ServerError';
 interface ServerErrorAction {
     type: typeof ServerError
     payload: string
+}
+
+export const UpdateNoteHeadStore = 'UpdateNoteHeadStore';
+interface UpdateNoteHeadStoreAction {
+    type: typeof UpdateNoteHeadStore
+    payload: NoteHeadStore
+}
+
+export const UpdateTagStore = "UpdateTagStore";
+interface UpdateTagStoreAction {
+    type: typeof UpdateTagStore
+    payload: TagStore
 }
 
 export const LoadNote = 'LoadNote';
@@ -24,9 +45,9 @@ interface UpdateNoteAction {
     payload: Note
 }
 
-export const UpdateBody = "UpdateBody";
+export const UpdateNoteBody = "UpdateNoteBody";
 interface UpdateBodyAction {
-    type: typeof UpdateBody
+    type: typeof UpdateNoteBody
     payload: string
 }
 
@@ -36,14 +57,16 @@ interface CreateNewNoteAction {
     payload: Note
 }
 
-export const UpdateTagDescription = "UpdateTagDescription";
-interface UpdateTagDescriptionAction {
-    type: typeof UpdateTagDescription
+export const UpdateTag = "UpdateTag";
+interface UpdateTagAction {
+    type: typeof UpdateTag
+    payload: NoteTag
 }
 
+type preLoadActions = StartLoadAction | UpdateNoteHeadStoreAction | UpdateTagStoreAction | ServerErrorAction
+type tagActions =  UpdateTagAction
 type NoteUpdateActions = UpdateBodyAction | UpdateNoteAction
-type TagUpdateActions = UpdateTagDescriptionAction
-export type NoteActionTypes = StartLoadAction | ServerErrorAction | LoadNoteAction | CreateNewNoteAction | NoteUpdateActions | TagUpdateActions
+export type NoteActionTypes = preLoadActions | LoadNoteAction | CreateNewNoteAction | NoteUpdateActions | tagActions
 
 
 export const updateNote = (
@@ -99,82 +122,66 @@ export const updateNote = (
     }
 };
 
-
-export const updateNoteName = (note: Note, newName: string) => {
+export const createTag = (tagObj: NoteTag, addToNote?: Note) => {
     return async (dispatch: any) => {
-        const response = await axios.get(`update_note/${note.id}/name/${newName}`)
+        const response = await axios.post(
+            `create_tag/${tagObj.name}`,
+            JSON.stringify(tagObj),
+            {
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            }
+        );
 
         if (response.status === 200) {
-            dispatch({
-                type: UpdateNote,
-                payload: {
-                    ...note,
-                    name: newName,
-                } as Note
-            });
+            dispatch({type: UpdateTag, payload: tagObj});
         } else {
             dispatch({type: ServerError, payload: response.data['msg']});
         }
-    }
-};
 
-
-export const addTag = (note: Note, tagName: string) => {
-    return async (dispatch: any) => {
-        const response = await axios.get(`update_note/${note.id}/add_tag/${tagName}`);
-
-        if (response.status === 200) {
+        if (response.status === 200 && addToNote !== undefined) {
+            await updateNote(addToNote, undefined, undefined, tagObj.name)(dispatch);
             dispatch({
                 type: UpdateNote,
                 payload: {
-                    ...note,
+                    ...addToNote,
                     tags: [
-                        ...note.tags,
-                        tagName,
-                    ]
-                } as Note
-            });
-        } else {
-            dispatch({
-                type: ServerError,
-                payload: response.data['msg'],
+                        ...addToNote.tags,
+                        tagObj.name,
+                    ],
+                }
             });
         }
     }
 };
 
-
-export const delTag = (note: Note, tagName: string) => {
+export const updateTag = (tagObj: NoteTag, tagDescription?: string, tagColor?: string) => {
     return async (dispatch: any) => {
-        const response = await axios.get(`update_note/${note.id}/del_tag/${tagName}`,);
+        const updatedTagObj = tagObj;
+        if (tagDescription !== undefined) {
+            updatedTagObj.description = tagDescription;
+        }
+        if (tagColor !== undefined) {
+            updatedTagObj.color = tagColor;
+        }
+
+        const response = await axios.post(
+            `update_tag/${updatedTagObj.name}`,
+            JSON.stringify(updatedTagObj),
+            {
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            }
+        );
 
         if (response.status === 200) {
-            dispatch({
-                type: UpdateNote,
-                payload: {
-                    ...note,
-                    tags: [...note.tags.filter((tag: string) => tag !== tagName)]
-                } as Note
-            });
+            dispatch({type: UpdateTag, payload: updatedTagObj});
         } else {
-            dispatch({
-                type: ServerError,
-                payload: response.data['msg'],
-            });
-        }
-    }
-};
-
-
-export const updateTagDescription = (tagName: string, newTagDescription: string) => {
-    return async (dispatch: any) => {
-        const response = await axios.get(`update_tag_description/${tagName}/${newTagDescription}`);
-
-        if (response.status !== 200) {
-            dispatch({
-                type: ServerError,
-                payload: response.data['msg'],
-            });
+            dispatch({type: ServerError, payload: response.data['msg']});
         }
     }
 };
@@ -186,15 +193,9 @@ export const createNewNote = (noteID: NoteID, name: string) => {
         const response = await axios.get(`create_note/${noteID}/${name}`);
 
         if (response.status === 200) {
-            dispatch({
-                type: LoadNote,
-                payload: construct_Note(response.data),
-            });
+            dispatch({type: LoadNote, payload: construct_Note(response.data)});
         } else {
-            dispatch({
-                type: ServerError,
-                payload: response.data['msg'],
-            });
+            dispatch({type: ServerError, payload: response.data['msg']});
         }
     }
 };
@@ -208,40 +209,25 @@ export const loadNote = (noteID: NoteID) => {
         const response = await axios.get(`get_note/${noteID}`);
 
         if (response.status === 200) {
-            dispatch({
-                type: LoadNote,
-                payload: construct_Note(response.data),
-            });
+            dispatch({type: LoadNote, payload: construct_Note(response.data)});
         } else {
-            dispatch({
-                type: ServerError,
-                payload: response.data['msg'],
-            });
+            dispatch({type: ServerError, payload: response.data['msg']});
         }
     };
 };
 
-export const updateBody = (noteID: NoteID, newBody: string, updateLocally: boolean = false) => {
+export const loadStructure = () => {
     return async (dispatch: any) => {
+        const response = await axios.get('get_structure');
 
-        // dispatch({type:  StartLoading});
+        dispatch({
+            type: UpdateNoteHeadStore,
+            payload: construct_NoteHeadStore(response.data['note_head']),
+        });
 
-        const response = await axios.post(
-            `update_note/${noteID}/body`,
-            newBody,
-            {
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': '*',
-                },
-            }
-        );
-
-        if (updateLocally) {
-            dispatch({
-                type: UpdateBody,
-                payload: newBody,
-            });
-        }
+        dispatch({
+           type: UpdateTagStore,
+           payload: construct_TagStore(response.data['tag_list']),
+        });
     };
 };

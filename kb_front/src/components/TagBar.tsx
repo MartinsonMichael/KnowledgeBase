@@ -1,15 +1,16 @@
 import * as React from "react";
 import {Link} from "react-router-dom";
 import TagSelect from "./TagSelect";
-import CloseIcon from '@material-ui/icons/Close';
-import {Button} from "@material-ui/core";
+import {NoteTag} from "../store/messages";
 
 export interface TagBarProps {
     tags: string[]
     size?: number
     showTagsLabel?: boolean
+    showAddButtons?: boolean
     onTagAdd?: (tagName: string) => void,
-    onDelete?: (tagName: string) => void,
+    showDeleteButtons?: boolean
+    onTagDelete?: (tagName: string) => void,
 }
 
 interface TagBarState {
@@ -20,6 +21,8 @@ export class TagBar extends React.Component<TagBarProps, TagBarState> {
     static defaultProps = {
         size: 10,
         showTagsLabel: false,
+        showAddButtons: false,
+        showDeleteButtons: false,
     };
 
     constructor(props: TagBarProps) {
@@ -30,7 +33,7 @@ export class TagBar extends React.Component<TagBarProps, TagBarState> {
     }
 
     renderTagAdd(): React.ReactNode {
-        if (this.props.onTagAdd === undefined) {
+        if (this.props.onTagAdd === undefined || !this.props.showAddButtons) {
             return null
         }
         if (!this.state.tagAddPress) {
@@ -45,7 +48,11 @@ export class TagBar extends React.Component<TagBarProps, TagBarState> {
         return (
             <div style={{ display: "flex", marginRight: "5px" }}>
                 <TagSelect
-                    onSelect={this.props.onTagAdd}
+                    onSelect={(tagObj: NoteTag) => {
+                        if (this.props.onTagAdd !== undefined) {
+                            this.props.onTagAdd(tagObj.name)
+                        }
+                    }}
                 />
                 <button onClick={() => this.setState({tagAddPress: false})}>
                     x
@@ -61,11 +68,11 @@ export class TagBar extends React.Component<TagBarProps, TagBarState> {
                 {showTagsLabel ? <span style={{ marginRight: "5px" }}>Tags:</span> : null}
                 {tags.map((tag: string) => (
                     <div style={{marginRight: "5px"}} key={tag}>
-                        <Link to={`/tag/${tag}`} color={"yellow"}>#{tag}</Link>
-                        { this.props.onDelete !== undefined ? (
+                        <Link to={`/tag/${tag}`}>#{tag}</Link>
+                        { this.props.showDeleteButtons && this.props.onTagDelete !== undefined ? (
                             <button onClick={() => {
-                                if (this.props.onDelete !== undefined) {
-                                    this.props.onDelete(tag)
+                                if (this.props.onTagDelete !== undefined) {
+                                    this.props.onTagDelete(tag)
                                 }
                             }}>
                                 x

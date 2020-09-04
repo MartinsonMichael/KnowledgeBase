@@ -1,6 +1,56 @@
+import json
+
+from django.views.decorators.csrf import csrf_exempt
+
 from api.utils import createHTTPResponseOK, createHTTPResponseBAD
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse
 from api.models import NoteTag
+
+
+@csrf_exempt
+def update_tag(request, **kwargs) -> HttpResponse:
+    if request.method == 'OPTIONS':
+        return createHTTPResponseOK()
+
+    tag_name = kwargs.get('tag_name', None)
+    if tag_name is None:
+        return createHTTPResponseBAD("no tag name")
+
+    tag_obj: NoteTag = NoteTag.objects.filter(tag_name=tag_name).first()
+    if tag_obj is None:
+        return createHTTPResponseBAD(f"no such tag object in database, server received tag name : {tag_name}")
+
+    req_body = request.body.decode("utf-8")
+    tag_dict = json.loads(req_body)
+
+    tag_obj.tag_color = tag_dict['color']
+    tag_obj.tag_description = tag_dict['description']
+    tag_obj.save()
+
+    return createHTTPResponseOK()
+
+@csrf_exempt
+def create_new_tag(request, **kwargs) -> HttpResponse:
+    if request.method == 'OPTIONS':
+        return createHTTPResponseOK()
+
+    tag_name = kwargs.get('tag_name', None)
+    if tag_name is None:
+        return createHTTPResponseBAD("no tag name")
+
+    req_body = request.body.decode("utf-8")
+    tag_dict = json.loads(req_body)
+
+    print(tag_dict)
+
+    tag_obj = NoteTag(
+        tag_name=tag_dict['name'],
+        tag_color=tag_dict['color'],
+        tag_description=tag_dict['description'],
+    )
+    tag_obj.save()
+
+    return createHTTPResponseOK()
 
 
 def update_tag_description(request, **kwargs) -> HttpResponse:

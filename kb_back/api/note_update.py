@@ -104,6 +104,10 @@ def update_body(request: HttpRequest, **kwargs):
 
 @csrf_exempt
 def update_note(request: HttpRequest, **kwargs):
+
+    if request.method == 'OPTIONS':
+        return createHTTPResponseOK()
+
     note_id = kwargs.get('note_id', None)
     if note_id is None:
         return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
@@ -111,23 +115,8 @@ def update_note(request: HttpRequest, **kwargs):
     if note is None:
         return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
-    if request.method == 'OPTIONS':
-        return createHTTPResponseOK()
-
-    print(request)
-
-    print('Pure body:')
-    print(request.body)
-
     req_body = request.body.decode("utf-8")
-    print(f'decoded body : {req_body}')
-    print(f'req body : {request.body}')
-
     note_dict = json.loads(req_body)
-
-    print('DEBUG')
-    print('note_dict')
-    print(note_dict)
 
     note.update_body(note_dict['body'])
     note.update_name(note_dict['name'])

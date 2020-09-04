@@ -1,23 +1,17 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import { loadHeadList } from "../store/system/system_actions";
-import { NoteHead, NoteID } from "../store/messages";
-import {renderNoteLink} from "../components/NoteLink";
 import {renderNoteList} from "../components/NoteList";
 import {headStoreToList} from "../components/utils";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadStore: store.systemState.noteHeadStore,
-    isLoading: store.systemState.isLoading,
+    noteHeadStore: store.note.noteHeadStore,
+
+    isLoading: store.note.isLoading,
+    error: store.note.error,
 });
-const mapDispatchToProps = (dispatch: any) => {
-    return {
-        loadHeadList: () => dispatch(loadHeadList()),
-    }
-};
-const connector = connect(mapStoreStateToProps, mapDispatchToProps);
+const connector = connect(mapStoreStateToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 export interface NoteListPageState {}
@@ -43,8 +37,6 @@ class NoteHeadViewer extends React.Component<NoteListPageProps, NoteListPageStat
                 ) : (
                     "No Notes on server"
                 )}
-
-
             </div>
         );
     }
