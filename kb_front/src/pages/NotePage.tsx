@@ -7,7 +7,7 @@ import { loadNote, updateNote } from "../store/note/note_actions";
 import { RouteComponentProps, withRouter } from "react-router";
 import { TagBar } from "../components/TagBar";
 import { renderError } from "../components/ErrorPlate";
-import { TextField } from "@material-ui/core";
+import {Link, TextField} from "@material-ui/core";
 import TagCreator from "../components/NewTagCreator"
 import LinkSearch from "../components/LinkDialogSearch";
 import {ChangeLinkDialogState, OpenNewTagCreatorSystemAction} from "../store/system/system_actions";
@@ -210,6 +210,19 @@ class NotePage extends React.Component<NotePageProps, NotePageState>{
         const { id, tags } = this.props.note;
         return (
             <div style={{margin: "20px"}}>
+
+                { this.state.bodyState === "edit" ?
+                    <Link
+                        href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet"
+                        target="_blank"
+                    >
+                        Markdown Cheatsheet
+                    </Link>
+                    :
+                    null
+                }
+
+
                 <div style={{display: "flex"}}>
                     ID: { id }
                 </div>
