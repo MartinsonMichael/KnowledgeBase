@@ -49,3 +49,8 @@ def get_link(id_from: str, id_to: str) -> NoteLink:
     link_obj.save()
 
     return link_obj
+
+
+class AttributeTable(models.Model):
+    key = models.TextField('key', max_length=20, null=False, primary_key=True)
+    value = models.TextField('value', max_length=250, null=True)

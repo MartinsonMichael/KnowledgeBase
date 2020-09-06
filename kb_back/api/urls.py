@@ -4,8 +4,10 @@ from api.graph_structure_api import get_graph_structure
 from api.filter_notes import filter_notes
 from api.note_api import *
 from api.tag_api import *
+from api.attribute_api import *
 
 urlpatterns = [
+    # filter & structure
     path('get_structure', get_graph_structure),
     path('filter_notes', filter_notes),
 
@@ -17,4 +19,8 @@ urlpatterns = [
     # tag
     path('create_tag/<str:tag_name>', create_new_tag),
     path('update_tag/<str:tag_name>', update_tag),
+
+    # attributes
+    path('set_attribute/<str:key>/<str:value>', set_attribute_value),
+    path('get_attribute/<str:key>', get_attribute_value),
 ]
