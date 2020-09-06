@@ -125,12 +125,12 @@ class Note:
                 if line.startswith(('ID', 'NAME', 'TAGS', 'LINKS')):
                     note_attr, value = line.split(':', maxsplit=1)
                     # del \n
-                    value = value[:-1]
+                    value = value.replace('\n', '')
 
                     if note_attr == 'ID':
-                        self.id = value.replace('\n', '')
+                        self.id = value
                     if note_attr == 'NAME':
-                        self.name = value.replace('\n', '')
+                        self.name = value
                     if note_attr == 'TAGS':
                         self.tags = [
                             Note.clean_line(x[1:])
@@ -138,7 +138,6 @@ class Note:
                         ]
                     if note_attr == 'LINKS':
                         self.links = [x for x in value.split(';') if len(x) > 5]
-                        print(f"loaded links : {self.links}")
                 else:
                     self.body += line
 
