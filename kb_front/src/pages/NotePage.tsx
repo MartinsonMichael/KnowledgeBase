@@ -7,16 +7,19 @@ import { loadNote, updateNote } from "../store/note/note_actions";
 import { RouteComponentProps, withRouter } from "react-router";
 import { TagBar } from "../components/TagBar";
 import { renderError } from "../components/ErrorPlate";
-import {Link, TextField} from "@material-ui/core";
+import { Button, Link, TextField } from "@material-ui/core";
 import TagCreator from "../components/NewTagCreator"
 import LinkSearch from "../components/LinkDialogSearch";
-import {ChangeLinkDialogState, OpenNewTagCreatorSystemAction} from "../store/system/system_actions";
-import {createMDLinkToNote, createMDLinkToTag, insertStringIntoString} from "../components/utils";
+import { ChangeLinkDialogState, OpenNewTagCreatorSystemAction } from "../store/system/system_actions";
+import { createMDLinkToNote, createMDLinkToTag, insertStringIntoString } from "../components/utils";
+import NoteLinkList from "../components/NoteLinkList";
+import NoteNameSelect from "../components/NoteNameSelect";
 
 
 
 const mapStoreStateToProps = (store: RootState) => ({
     note: store.note.note,
+    noteHeadStore: store.note.noteHeadStore,
 
     isLoading: store.note.isLoading,
     error: store.note.error,
@@ -34,12 +37,12 @@ const mapDispatchToProps = (dispatch: any) => {
         delTag: (note: Note, body: string, name: string, tagName: string) => dispatch(
             updateNote(note, name, body, undefined, tagName)
         ),
-        // addLink: (note: Note, body: string, name: string, linkID: string) => dispatch(
-        //     updateNote(note, name, body, undefined, undefined, linkID)
-        // ),
-        // delLink: (note: Note, body: string, name: string, linkID: string) => dispatch(
-        //     updateNote(note, name, body, undefined, undefined, undefined, linkID)
-        // ),
+        addLink: (note: Note, body: string, name: string, linkID: string) => dispatch(
+            updateNote(note, name, body, undefined, undefined, linkID)
+        ),
+        delLink: (note: Note, body: string, name: string, linkID: string) => dispatch(
+            updateNote(note, name, body, undefined, undefined, undefined, linkID)
+        ),
 
         openDialogLinks: () => dispatch(ChangeLinkDialogState("link")),
         // openDialogTags: () => dispatch(ChangeLinkDialogState("tag")),
@@ -59,6 +62,7 @@ export interface NotePageState {
 
     linkSearchPosition: number,
     bodyState: string,
+    addLinkVisible: boolean,
 }
 
 
@@ -71,8 +75,9 @@ export type NotePageProps = PropsFromRedux & RouteComponentProps<PathParamsType>
 }
 
 
-class NotePage extends React.Component<NotePageProps, NotePageState>{
+class NotePage extends React.Component<NotePageProps, NotePageState> {
     private inputBody: any;
+
     constructor(props: NotePageProps) {
         super(props);
         this.state = {
@@ -83,6 +88,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState>{
 
             linkSearchPosition: 0,
             bodyState: "view",
+            addLinkVisible: false,
         };
 
         this.updateBodyAndName = this.updateBodyAndName.bind(this);
@@ -90,6 +96,10 @@ class NotePage extends React.Component<NotePageProps, NotePageState>{
     }
 
     componentDidMount(): void {
+        this.onOpenNote()
+    }
+
+    onOpenNote(): void {
         let needID: NoteID | undefined = undefined;
         if (this.props.noteID !== undefined) {
             needID = this.props.noteID
@@ -103,6 +113,13 @@ class NotePage extends React.Component<NotePageProps, NotePageState>{
             console.log('AAAAAA, panic! no note ID')
         }
     }
+
+    componentDidUpdate(prevProps: NotePageProps) {
+        if (this.props.location !== prevProps.location) {
+            this.onOpenNote();
+        }
+    }
+
 
 
     updateBodyAndName(body: string, name: string): void {
@@ -138,14 +155,23 @@ class NotePage extends React.Component<NotePageProps, NotePageState>{
 
     renderBody(): React.ReactNode {
         if (this.state.bodyState === "view") {
-            console.log("try to render view");
             return (
                 <Editor
                     readOnly
                     defaultValue={ this.state.localNoteBody }
                     value={ this.state.localNoteBody }
                     onChange={() => null}
-                    onClickLink={(href: string) => this.props.history.push(href.split("/")[1])}
+                    onClickLink={(href: string) => {
+                        if (href.includes("/note/")) {
+                            this.props.history.push(`/note/${href.split("/note/")[1]}`);
+                            return;
+                        }
+                        if (href.includes("/tag/")) {
+                            this.props.history.push(`/tag/${href.split("/tag/")[1]}`);
+                            return;
+                        }
+                        window.open(href, "_blank")
+                    }}
                 />
             )
         }
@@ -153,7 +179,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState>{
             return (
                 <textarea
                     style={{ width: "100%", height: "400px" }}
-                    value={this.state.localNoteBody}
+                    value={ this.state.localNoteBody }
                     onKeyPress={e => console.log(e)}
                     onChange={e => {
                         if (typeof(this.inputBody)==='object' && this.inputBody!==null) {
@@ -207,117 +233,153 @@ class NotePage extends React.Component<NotePageProps, NotePageState>{
             })
         }
 
-        const { id, tags } = this.props.note;
+        const { id, tags, links } = this.props.note;
         return (
-            <div style={{margin: "20px"}}>
+            <div style={{margin: "20px", display: "flex" }}>
+                <div style={{ width: "70%", marginRight: "20px"}}>
 
-                { this.state.bodyState === "edit" ?
-                    <Link
-                        href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet"
-                        target="_blank"
-                    >
-                        Markdown Cheatsheet
-                    </Link>
-                    :
-                    null
-                }
-
-
-                <div style={{display: "flex"}}>
-                    ID: { id }
-                </div>
-                <div style={{display: "flex"}}>
-                    Name:
-                    <TextField
-                        fullWidth
-                        value={ this.state.localNoteName }
-                        onChange={e => {
-                            if (this.state.bodyState === "edit") {
-                                this.updateBodyAndName(this.state.localNoteBody, e.target.value)
-                            } else {
-                                alert("Switch to Edit mode")
-                            }
-                        }}
-                        onKeyDown={e => {
-
-                            // cntr + S
-                            if (e.ctrlKey && (e.keyCode === 83)) {
-                                e.preventDefault();
-                                this.forceUpdate();
-                            }
-                        }}
-                    />
-                </div>
-                <div style={{ display: "flex"}}>
-                    <TagBar
-                        tags={tags}
-                        showTagsLabel
-                        size={16}
-                        showAddButtons={this.state.bodyState === "edit"}
-                        showDeleteButtons={this.state.bodyState === "edit"}
-                        onTagAdd={(tagName) => {
-                            if (this.props.note !== undefined) {
-                                this.props.addTag(this.props.note, this.state.localNoteBody, this.state.localNoteName, tagName);
-                                this.setState({unsavedChangesNumber: 0})
-                            }
-                        }}
-                        onTagDelete={(tagName) => {
-                            if (this.props.note !== undefined) {
-                                this.props.delTag(this.props.note, this.state.localNoteBody, this.state.localNoteName, tagName);
-                                this.setState({unsavedChangesNumber: 0})
-                            }
-                        }}
-                    />
                     { this.state.bodyState === "edit" ?
-                        <button onClick={() => this.props.openCreateTagDialog()}>Create new Tag</button>
+                        <Link
+                            href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet"
+                            target="_blank"
+                         >
+                            Markdown Cheatsheet
+                        </Link>
                         :
                         null
                     }
-                    <TagCreator noteToAddNewTag={this.props.note}/>
-                </div>
-                <LinkSearch onSelect={result => {
-                    if (this.props.note === undefined) {
-                        return;
-                    }
-                    console.log("linkSearchPosition", this.state.linkSearchPosition);
-                    if (result.type === "link") {
-                        const noteHead = result.payload as NoteHead;
-                        this.updateBodyAndName(
-                            insertStringIntoString(
+
+
+                    <div style={{display: "flex"}}>
+                        ID: { id }
+                    </div>
+                    <div style={{display: "flex"}}>
+                        Name:
+                        <TextField
+                            fullWidth
+                            value={ this.state.localNoteName }
+                            onChange={e => {
+                                if (this.state.bodyState === "edit") {
+                                    this.updateBodyAndName(this.state.localNoteBody, e.target.value)
+                                } else {
+                                    alert("Switch to Edit mode")
+                                }
+                            }}
+                            onKeyDown={e => {
+
+                                // cntr + S
+                                if (e.ctrlKey && (e.keyCode === 83)) {
+                                    e.preventDefault();
+                                    this.forceUpdate();
+                                }
+                            }}
+                        />
+                    </div>
+                    <div style={{ display: "flex"}}>
+                        <TagBar
+                            tags={tags}
+                            showTagsLabel
+                            size={16}
+                            showAddButtons={this.state.bodyState === "edit"}
+                            showDeleteButtons={this.state.bodyState === "edit"}
+                            onTagAdd={(tagName) => {
+                                if (this.props.note !== undefined) {
+                                    this.props.addTag(this.props.note, this.state.localNoteBody, this.state.localNoteName, tagName);
+                                    this.setState({unsavedChangesNumber: 0})
+                                }
+                            }}
+                            onTagDelete={(tagName) => {
+                                if (this.props.note !== undefined) {
+                                    this.props.delTag(this.props.note, this.state.localNoteBody, this.state.localNoteName, tagName);
+                                    this.setState({unsavedChangesNumber: 0})
+                                }
+                            }}
+                        />
+                        { this.state.bodyState === "edit" ?
+                            <button onClick={() => this.props.openCreateTagDialog()}>Create new Tag</button>
+                            :
+                            null
+                        }
+                        <TagCreator noteToAddNewTag={this.props.note}/>
+                    </div>
+                    <LinkSearch onSelect={result => {
+                        if (this.props.note === undefined) {
+                            return;
+                        }
+                        console.log("linkSearchPosition", this.state.linkSearchPosition);
+                        console.log(result);
+                        if (result.type === "link") {
+                            const noteHead = result.payload as NoteHead;
+                            const newBody = insertStringIntoString(
                                 this.state.localNoteBody,
                                 createMDLinkToNote(noteHead.id, noteHead.name),
-                                this.state.linkSearchPosition,
+                                this.inputBody.selectionStart,
+                            );
+                            this.props.addLink(
+                                this.props.note,
+                                newBody,
+                                this.state.localNoteName,
+                                noteHead.id,
+                            );
+                            this.setState({localNoteBody: newBody, unsavedChangesNumber: 0});
+                        }
+                        if (result.type === "tag") {
+                            const noteTag = result.payload as NoteTag;
+                            this.updateBodyAndName(
+                                insertStringIntoString(
+                                    this.state.localNoteBody,
+                                    createMDLinkToTag(noteTag.name),
+                                    this.inputBody.selectionStart,
                                 ),
-                            this.state.localNoteName,
-                        )
-                    }
-                    if (result.type === "tag") {
-                        const noteTag = result.payload as NoteTag;
-                        this.updateBodyAndName(
-                            insertStringIntoString(
-                                this.state.localNoteBody,
-                                createMDLinkToTag(noteTag.name),
-                                this.state.linkSearchPosition,
-                                ),
-                            this.state.localNoteName,
-                        )
-                    }
-                }}/>
-                <div style={{display: "flex"}}>
-                    <button
-                        onClick={() => this.setState({bodyState: "view"})}
-                        disabled={this.state.bodyState === "view"}
-                    >
-                        View
-                    </button>
-                    <button
-                        onClick={() => this.setState({bodyState: "edit"})}
-                        disabled={this.state.bodyState === "edit"}
-                    >
-                        Edit
-                    </button>
+                                this.state.localNoteName,
+                            )
+                        }
+                    }}/>
+                    <div style={{display: "flex"}}>
+                        <button
+                            onClick={() => this.setState({bodyState: "view"})}
+                            disabled={this.state.bodyState === "view"}
+                        >
+                            View
+                        </button>
+                        <button
+                            onClick={() => this.setState({bodyState: "edit"})}
+                            disabled={this.state.bodyState === "edit"}
+                        >
+                            Edit
+                        </button>
+                    </div>
+                    { this.renderBody() }
                 </div>
-                { this.renderBody() }
+                <div style={{ width: "30%" }}>
+                    Link from this note:
+                    <NoteLinkList
+                        showTags
+                        noteIDList={ links }
+                        showDelButtons={ this.state.bodyState === "edit" }
+                        showAddButton={ this.state.bodyState === "edit" }
+                        onAdd={(linkNoteID: NoteID) => {
+                            if (this.props.note !== undefined) {
+                                this.props.addLink(
+                                    this.props.note,
+                                    this.state.localNoteBody,
+                                    this.state.localNoteName,
+                                    linkNoteID,
+                                )
+                            }
+                        }}
+                        onDelete={(linkNoteID: NoteID) => {
+                            if (this.props.note !== undefined) {
+                                this.props.delLink(
+                                    this.props.note,
+                                    this.state.localNoteBody,
+                                    this.state.localNoteName,
+                                    linkNoteID,
+                                )
+                            }
+                        }}
+                    />
+                </div>
             </div>
         );
     }

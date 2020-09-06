@@ -62,7 +62,7 @@ export class TagBar extends React.Component<TagBarProps, TagBarState> {
     }
 
     render(): React.ReactNode {
-        const {tags, size, showTagsLabel} = this.props;
+        const { tags, size, showTagsLabel } = this.props;
         return (
             <div style={{display: "flex", fontSize: size}}>
                 {showTagsLabel ? <span style={{ marginRight: "5px" }}>Tags:</span> : null}

@@ -34,7 +34,7 @@ class Note:
             self._noteDB.body = self.body
 
         # create tags
-        self._noteDB.links.clear()
+        self._noteDB.tags.clear()
         for tag in self.tags:
             tag_BD = NoteTag.objects.filter(tag_name=tag).first()
             if tag_BD is None:

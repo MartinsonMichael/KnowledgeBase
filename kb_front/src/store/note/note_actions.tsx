@@ -76,7 +76,7 @@ export const updateNote = (
     addLinkID?: string, delLinkID?: string,
     ) => {
     return async (dispatch: any) => {
-        const newNoteObj: Note = note;
+        const newNoteObj: Note = Object.assign({}, note);
 
         if (newName !== undefined) {
             newNoteObj.name = newName
@@ -159,7 +159,7 @@ export const createTag = (tagObj: NoteTag, addToNote?: Note) => {
 
 export const updateTag = (tagObj: NoteTag, tagDescription?: string, tagColor?: string) => {
     return async (dispatch: any) => {
-        const updatedTagObj = tagObj;
+        const updatedTagObj = Object.assign({}, tagObj);
         if (tagDescription !== undefined) {
             updatedTagObj.description = tagDescription;
         }
