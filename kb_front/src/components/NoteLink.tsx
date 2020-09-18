@@ -17,7 +17,7 @@ export function renderNoteLink(
             <div key={id} style={{ marginBottom: "10px" }}>
                 <Link to={`/note/${id}`}> {name} </Link>
                 { showTags ? (
-                    <TagBar tags={tags} size={10} key={id}/>
+                    <TagBar tags={tags} size={10} key={id} parentNoteID={ id }/>
                 ) : null }
             </div>
         )
@@ -35,9 +35,9 @@ export function renderNoteLink(
                     </IconButton>
                 </div>
                 <div>
-                    <Link to={`/note/${id}`}> {name} </Link>
+                    <Link to={`/note/${ id }`}>{ name }</Link>
                     { showTags ? (
-                        <TagBar tags={tags} size={10} key={id}/>
+                        <TagBar tags={ tags } size={ 10 } key={ id } parentNoteID={ id }/>
                     ) : null }
                 </div>
             </div>

@@ -1,15 +1,12 @@
 import * as React from "react";
-import {Link} from "react-router-dom";
 import TagSelect from "./TagSelect";
-import {NoteTag} from "../store/messages";
-import {Button, IconButton} from "@material-ui/core";
-import DeleteIcon from '@material-ui/icons/Delete';
-import CloseIcon from '@material-ui/icons/Close';
+import { NoteID, NoteTag } from "../store/messages";
+import { Button, Chip, IconButton } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
-import QueueIcon from '@material-ui/icons/Queue';
 import { RouteComponentProps, withRouter } from "react-router";
 
 export type TagBarProps = RouteComponentProps<{}> & {
+    parentNoteID: NoteID,
     tags: string[]
     size?: number
     showTagsLabel?: boolean
@@ -75,34 +72,34 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
     render(): React.ReactNode {
         const { tags, size, showTagsLabel } = this.props;
         return (
-            <div style={{ display: "flex", fontSize: size }}>
+            <div
+                style={{ display: "flex", fontSize: size, alignItems: "center"  }}
+                key={ this.props.parentNoteID + 'tagbar' }
+            >
                 {showTagsLabel ? <span style={{ marginRight: "5px" }}>Tags:</span> : null}
                 {
                     tags
                         .filter((tag: string) => tag !== null && tag !== undefined && tag.length != 0)
                         .map((tag: string) => (
-                    <div style={{ marginRight: "5px" }} key={ tag }>
-                        <Button
-                            onClick={() => this.props.history.push(`/tag/${tag}`)}
-                            size="small"
-                            style={{ marginRight: "0px" }}
-                        >
-                            #{ tag }
-                        </Button>
-                        { this.props.showDeleteButtons && this.props.onTagDelete !== undefined ? (
-                            <IconButton
-                                onClick={() => {
-                                    if (this.props.onTagDelete !== undefined) {
-                                        this.props.onTagDelete(tag)
-                                    }
-                                }}
-                                size="small"
-                            >
-                                <CloseIcon fontSize="small"/>
-                            </IconButton>
-                        ) : null }
-
-                    </div>
+                            <div style={{ marginRight: "5px" }} key={ this.props.parentNoteID + tag + 'div' }>
+                                <Button
+                                    onClick={() => this.props.history.push(`/tag/${tag}`)}
+                                    size="small"
+                                >
+                                    <Chip
+                                        label={ "#" + tag }
+                                        onDelete={ (this.props.showDeleteButtons ? e => {
+                                                if (this.props.onTagDelete !== undefined) {
+                                                    this.props.onTagDelete(tag)
+                                                }
+                                            }
+                                            : undefined)
+                                        }
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                </Button>
+                            </div>
                 ))}
                 { this.renderTagAdd() }
             </div>

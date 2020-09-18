@@ -7,7 +7,7 @@ import {loadNote, updateHomePage, updateNote} from "../store/note/note_actions";
 import { RouteComponentProps, withRouter } from "react-router";
 import TagBar from "../components/TagBar";
 import { renderError } from "../components/ErrorPlate";
-import {Button, IconButton, InputBase, Link, TextField, Typography} from "@material-ui/core";
+import {Button, CircularProgress, IconButton, InputBase, Link, TextField, Typography} from "@material-ui/core";
 import SettingsIcon from '@material-ui/icons/Settings';
 import SaveIcon from '@material-ui/icons/Save';
 import EditIcon from '@material-ui/icons/Edit';
@@ -23,6 +23,7 @@ import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import Dialog from "@material-ui/core/Dialog/Dialog";
 import NewNoteCreator from "../components/NewNoteCreator";
+import {renderUnsavedChangedMarker} from "../components/UnsaveTracker";
 
 
 
@@ -118,7 +119,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
     }
 
     componentDidMount(): void {
-        this.onOpenNote()
+        this.onOpenNote();
     }
 
     onOpenNote(): void {
@@ -131,10 +132,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
         if (needID === "undefined") {
             needID = this.props.homePage;
             this.props.history.push(`/note/${ this.props.homePage }`);
-            console.log("change needID to ", this.props.homePage);
         }
-        console.log("needID ", needID);
-        console.log("this.props.homePage ", this.props.homePage);
 
         if (this.state.localNoteID !== needID) {
             this.props.loadNote(needID)
@@ -143,12 +141,9 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
 
     componentDidUpdate(prevProps: NotePageProps) {
         if (this.props.location !== prevProps.location) {
-            console.log("update");
             this.onOpenNote();
         }
     }
-
-
 
     updateBodyAndName(body: string, name: string): void {
         if (this.props.note === undefined) {
@@ -178,12 +173,14 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
     forceUpdate(): void {
         if (this.props.note !== undefined) {
             this.props.updateBodyAndName(this.props.note, this.state.localNoteBody, this.state.localNoteName);
+            this.setState({unsavedChangesNumber: 0})
         }
     }
 
     renderBody(): React.ReactNode {
         if (this.state.bodyState === "view") {
             return (
+                <div key={this.state.localNoteID + this.props.match.params.pathNoteID + this.state.localNoteBody}>
                 <Editor
                     readOnly
                     placeholder="No any body yet"
@@ -202,6 +199,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                         window.open(href, "_blank")
                     }}
                 />
+                </div>
             )
         }
         if (this.state.bodyState === "edit") {
@@ -216,7 +214,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     onKeyDown={e => {
 
                         // ?? should be @
-                        if (e.keyCode === 50) {
+                        if (e.keyCode === 50 && e.ctrlKey) {
                             this.props.openDialogLinks();
                         }
                     }}
@@ -261,10 +259,6 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
 
     render(): React.ReactNode {
 
-        if (this.props.isLoading) {
-            return <span>Loading...</span>
-        }
-
         if (this.props.error !== undefined) {
             return renderError(this.props.error)
         }
@@ -304,7 +298,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                         noteToAddNewAsLink={ this.props.note }
                     />
 
-                    <div style={{ display: "flex" }}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
                         <Button
                             onClick={() => this.props.history.goBack()}
                             size="small"
@@ -333,6 +327,8 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                                 Save
                             </Button>
                         }
+                        { renderUnsavedChangedMarker(this.state.unsavedChangesNumber) }
+                        { this.props.isLoading ? <CircularProgress/> : null }
                     </div>
                     { this.renderNoteSettings() }
 
@@ -340,7 +336,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     <div style={{display: "flex"}}>
                         <Typography> ID: { id }</Typography>
                     </div>
-                    <div style={{display: "flex"}}>
+                    <div style={{display: "flex", alignItems: "center" }}>
                         <Typography> Name: </Typography>
                         {this.state.bodyState === "view" ?
                             <Typography>{ this.state.localNoteName }</Typography>
@@ -353,11 +349,12 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             />
                         }
                     </div>
-                    <div style={{ display: "flex"}}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
                         <TagBar
-                            tags={tags}
+                            parentNoteID={ id }
+                            tags={ tags }
                             showTagsLabel
-                            size={16}
+                            size={ 16 }
                             showAddButtons={this.state.bodyState === "edit"}
                             showDeleteButtons={this.state.bodyState === "edit"}
                             onTagAdd={(tagName) => {

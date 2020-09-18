@@ -4,10 +4,13 @@ import { RootState } from "../store";
 import { NoteHead, NoteTag } from "../store/messages";
 import { RouteComponentProps, withRouter } from "react-router";
 import { renderNoteList } from "../components/NoteList";
-import { TextField } from "@material-ui/core";
+import {Button, CircularProgress, TextField} from "@material-ui/core";
 import { renderError } from "../components/ErrorPlate";
 import { updateTag } from "../store/note/note_actions";
 import { headStoreToList } from "../components/utils";
+import EditIcon from "@material-ui/core/SvgIcon/SvgIcon";
+import SaveIcon from '@material-ui/icons/Save';
+import {renderUnsavedChangedMarker} from "../components/UnsaveTracker";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -106,10 +109,6 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
 
     render(): React.ReactNode {
 
-        if (this.props.isLoading) {
-            return <span>Loading...</span>
-        }
-
         if (this.props.error !== undefined) {
             return renderError(this.props.error);
         }
@@ -135,9 +134,14 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
 
         return (
             <div style={{margin: "20px"}}>
-                <button onClick={() => this.setState({ isEditMode: !this.state.isEditMode })}>
-                    { this.state.isEditMode ? "View" : "Edit" }
-                </button>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                    <Button onClick={() => this.setState({ isEditMode: !this.state.isEditMode })}>
+                        { this.state.isEditMode ? <SaveIcon/> : <EditIcon/> }
+                        { this.state.isEditMode ? "Save" : "Edit" }
+                    </Button>
+                    { renderUnsavedChangedMarker(this.state.updateCount) }
+                    { this.props.isLoading ? <CircularProgress/> : null }
+                </div>
                 <div style={{ display: "flex" }}>
                     <span style={{ marginRight: "10px" }}>Tag</span>
                     <span style={{ fontWeight: "bold" }}>{ name }</span>

@@ -3,11 +3,10 @@ import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
 import {createNewNote, updateNote} from "../store/note/note_actions";
 import { RouteComponentProps, withRouter } from "react-router";
-import {Dialog, TextField} from "@material-ui/core";
+import {CircularProgress, Dialog, TextField} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import { renderError } from "./ErrorPlate";
 import DialogActions from "@material-ui/core/DialogActions/DialogActions";
-import {toggleNewNoteCreator} from "../store/system/system_actions";
 import {Note, NoteID} from "../store/messages";
 import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 
@@ -72,15 +71,34 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
         this.setState({ creationState: "waiting" })
     }
 
+    // shouldComponentUpdate(nextProps: Readonly<NewNotePageProps>, nextState: Readonly<NewNotePageState>, nextContext: any): boolean {
+    //     console.log(this.props);
+    //     console.log(nextProps);
+    //
+    //     if (this.props.isOpen != nextProps.isOpen) {
+    //         return true
+    //     }
+    //
+    //     if (this.props !== nextProps) {
+    //         return false
+    //     }
+    //     return true
+    // }
+
+    // componentWillUnmount(): void {
+    //     console.log("uups...")
+    // }
+
     render(): React.ReactNode {
 
         if (this.state.creationState === "waiting") {
-            if (!this.props.isLoading && this.props.error === undefined && this.props.newNote !== undefined) {
-                this.setState({ creationState: "ready" });
-                
+            if (this.props.error === undefined && this.props.newNote !== undefined) {
+
                 if (this.props.noteToAddNewAsLink !== undefined) {
                     this.props.addLink(this.props.noteToAddNewAsLink, this.props.newNote)
                 }
+
+                this.setState({ creationState: "ready" });
             } else if (this.props.error !== undefined) {
                 return renderError(this.props.error)
             }
@@ -89,12 +107,12 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
         return (
             <Dialog
                 open={ this.props.isOpen }
-                onEscapeKeyDown={this.props.close}
-                onBackdropClick={this.props.close}
+                onEscapeKeyDown={ this.props.close }
+                // onBackdropClick={ this.props.close }
             >
                 <DialogContent>
-                    <span>State : { this.state.creationState }</span>
-                    <p/>
+                    {/*<span>State : { this.state.creationState }</span>*/}
+                    {/*<p/>*/}
                     Enter name for note (you can modify it in future, but it can't be empty)
                     <p/>
                     Then pres 'Create' to create note.
@@ -120,7 +138,7 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
                         variant="contained"
                         color="primary"
                         onClick={ () => {
-                            this.props.history.push(`/note/${ this.props.newNote }`)
+                            this.props.history.push(`/note/${ this.props.newNote }`);
                             this.props.close()
                         } }
                         disabled={ this.state.creationState !== "ready" }
@@ -133,7 +151,7 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
                         onClick={ this.createNote }
                         disabled={ this.state.creationState !== "fill-form" }
                     >
-                        Create
+                        { this.props.isLoading ? <CircularProgress/> : "Create" }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={ this.props.close }>
                         Cancel
