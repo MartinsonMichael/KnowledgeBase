@@ -1,14 +1,17 @@
 import { SystemActionTypes } from "./system_actions";
 import { LinkSearchMode } from "../../components/LinkDialogSearch";
+import {NoteID} from "../messages";
 
 export interface SystemState {
     linkSearchState: LinkSearchMode,
     isNewTagCreatorOpen: boolean,
+    showNewPageCreator: boolean
 }
 
 const initialState: SystemState = {
     isNewTagCreatorOpen: false,
     linkSearchState: "close",
+    showNewPageCreator: false,
 };
 
 export function systemReducer(state = initialState, action: SystemActionTypes): SystemState {
@@ -30,6 +33,12 @@ export function systemReducer(state = initialState, action: SystemActionTypes): 
             return {
                 ...state,
                 isNewTagCreatorOpen: false,
+            };
+
+        case "ToggleNewNoteCreator":
+            return {
+                ...state,
+                showNewPageCreator: !state.showNewPageCreator,
             };
 
         default:

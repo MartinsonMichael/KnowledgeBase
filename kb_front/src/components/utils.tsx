@@ -1,4 +1,4 @@
-import {NoteHead, NoteHeadStore, NoteID, NoteTag, TagStore} from "../store/messages";
+import {Note, NoteHead, NoteHeadStore, NoteID, NoteTag, TagStore} from "../store/messages";
 
 export function headStoreToList(noteHeadStore: NoteHeadStore | undefined): NoteHead[] {
     if (noteHeadStore === undefined) {
@@ -63,4 +63,21 @@ export function insertStringIntoString(src: string, insert: string, position: nu
     console.log("part one : ", src.substring(0, position));
     console.log("part tow : ", src.substring(position));
     return src.substring(0, position) + insert + src.substring(position)
+}
+
+export function filterNoteList(noteList: NoteHead[] | Note[] | undefined, filterString: string): NoteHead[] {
+    if (noteList === undefined) {
+        return [] as NoteHead[]
+    }
+    const LCFilterStr = filterString.toLowerCase();
+    return noteList.filter((noteHead: NoteHead) => (
+        noteHead.name.toLowerCase().includes(LCFilterStr) ||
+        noteHead.id.toLowerCase().includes(LCFilterStr) ||
+        noteHead.links.filter(
+            (link: string) => link !== undefined && link !== null && link.toLowerCase().includes(LCFilterStr)
+        ).length !== 0 ||
+        noteHead.tags.filter(
+            (tagName: string) => tagName !== undefined && tagName !== null && tagName.toLowerCase().includes(LCFilterStr)
+        ).length !== 0
+    ))
 }

@@ -17,8 +17,20 @@ interface CloseNewTagCreatorAction {
     type: typeof CloseNewTagCreator
 }
 
-export type SystemActionTypes = ChangeLinkSearchDialogAction | OpenNewTagCreatorAction | CloseNewTagCreatorAction
+export const ToggleNewNoteCreator = "ToggleNewNoteCreator";
+interface ToggleNewNoteCreatorAction {
+    type: typeof ToggleNewNoteCreator
+}
 
+
+export type SystemActionTypes = ChangeLinkSearchDialogAction | OpenNewTagCreatorAction | CloseNewTagCreatorAction | ToggleNewNoteCreatorAction
+
+
+export const toggleNewNoteCreator = () => {
+    return (dispatch: any) => dispatch({
+      type: ToggleNewNoteCreator,
+  });
+};
 
 export const OpenNewTagCreatorSystemAction = () => {
   return (dispatch: any) => dispatch({

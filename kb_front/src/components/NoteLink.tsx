@@ -1,7 +1,9 @@
-import {Note, NoteHead, NoteID} from "../store/messages";
+import { Note, NoteHead, NoteID } from "../store/messages";
 import * as React from "react";
-import {Link} from "react-router-dom";
-import { TagBar } from "./TagBar";
+import { Link } from "react-router-dom";
+import TagBar from "./TagBar";
+import {IconButton} from "@material-ui/core";
+import DeleteIcon from '@material-ui/icons/Delete';
 
 export function renderNoteLink(
     note: Note | NoteHead,
@@ -25,9 +27,12 @@ export function renderNoteLink(
         <div key={id} style={{ marginBottom: "10px" }}>
             <div style={{ display: "flex" }}>
                 <div style={{ marginRight: "2px" }}>
-                    <button onClick={() => onDelete(id)}>
-                        x
-                    </button>
+                    <IconButton
+                        onClick={() => onDelete(id)}
+                        size="small"
+                    >
+                        <DeleteIcon/>
+                    </IconButton>
                 </div>
                 <div>
                     <Link to={`/note/${id}`}> {name} </Link>

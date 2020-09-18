@@ -89,3 +89,8 @@ def update_tag_color(request, **kwargs) -> HttpResponse:
     tag_obj.save()
 
     return createHTTPResponseOK()
+
+
+def create_index_note_for_teg(request, **kwargs) -> HttpResponse:
+
+    return createHTTPResponseOK()

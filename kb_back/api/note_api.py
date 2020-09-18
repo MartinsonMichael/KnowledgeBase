@@ -11,7 +11,7 @@ def get_note(request, **kwargs):
     note_id = kwargs.get('note_id', None)
     if note_id is None:
         return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
-    note = Note().load_by_id(note_id)
+    note = Note().load_by_id(note_id, source='file')
     if note is None:
         return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 
@@ -41,7 +41,7 @@ def update_note(request: HttpRequest, **kwargs):
     note_id = kwargs.get('note_id', None)
     if note_id is None:
         return createHTTPResponseBAD(f"bad: no note_id - must be not empty string, but got {note_id}")
-    note = Note().load_by_id(note_id)
+    note = Note().load_by_id(note_id, source='file')
     if note is None:
         return createHTTPResponseBAD(f"bad: note_id is incorrect - no such note - {note_id}")
 

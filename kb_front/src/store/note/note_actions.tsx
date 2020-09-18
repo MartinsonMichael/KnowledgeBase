@@ -6,7 +6,7 @@ import {
     NoteHeadStore,
     construct_NoteHeadStore,
     construct_TagStore,
-    TagStore,
+    TagStore, NoteHead,
 } from "../messages";
 import axios from "../client"
 
@@ -39,6 +39,12 @@ interface LoadNoteAction {
     payload: Note
 }
 
+export const NewNote = 'NewNote';
+interface NewNoteAction {
+    type: typeof NewNote
+    payload: NoteHead
+}
+
 export const UpdateNote = "UpdateNote";
 interface UpdateNoteAction {
     type: typeof UpdateNote
@@ -51,23 +57,49 @@ interface UpdateBodyAction {
     payload: string
 }
 
-export const CreateNewNote = "CreateNewNote";
-interface CreateNewNoteAction {
-    type: typeof CreateNewNote
-    payload: Note
-}
-
 export const UpdateTag = "UpdateTag";
 interface UpdateTagAction {
     type: typeof UpdateTag
     payload: NoteTag
 }
 
+export const LoadHomePage = "LoadHomePage";
+interface LoadHomePageAction {
+    type: typeof LoadHomePage
+    payload: string
+}
+
+export const UpdateHomePage = "UpdateHomePage";
+interface UpdateHomePageAction {
+    type: typeof UpdateHomePage
+    payload: string
+}
+
+export const RemoveNewNoteRecord = "RemoveNewNoteRecord";
+interface RemoveNewNoteRecordAction {
+    type: typeof RemoveNewNoteRecord
+}
+
+type HomePageActions = LoadHomePageAction | UpdateHomePageAction
 type preLoadActions = StartLoadAction | UpdateNoteHeadStoreAction | UpdateTagStoreAction | ServerErrorAction
 type tagActions =  UpdateTagAction
-type NoteUpdateActions = UpdateBodyAction | UpdateNoteAction
-export type NoteActionTypes = preLoadActions | LoadNoteAction | CreateNewNoteAction | NoteUpdateActions | tagActions
+type NoteUpdateActions = UpdateBodyAction | UpdateNoteAction | NewNoteAction | RemoveNewNoteRecordAction
+export type NoteActionTypes = preLoadActions | LoadNoteAction | NoteUpdateActions | tagActions | HomePageActions
 
+
+export const updateHomePage = (homePage: NoteID) => {
+    return async (dispatch: any) => {
+        dispatch({type: StartLoading});
+
+        const response = await axios.get(`set_attribute/home_page/${homePage}`);
+
+        if (response.status === 200) {
+            dispatch({type: UpdateHomePage, payload: response.data['value']});
+        } else {
+            dispatch({type: ServerError, payload: response.data['msg']});
+        }
+    }
+};
 
 export const updateNote = (
     note: Note,
@@ -190,10 +222,12 @@ export const createNewNote = (noteID: NoteID, name: string) => {
     return async (dispatch: any) => {
         dispatch({type: StartLoading});
 
+        dispatch({type: RemoveNewNoteRecord});
+
         const response = await axios.get(`create_note/${noteID}/${name}`);
 
         if (response.status === 200) {
-            dispatch({type: LoadNote, payload: construct_Note(response.data)});
+            dispatch({type: NewNote, payload: construct_Note(response.data)});
         } else {
             dispatch({type: ServerError, payload: response.data['msg']});
         }
@@ -229,5 +263,7 @@ export const loadStructure = () => {
            type: UpdateTagStore,
            payload: construct_TagStore(response.data['tag_list']),
         });
+
+        dispatch({type: UpdateHomePage, payload: response.data['home_page']})
     };
 };

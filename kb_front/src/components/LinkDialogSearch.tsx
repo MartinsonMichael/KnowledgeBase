@@ -66,6 +66,7 @@ class LinkSearch extends React.Component<LinkSearchProps, LinkSearchState>{
             <Dialog
                 open={this.props.dialogState !== "close"}
                 onEscapeKeyDown={this.props.closeDialog}
+                onBackdropClick={this.props.closeDialog}
             >
                 <DialogContent>
                 <DialogContentText>

@@ -11,10 +11,10 @@ def fill_db_frm_folder():
         note.save_to_DB()
 
 
-def fill_db_from_free_notes(path_to_folder: str) -> None:
+def fill_db_from_free_notes(path_to_folder: str, add_tags: bool = False) -> None:
     for file in os.listdir(path_to_folder):
         try:
-            note = Note().load_from_free_file(os.path.join(path_to_folder, file))
+            note = Note().load_from_free_file(os.path.join(path_to_folder, file), add_tags)
             note.save_to_DB()
             note.save_to_file()
             print(f"load {file}")

@@ -10,6 +10,7 @@ urlpatterns = [
     # filter & structure
     path('get_structure', get_graph_structure),
     path('filter_notes', filter_notes),
+    path('create_index_page_for_tag', create_index_note_for_teg),
 
     # Note
     path('update_note/<str:note_id>/full', update_note),

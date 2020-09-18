@@ -1,6 +1,6 @@
 import os
 import time
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from api.models import NoteDB, NoteTag, create_new_tag, NoteLink, get_link
 from . import NOTE_DIR
@@ -17,8 +17,23 @@ class Note:
 
         self._noteDB = None
 
-    def load_noteDB(self) -> None:
-        self._noteDB = NoteDB.objects.filter(id=self.id).first()
+    def load_noteDB(self, noteID: Optional[str] = None) -> None:
+        if noteID is not None:
+            self._noteDB = NoteDB.objects.filter(id=noteID).first()
+        else:
+            self._noteDB = NoteDB.objects.filter(id=self.id).first()
+
+    def unpack_db_data(self) -> None:
+        if self._noteDB is not None:
+            print('here\n')
+            print(self._noteDB.links)
+            self.id = self._noteDB.id
+            self.body = self._noteDB.body
+            self.name = self._noteDB.name
+            self.tags = self._noteDB.tags
+            self.links = self._noteDB.links
+
+            print(self.__repr__)
 
     def save_to_DB(self):
         self.load_noteDB()
@@ -115,8 +130,17 @@ class Note:
 
         return self
 
-    def load_by_id(self, note_id: str):
-        return self.load_from_file(os.path.join(NOTE_DIR, self.get_file_name(note_id)))
+    def load_by_id(self, note_id: str, source: str):
+        if source == "file":
+            try:
+                return self.load_from_file(os.path.join(NOTE_DIR, self.get_file_name(note_id)))
+            except:
+                pass
+        elif source == "db":
+            self.load_noteDB(note_id)
+            self.unpack_db_data()
+        else:
+            print("EROROR!!! nunknown source")
 
     def load_from_file(self, file_name: str):
         self.__init__()
@@ -147,7 +171,7 @@ class Note:
     def clean_line(x: str) -> str:
         return x.replace('\n', '').replace(' ', '')
 
-    def load_from_free_file(self, file_name: str):
+    def load_from_free_file(self, file_name: str, add_tags: bool = False):
         self.__init__()
         with open(file_name, "r") as file:
             new_id = os.path.basename(file_name)
@@ -159,10 +183,12 @@ class Note:
                     self.name = line.replace('\n', '')
                     continue
                 elif index == 1:
-                    self.tags = [
-                        Note.clean_line(x[1:])
-                        for x in line.split(';') if x.startswith('#')
-                    ]
+                    if add_tags:
+                        self.tags = [
+                            Note.clean_line(x[1:])
+                            for x in line.split(';') if x.startswith('#')
+                        ]
+
                 else:
                     self.body += line
 

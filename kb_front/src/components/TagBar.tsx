@@ -2,8 +2,14 @@ import * as React from "react";
 import {Link} from "react-router-dom";
 import TagSelect from "./TagSelect";
 import {NoteTag} from "../store/messages";
+import {Button, IconButton} from "@material-ui/core";
+import DeleteIcon from '@material-ui/icons/Delete';
+import CloseIcon from '@material-ui/icons/Close';
+import AddIcon from '@material-ui/icons/Add';
+import QueueIcon from '@material-ui/icons/Queue';
+import { RouteComponentProps, withRouter } from "react-router";
 
-export interface TagBarProps {
+export type TagBarProps = RouteComponentProps<{}> & {
     tags: string[]
     size?: number
     showTagsLabel?: boolean
@@ -17,7 +23,9 @@ interface TagBarState {
     tagAddPress: boolean
 }
 
-export class TagBar extends React.Component<TagBarProps, TagBarState> {
+
+
+class TagBar extends React.Component<TagBarProps, TagBarState> {
     static defaultProps = {
         size: 10,
         showTagsLabel: false,
@@ -38,9 +46,12 @@ export class TagBar extends React.Component<TagBarProps, TagBarState> {
         }
         if (!this.state.tagAddPress) {
             return (
-                <button onClick={() => this.setState({tagAddPress: true})}>
-                    +
-                </button>
+                <IconButton
+                    onClick={() => this.setState({tagAddPress: true})}
+                    size="small"
+                >
+                    <AddIcon/>
+                </IconButton>
             )
         }
 
@@ -64,20 +75,33 @@ export class TagBar extends React.Component<TagBarProps, TagBarState> {
     render(): React.ReactNode {
         const { tags, size, showTagsLabel } = this.props;
         return (
-            <div style={{display: "flex", fontSize: size}}>
+            <div style={{ display: "flex", fontSize: size }}>
                 {showTagsLabel ? <span style={{ marginRight: "5px" }}>Tags:</span> : null}
-                {tags.map((tag: string) => (
-                    <div style={{marginRight: "5px"}} key={tag}>
-                        <Link to={`/tag/${tag}`}>#{tag}</Link>
+                {
+                    tags
+                        .filter((tag: string) => tag !== null && tag !== undefined && tag.length != 0)
+                        .map((tag: string) => (
+                    <div style={{ marginRight: "5px" }} key={ tag }>
+                        <Button
+                            onClick={() => this.props.history.push(`/tag/${tag}`)}
+                            size="small"
+                            style={{ marginRight: "0px" }}
+                        >
+                            #{ tag }
+                        </Button>
                         { this.props.showDeleteButtons && this.props.onTagDelete !== undefined ? (
-                            <button onClick={() => {
-                                if (this.props.onTagDelete !== undefined) {
-                                    this.props.onTagDelete(tag)
-                                }
-                            }}>
-                                x
-                            </button>
+                            <IconButton
+                                onClick={() => {
+                                    if (this.props.onTagDelete !== undefined) {
+                                        this.props.onTagDelete(tag)
+                                    }
+                                }}
+                                size="small"
+                            >
+                                <CloseIcon fontSize="small"/>
+                            </IconButton>
                         ) : null }
+
                     </div>
                 ))}
                 { this.renderTagAdd() }
@@ -85,3 +109,5 @@ export class TagBar extends React.Component<TagBarProps, TagBarState> {
         )
     }
 }
+
+export default withRouter(TagBar);

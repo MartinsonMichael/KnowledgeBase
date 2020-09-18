@@ -1,18 +1,18 @@
-import { Note, NoteHeadStore, TagStore } from "../messages";
+import {Note, NoteHeadStore, NoteID, TagStore} from "../messages";
 import { NoteActionTypes } from "./note_actions";
 
 export interface NoteState {
     note?: Note
     noteHeadStore?: NoteHeadStore
     tagStore?: TagStore
+    homePage?: NoteID,
+    createdNote?: NoteID,
 
     isLoading: boolean
     error?: string
 }
 
 const initialState: NoteState = {
-    note: undefined,
-
     isLoading: false,
     error: undefined,
 };
@@ -68,14 +68,6 @@ export function NoteReducer(state = initialState, action: NoteActionTypes): Note
                 note: action.payload,
             };
 
-        case "CreateNewNote":
-            return {
-                ...state,
-                isLoading: false,
-                error: undefined,
-                note: action.payload,
-            };
-
         case "UpdateNoteBody":
             if (state.note === undefined) {
                 return {
@@ -108,6 +100,38 @@ export function NoteReducer(state = initialState, action: NoteActionTypes): Note
                 isLoading: false,
                 note: action.payload,
                 noteHeadStore: newNoteHeadStore,
+            };
+
+        case "RemoveNewNoteRecord":
+            return {
+                ...state,
+                createdNote: undefined,
+            };
+
+        case "NewNote":
+            if (state.noteHeadStore === undefined) {
+                return {
+                    ...state,
+                    isLoading: false,
+                    error: "Cant update list of all notes, cause it undefined"
+                }
+            }
+            const newNoteHeadStore2 = state.noteHeadStore;
+            newNoteHeadStore2[action.payload.id] = action.payload;
+            return {
+                ...state,
+                isLoading: false,
+                error: undefined,
+                createdNote: action.payload.id,
+                noteHeadStore: newNoteHeadStore2,
+            };
+
+        case "UpdateHomePage":
+            return {
+                ...state,
+                isLoading: false,
+                error: undefined,
+                homePage: action.payload,
             };
         default:
             return state

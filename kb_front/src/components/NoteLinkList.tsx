@@ -4,6 +4,8 @@ import {NoteHead, NoteHeadStore, NoteID} from "../store/messages";
 import * as React from "react";
 import NoteNameSelect from "./NoteNameSelect";
 import {renderNoteLink} from "./NoteLink";
+import {Button} from "@material-ui/core";
+import AddIcon from '@material-ui/icons/Add';
 
 const mapStoreStateToProps = (store: RootState) => ({
     noteHeadStore: store.note.noteHeadStore,
@@ -50,9 +52,13 @@ class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState>
             )
         }
         return (
-            <button onClick={() => this.setState({isAddTextLineVisible: true})}>
+            <Button
+                onClick={() => this.setState({isAddTextLineVisible: true})}
+                size="small"
+            >
+                <AddIcon/>
                 Add Link
-            </button>
+            </Button>
         )
     }
 
@@ -75,7 +81,9 @@ class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState>
                         )}
                     </div>
                 )}
-                { this.renderAddButton() }
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                    { this.renderAddButton() }
+                </div>
             </div>
         )
     }
