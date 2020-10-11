@@ -25,7 +25,7 @@ SECRET_KEY = 'fe2vo-bri_x+@el4&e2gh9f4v7az3ohfu^4#(jgzcdmndr6neo'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
 
 # Application definition
@@ -80,10 +80,11 @@ DATABASES = {
         'NAME': 'kb_database',
         'USER': 'kb_user',
         'PASSWORD': 'knowledgebase_psw',
-        'HOST': 'localhost',
+        'HOST': 'localhost' if os.environ.get("DOCKER_LAUNCH", "false") == "false" else 'db',
         'PORT': '5432',
     }
 }
+print(f'Use docker-launch : {os.environ.get("DOCKER_LAUNCH", "false")}')
 
 
 # Password validation

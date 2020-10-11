@@ -1,6 +1,7 @@
 .idea
 env/
 notes/
+db_dumps/
 
 
 logs

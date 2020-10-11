@@ -166,10 +166,6 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
         });
     }
 
-    componentWillUnmount(): void {
-        this.forceUpdate()
-    }
-
     forceUpdate(): void {
         if (this.props.note !== undefined) {
             this.props.updateBodyAndName(this.props.note, this.state.localNoteBody, this.state.localNoteName);
@@ -320,7 +316,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             <Button
                                 onClick={() => {
                                     this.forceUpdate()
-                                    this.setState({bodyState: "view"})
+                                    this.setState({ bodyState: "view" })
                                 }}
                             >
                                 <SaveIcon/>

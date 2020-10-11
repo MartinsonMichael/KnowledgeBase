@@ -44,7 +44,7 @@ class TagSelect extends React.Component<TagSelectProps, TagSelectState> {
         }
         return (
             <Autocomplete
-                onChange={(event, value) => {
+                onChange={(event: any, value: any) => {
                     if (value !== undefined && value !== null) {
                       this.props.onSelect(value)
                     }
