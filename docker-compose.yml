@@ -13,7 +13,7 @@ services:
       - POSTGRES_DB=kb_database
 
   backend:
-    container_name: bk_backend
+    container_name: kb_backend
     build: ./kb_back
     ports:
       - "8000:8000"
