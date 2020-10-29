@@ -74,6 +74,7 @@ def update_note(request: HttpRequest, **kwargs):
     err = note.set_links(note_dict['links'])
     if err is not None:
         return createHTTPResponseBAD(f'bad error : {err}')
+
     err = note.save_to_DB()
     if err is not None:
         return createHTTPResponseBAD(f'bad error : {err}')

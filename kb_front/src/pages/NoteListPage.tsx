@@ -6,7 +6,6 @@ import {filterNoteList, headStoreToList} from "../components/utils";
 import { Paper } from "@material-ui/core";
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from "@material-ui/core/InputBase/InputBase";
-import {NoteHead} from "../store/messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import { NoteHead, NoteTag } from "../store/messages";
+import { NoteTag } from "../store/messages";
 import { RouteComponentProps, withRouter } from "react-router";
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';

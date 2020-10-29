@@ -1,5 +1,6 @@
 from django.urls import path
 
+from api.api_test import api_test
 from api.graph_structure_api import get_graph_structure
 from api.filter_notes import filter_notes
 from api.note_api import *
@@ -7,6 +8,9 @@ from api.tag_api import *
 from api.attribute_api import *
 
 urlpatterns = [
+    # test
+    path('test', api_test),
+
     # filter & structure
     path('get_structure', get_graph_structure),
     path('filter_notes', filter_notes),

@@ -23,6 +23,10 @@ def get_graph_structure(request, **kwargs) -> HttpResponse:
     if home_page is not None:
         home_page = home_page['value']
 
+    for note_dict in note_attributes:
+        if note_dict['id'] == 'study_1599829076.56094':
+            print(note_dict)
+
     return createHTTPResponseOK({
         'home_page': home_page,
         'tag_list': list(tag_list),
@@ -30,8 +34,8 @@ def get_graph_structure(request, **kwargs) -> HttpResponse:
             {
                 'id': note_dict['id'],
                 'name': note_dict['name'],
-                'tags': note_dict['tags'],
-                'links': [x for x in note_dict['links'] if x is not None],
+                'tags': list(set(note_dict['tags'])),
+                'links': list(set([x for x in note_dict['links'] if x is not None])),
             }
             for note_dict in note_attributes
         ]
