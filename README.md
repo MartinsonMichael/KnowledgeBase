@@ -27,9 +27,12 @@ Screen example:
 ## Technology
 
 Backend: python 3.7
+
 Frontend: React, Redux, Typescript
+
 Integration: Docker, Nginx, Https (want to replace it by grpc), Postgres
 
+---
 
 created by [Martinson Michael](https://github.com/MartinsonMichael)
 
