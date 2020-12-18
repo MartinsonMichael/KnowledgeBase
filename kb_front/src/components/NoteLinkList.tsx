@@ -1,14 +1,14 @@
-import {RootState} from "../store";
-import {connect, ConnectedProps} from "react-redux";
-import {NoteHead, NoteHeadStore, NoteID} from "../store/messages";
+import { RootState } from "../store";
+import { connect, ConnectedProps } from "react-redux";
+import { NoteHead, NoteHeadStore, NoteID } from "../store/messages";
 import * as React from "react";
 import NoteNameSelect from "./NoteNameSelect";
-import {renderNoteLink} from "./NoteLink";
-import {Button} from "@material-ui/core";
+import { renderNoteLink } from "./NoteLink";
+import { Button } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadStore: store.note.noteHeadStore,
+    noteHeadStore: store.structure.noteHeadStore,
 });
 const connector = connect(mapStoreStateToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>

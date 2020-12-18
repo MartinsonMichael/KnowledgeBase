@@ -9,10 +9,10 @@ import InputBase from "@material-ui/core/InputBase/InputBase";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadList: headStoreToList(store.note.noteHeadStore),
+    noteHeadList: headStoreToList(store.structure.noteHeadStore),
 
-    isLoading: store.note.isLoading,
-    error: store.note.error,
+    isLoading: store.structure.isLoading,
+    error: store.structure.error,
 });
 const connector = connect(mapStoreStateToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>

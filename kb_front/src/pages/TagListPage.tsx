@@ -6,17 +6,17 @@ import { RouteComponentProps, withRouter } from "react-router";
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 import { renderError } from "../components/ErrorPlate";
-import { updateTag } from "../store/note/note_actions";
+import { updateTag } from "../store/structure/structure_actions";
 import Paper from "@material-ui/core/Paper";
 import {tagStoreToList} from "../components/utils";
 import {renderTagLink} from "../components/TagLink";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    tagList: tagStoreToList(store.note.tagStore),
+    tagList: tagStoreToList(store.structure.tagStore),
 
-    isLoading: store.note.isLoading,
-    error: store.note.error,
+    isLoading: store.structure.isLoading,
+    error: store.structure.error,
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {

@@ -2,8 +2,8 @@ import * as React from "react";
 import Editor from "rich-markdown-editor";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import {Note, NoteHead, NoteID, NoteTag} from "../store/messages";
-import {loadNote, updateHomePage, updateNote} from "../store/note/note_actions";
+import { construct_Note, Note, NoteHead, NoteID, NoteTag } from "../store/messages";
+import { loadNote, updateNote } from "../store/note/note_actions";
 import { RouteComponentProps, withRouter } from "react-router";
 import TagBar from "../components/TagBar";
 import { renderError } from "../components/ErrorPlate";
@@ -23,35 +23,40 @@ import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import Dialog from "@material-ui/core/Dialog/Dialog";
 import NewNoteCreator from "../components/NewNoteCreator";
 import {renderUnsavedChangedMarker} from "../components/UnsaveTracker";
+import axios from "../store/client";
 
 
 
 const mapStoreStateToProps = (store: RootState) => ({
     note: store.note.note,
-    noteHeadStore: store.note.noteHeadStore,
-    homePage: store.note.homePage,
+    noteHeadStore: store.structure.noteHeadStore,
 
-    isLoading: store.note.isLoading,
+    isLoading_NoteLoad: store.note.isLoading_NoteLoad,
+    isLoading_NoteUpdate: store.note.isLoading_NoteUpdate,
     error: store.note.error,
 });
+
 const mapDispatchToProps = (dispatch: any) => {
     return {
         loadNote: (note_id: NoteID) => dispatch(loadNote(note_id)),
 
-        updateBodyAndName: (note: Note, body: string, name: string) => dispatch(
-            updateNote(note, name, body)
+        updateName: (note: Note | undefined, name: string) => dispatch(
+            updateNote(note, name)
         ),
-        addTag: (note: Note, body: string, name: string, tagName: string) => dispatch(
-            updateNote(note, name, body, tagName)
+        updateBody: (note: Note | undefined, body: string,) => dispatch(
+            updateNote(note, undefined, body)
         ),
-        delTag: (note: Note, body: string, name: string, tagName: string) => dispatch(
-            updateNote(note, name, body, undefined, tagName)
+        addTag: (note: Note | undefined, tagName: string) => dispatch(
+            updateNote(note, undefined, undefined, tagName)
         ),
-        addLink: (note: Note, body: string, name: string, linkID: string) => dispatch(
-            updateNote(note, name, body, undefined, undefined, linkID)
+        delTag: (note: Note | undefined, tagName: string) => dispatch(
+            updateNote(note, undefined, undefined, undefined, tagName)
         ),
-        delLink: (note: Note, body: string, name: string, linkID: string) => dispatch(
-            updateNote(note, name, body, undefined, undefined, undefined, linkID)
+        addLink: (note: Note | undefined, linkID: string) => dispatch(
+            updateNote(note, undefined, undefined, undefined, undefined, linkID)
+        ),
+        delLink: (note: Note | undefined, linkID: string) => dispatch(
+            updateNote(note, undefined, undefined, undefined, undefined, undefined, linkID)
         ),
 
         openDialogLinks: () => dispatch(ChangeLinkDialogState("link")),
@@ -60,16 +65,13 @@ const mapDispatchToProps = (dispatch: any) => {
 
         openCreateTagDialog: () => dispatch(OpenNewTagCreatorSystemAction()),
 
-        updateHomePage: (homePage: NoteID) => dispatch(updateHomePage(homePage)),
+        // updateHomePage: (homePage: NoteID) => dispatch(updateHomePage(homePage)),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 export interface NotePageState {
-    localNoteBody: string,
-    localNoteName: string,
-    localNoteID: NoteID,
     unsavedChangesNumber: number,
 
     bodyState: string,
@@ -93,9 +95,6 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
         super(props);
         this.state = {
             unsavedChangesNumber: 0,
-            localNoteBody: "",
-            localNoteName: "",
-            localNoteID: "",
 
             bodyState: "view",
             addLinkVisible: false,
@@ -103,9 +102,9 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
             showNewPageCreator: false,
         };
 
-        this.updateBodyAndName = this.updateBodyAndName.bind(this);
+        this.renderBody = this.renderBody.bind(this);
         this.forceUpdate = this.forceUpdate.bind(this);
-        this.onOpenNote = this.onOpenNote.bind(this);
+        this.loadNote = this.loadNote.bind(this);
 
         document.addEventListener('keydown', e => {
 
@@ -118,69 +117,38 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
     }
 
     componentDidMount(): void {
-        this.onOpenNote();
+        this.loadNote()
     }
 
-    onOpenNote(): void {
-        if (this.props.homePage === undefined) {
-            return;
-        }
-
+    loadNote(): void {
         let needID = this.props.match.params.pathNoteID;
 
         if (needID === "undefined") {
-            needID = this.props.homePage;
-            this.props.history.push(`/note/${ this.props.homePage }`);
-        }
-
-        if (this.state.localNoteID !== needID) {
-            this.props.loadNote(needID)
-        }
-    }
-
-    componentDidUpdate(prevProps: NotePageProps) {
-        if (this.props.location !== prevProps.location) {
-            this.onOpenNote();
-        }
-    }
-
-    updateBodyAndName(body: string, name: string): void {
-        if (this.props.note === undefined) {
+            alert("no note ID");
             return;
         }
-        if (this.state.unsavedChangesNumber > 20) {
-            this.setState({
-                localNoteBody: body,
-                localNoteName: name,
-                unsavedChangesNumber: 0,
-            });
-            this.props.updateBodyAndName(this.props.note, body, name);
-            return;
-        }
-
-        this.setState({
-            localNoteBody: body,
-            localNoteName: name,
-            unsavedChangesNumber: this.state.unsavedChangesNumber + 1,
-        });
+        loadNote(needID);
     }
 
     forceUpdate(): void {
         if (this.props.note !== undefined) {
-            this.props.updateBodyAndName(this.props.note, this.state.localNoteBody, this.state.localNoteName);
             this.setState({unsavedChangesNumber: 0})
         }
     }
 
     renderBody(): React.ReactNode {
+        if (this.props.note === undefined) {
+            return null;
+        }
+        const { id, body } = this.props.note;
         if (this.state.bodyState === "view") {
             return (
-                <div key={this.state.localNoteID + this.props.match.params.pathNoteID + this.state.localNoteBody}>
+                <div key={id + this.props.match.params.pathNoteID + body}>
                 <Editor
                     readOnly
                     placeholder="No any body yet"
-                    defaultValue={ this.state.localNoteBody }
-                    value={ this.state.localNoteBody }
+                    defaultValue={ body }
+                    value={ body }
                     onChange={() => null}
                     onClickLink={(href: string) => {
                         if (href.includes("/note/")) {
@@ -203,8 +171,8 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     multiline
                     placeholder="Start to add body for this Note..."
                     style={{ width: "100%" }}
-                    value={ this.state.localNoteBody }
-                    onChange={e => this.updateBodyAndName(e.target.value, this.state.localNoteName)}
+                    value={ body }
+                    onChange={e => this.props.updateBody(this.props.note, e.target.value)}
                     ref={el=>this.inputBody=el}
                     onKeyDown={e => {
 
@@ -230,15 +198,15 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                         Make new Note as child Note
                     </Button>
                     <Button onClick={() => {
-                        if (this.props.note !== undefined) {
-                            this.props.updateHomePage(this.props.note.id)
-                        }
+                        // if (this.props.note !== undefined) {
+                        //     this.props.updateHomePage(this.props.note.id)
+                        // }
                         this.setState({ showNoteSettings: false })
                     }}>
                         <div>
                             <span>Set this page as root</span>
                             <p/>
-                            <span color="grey">Now it is a "{ this.props.homePage }"</span>
+                            {/*<span color="grey">Now it is a "{ this.props.homePage }"</span>*/}
                         </div>
                     </Button>
                 </div>
@@ -258,19 +226,10 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
             return renderError(this.props.error)
         }
 
-        this.onOpenNote();
-
         if (this.props.note === undefined) {
             return <span>No Note, khm, try to reload page.</span>
         }
 
-        if (this.state.localNoteID !== this.props.note.id) {
-            this.setState({
-                localNoteID: this.props.note.id,
-                localNoteName: this.props.note.name,
-                localNoteBody: this.props.note.body,
-            })
-        }
 
         const { id, tags, links } = this.props.note;
         return (
@@ -323,7 +282,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             </Button>
                         }
                         { renderUnsavedChangedMarker(this.state.unsavedChangesNumber) }
-                        { this.props.isLoading ? <CircularProgress/> : null }
+                        { this.props.isLoading_NoteUpdate ? <CircularProgress/> : null }
                     </div>
                     { this.renderNoteSettings() }
 
@@ -334,13 +293,13 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     <div style={{display: "flex", alignItems: "center" }}>
                         <Typography> Name: </Typography>
                         {this.state.bodyState === "view" ?
-                            <Typography>{ this.state.localNoteName }</Typography>
+                            <Typography>{ this.props.note.name }</Typography>
                             :
                             <TextField
                                 fullWidth
                                 size="small"
-                                value={this.state.localNoteName}
-                                onChange={e => this.updateBodyAndName(this.state.localNoteBody, e.target.value)}
+                                value={ this.props.note.name }
+                                onChange={e => this.props.updateName(this.props.note, e.target.value)}
                             />
                         }
                     </div>
@@ -354,13 +313,13 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             showDeleteButtons={this.state.bodyState === "edit"}
                             onTagAdd={(tagName) => {
                                 if (this.props.note !== undefined) {
-                                    this.props.addTag(this.props.note, this.state.localNoteBody, this.state.localNoteName, tagName);
+                                    this.props.addTag(this.props.note, tagName);
                                     this.setState({unsavedChangesNumber: 0})
                                 }
                             }}
                             onTagDelete={(tagName) => {
                                 if (this.props.note !== undefined) {
-                                    this.props.delTag(this.props.note, this.state.localNoteBody, this.state.localNoteName, tagName);
+                                    this.props.delTag(this.props.note, tagName);
                                     this.setState({unsavedChangesNumber: 0})
                                 }
                             }}
@@ -378,37 +337,37 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                         }
                         <TagCreator noteToAddNewTag={this.props.note}/>
                     </div>
-                    <LinkSearch onSelect={result => {
-                        if (this.props.note === undefined) {
-                            return;
-                        }
-                        if (result.type === "link") {
-                            const noteHead = result.payload as NoteHead;
-                            const newBody = insertStringIntoString(
-                                this.state.localNoteBody,
-                                createMDLinkToNote(noteHead.id, noteHead.name),
-                                this.inputBody.selectionStart,
-                            );
-                            this.props.addLink(
-                                this.props.note,
-                                newBody,
-                                this.state.localNoteName,
-                                noteHead.id,
-                            );
-                            this.setState({localNoteBody: newBody, unsavedChangesNumber: 0});
-                        }
-                        if (result.type === "tag") {
-                            const noteTag = result.payload as NoteTag;
-                            this.updateBodyAndName(
-                                insertStringIntoString(
-                                    this.state.localNoteBody,
-                                    createMDLinkToTag(noteTag.name),
-                                    this.inputBody.selectionStart,
-                                ),
-                                this.state.localNoteName,
-                            )
-                        }
-                    }}/>
+                    {/*<LinkSearch onSelect={result => {*/}
+                    {/*    if (this.props.note === undefined) {*/}
+                    {/*        return;*/}
+                    {/*    }*/}
+                    {/*    if (result.type === "link") {*/}
+                    {/*        const noteHead = result.payload as NoteHead;*/}
+                    {/*        const newBody = insertStringIntoString(*/}
+                    {/*            this.state.localNoteBody,*/}
+                    {/*            createMDLinkToNote(noteHead.id, noteHead.name),*/}
+                    {/*            this.inputBody.selectionStart,*/}
+                    {/*        );*/}
+                    {/*        this.props.addLink(*/}
+                    {/*            this.props.note,*/}
+                    {/*            newBody,*/}
+                    {/*            this.state.localNoteName,*/}
+                    {/*            noteHead.id,*/}
+                    {/*        );*/}
+                    {/*        this.setState({localNoteBody: newBody, unsavedChangesNumber: 0});*/}
+                    {/*    }*/}
+                    {/*    if (result.type === "tag") {*/}
+                    {/*        const noteTag = result.payload as NoteTag;*/}
+                    {/*        this.updateBodyAndName(*/}
+                    {/*            insertStringIntoString(*/}
+                    {/*                this.state.localNoteBody,*/}
+                    {/*                createMDLinkToTag(noteTag.name),*/}
+                    {/*                this.inputBody.selectionStart,*/}
+                    {/*            ),*/}
+                    {/*            this.state.localNoteName,*/}
+                    {/*        )*/}
+                    {/*    }*/}
+                    {/*}}/>*/}
                     { this.renderBody() }
                 </div>
                 <div style={{ width: "30%" }}>
@@ -418,13 +377,10 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                         noteIDList={ links }
                         showDelButtons={ this.state.bodyState === "edit" }
                         showAddButton
-                        // showAddButton={ this.state.bodyState === "edit" }
                         onAdd={(linkNoteID: NoteID) => {
                             if (this.props.note !== undefined) {
                                 this.props.addLink(
                                     this.props.note,
-                                    this.state.localNoteBody,
-                                    this.state.localNoteName,
                                     linkNoteID,
                                 )
                             }
@@ -433,8 +389,6 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             if (this.props.note !== undefined) {
                                 this.props.delLink(
                                     this.props.note,
-                                    this.state.localNoteBody,
-                                    this.state.localNoteName,
                                     linkNoteID,
                                 )
                             }

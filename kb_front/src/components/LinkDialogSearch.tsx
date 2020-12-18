@@ -17,12 +17,12 @@ import { NoteHead, NoteTag } from "../store/messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteList: headStoreToList(store.note.noteHeadStore),
-    tagList: tagStoreToList(store.note.tagStore),
+    noteList: headStoreToList(store.structure.noteHeadStore),
+    tagList: tagStoreToList(store.structure.tagStore),
 
     dialogState: store.systemState.linkSearchState,
-    isLoading: store.note.isLoading,
-    error: store.note.error,
+    isLoading: store.structure.isLoading,
+    error: store.structure.error,
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {

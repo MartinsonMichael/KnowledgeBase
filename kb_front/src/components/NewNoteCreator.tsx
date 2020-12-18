@@ -12,9 +12,9 @@ import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    newNote: store.note.createdNote,
+    newNoteID: store.note.newNoteID,
 
-    isLoading: store.note.isLoading,
+    isLoading: store.note.isLoading_NoteCreate,
     error: store.note.error,
 });
 const mapDispatchToProps = (dispatch: any) => {
@@ -92,10 +92,10 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
     render(): React.ReactNode {
 
         if (this.state.creationState === "waiting") {
-            if (this.props.error === undefined && this.props.newNote !== undefined) {
+            if (this.props.error === undefined && this.props.newNoteID !== undefined) {
 
                 if (this.props.noteToAddNewAsLink !== undefined) {
-                    this.props.addLink(this.props.noteToAddNewAsLink, this.props.newNote)
+                    this.props.addLink(this.props.noteToAddNewAsLink, this.props.newNoteID)
                 }
 
                 this.setState({ creationState: "ready" });
@@ -138,7 +138,7 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
                         variant="contained"
                         color="primary"
                         onClick={ () => {
-                            this.props.history.push(`/note/${ this.props.newNote }`);
+                            this.props.history.push(`/note/${ this.props.newNoteID }`);
                             this.props.close()
                         } }
                         disabled={ this.state.creationState !== "ready" }

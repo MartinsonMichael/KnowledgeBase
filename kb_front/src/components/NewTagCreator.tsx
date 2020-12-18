@@ -12,14 +12,14 @@ import { CloseNewTagCreatorSystemAction, OpenNewTagCreatorSystemAction } from ".
 import {Note, NoteTag} from "../store/messages";
 import { Link } from "react-router-dom";
 import { TextField } from "@material-ui/core";
-import { createTag } from "../store/note/note_actions";
+import { createTag } from "../store/structure/structure_actions";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    tagList: tagStoreToList(store.note.tagStore),
+    tagList: tagStoreToList(store.structure.tagStore),
     isOpen: store.systemState.isNewTagCreatorOpen,
 
-    isLoading: store.note.isLoading,
+    isLoading: store.structure.isLoading,
     error: store.note.error,
 });
 const mapDispatchToProps = (dispatch: any) => {

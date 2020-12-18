@@ -10,104 +10,84 @@ import {
 } from "../messages";
 import axios from "../client"
 
-export const StartLoading = 'StartLoading';
-interface StartLoadAction {
-    type: typeof StartLoading
+// Load note from server (3 actions)
+export const LoadNote_START = 'LoadNote_START';
+interface LoadNote_START_Action {
+    type: typeof LoadNote_START
+    payload: undefined
 }
 
-export const ServerError = 'ServerError';
-interface ServerErrorAction {
-    type: typeof ServerError
-    payload: string
-}
-
-export const UpdateNoteHeadStore = 'UpdateNoteHeadStore';
-interface UpdateNoteHeadStoreAction {
-    type: typeof UpdateNoteHeadStore
-    payload: NoteHeadStore
-}
-
-export const UpdateTagStore = "UpdateTagStore";
-interface UpdateTagStoreAction {
-    type: typeof UpdateTagStore
-    payload: TagStore
-}
-
-export const LoadNote = 'LoadNote';
-interface LoadNoteAction {
-    type: typeof LoadNote
+export const LoadNote_SUCCESS = 'LoadNote_SUCCESS';
+interface LoadNote_SUCCESS_Action {
+    type: typeof LoadNote_SUCCESS
     payload: Note
 }
 
-export const NewNote = 'NewNote';
-interface NewNoteAction {
-    type: typeof NewNote
-    payload: NoteHead
+export const LoadNote_REJECTED = 'LoadNote_REJECTED';
+interface LoadNote_REJECTED_Action {
+    type: typeof LoadNote_REJECTED
+    payload: string
 }
 
-export const UpdateNote = "UpdateNote";
-interface UpdateNoteAction {
-    type: typeof UpdateNote
+// update Note (3 actions)
+export const UpdateNote_START = "UpdateNote_START";
+interface UpdateNote_START_Action {
+    type: typeof UpdateNote_START
+    payload: undefined
+}
+
+export const UpdateNote_SUCCESS = "UpdateNote_SUCCESS";
+interface UpdateNote_SUCCESS_Action {
+    type: typeof UpdateNote_SUCCESS
     payload: Note
 }
 
-export const UpdateNoteBody = "UpdateNoteBody";
-interface UpdateBodyAction {
-    type: typeof UpdateNoteBody
+export const UpdateNote_REJECTED = "UpdateNote_REJECTED";
+interface UpdateNote_REJECTED_Action {
+    type: typeof UpdateNote_REJECTED
     payload: string
 }
 
-export const UpdateTag = "UpdateTag";
-interface UpdateTagAction {
-    type: typeof UpdateTag
-    payload: NoteTag
+// create new note (3 actions)
+export const CreateNote_START = "CreateNote_START";
+interface CreateNote_START_Action {
+    type: typeof CreateNote_START
+    payload: undefined
 }
 
-export const LoadHomePage = "LoadHomePage";
-interface LoadHomePageAction {
-    type: typeof LoadHomePage
+export const CreateNote_SUCCESS = "CreateNote_SUCCESS";
+interface CreateNote_SUCCESS_Action {
+    type: typeof CreateNote_SUCCESS
+    payload: Note
+}
+
+export const CreateNote_REJECTED = "CreateNote_REJECTED";
+interface CreateNote_REJECTED_Action {
+    type: typeof CreateNote_REJECTED
     payload: string
 }
 
-export const UpdateHomePage = "UpdateHomePage";
-interface UpdateHomePageAction {
-    type: typeof UpdateHomePage
-    payload: string
-}
+// final action types
+type LoadAction = LoadNote_START_Action | LoadNote_SUCCESS_Action | LoadNote_REJECTED_Action
+type UpdateAction = UpdateNote_START_Action | UpdateNote_SUCCESS_Action | UpdateNote_REJECTED_Action
+type CreateAction = CreateNote_START_Action | CreateNote_SUCCESS_Action | CreateNote_REJECTED_Action
+export type NoteActionTypes = LoadAction | UpdateAction | CreateAction
 
-export const RemoveNewNoteRecord = "RemoveNewNoteRecord";
-interface RemoveNewNoteRecordAction {
-    type: typeof RemoveNewNoteRecord
-}
-
-type HomePageActions = LoadHomePageAction | UpdateHomePageAction
-type preLoadActions = StartLoadAction | UpdateNoteHeadStoreAction | UpdateTagStoreAction | ServerErrorAction
-type tagActions =  UpdateTagAction
-type NoteUpdateActions = UpdateBodyAction | UpdateNoteAction | NewNoteAction | RemoveNewNoteRecordAction
-export type NoteActionTypes = preLoadActions | LoadNoteAction | NoteUpdateActions | tagActions | HomePageActions
-
-
-export const updateHomePage = (homePage: NoteID) => {
-    return async (dispatch: any) => {
-        dispatch({type: StartLoading});
-
-        const response = await axios.get(`set_attribute/home_page/${homePage}`);
-
-        if (response.status === 200) {
-            dispatch({type: UpdateHomePage, payload: response.data['value']});
-        } else {
-            dispatch({type: ServerError, payload: response.data['msg']});
-        }
-    }
-};
 
 export const updateNote = (
-    note: Note,
+    note: Note | undefined,
     newName?: string, newBody?: string,
     addTagName?: string, delTagName?: string,
     addLinkID?: string, delLinkID?: string,
     ) => {
     return async (dispatch: any) => {
+
+        if (note === undefined) {
+            return;
+        }
+
+        dispatch({type: UpdateNote_START, payload: undefined});
+
         const newNoteObj: Note = Object.assign({}, note);
 
         if (newName !== undefined) {
@@ -141,95 +121,24 @@ export const updateNote = (
         );
 
         if (response.status === 200) {
-            dispatch({
-                type: UpdateNote,
-                payload: newNoteObj,
-            });
+            dispatch({type: UpdateNote_SUCCESS, payload: construct_Note(response.data)});
         } else {
-            dispatch({
-                type: ServerError,
-                payload: response.data['msg'],
-            });
+            dispatch({type: UpdateNote_REJECTED, payload: response.data['msg']});
         }
     }
 };
 
-export const createTag = (tagObj: NoteTag, addToNote?: Note) => {
-    return async (dispatch: any) => {
-        const response = await axios.post(
-            `create_tag/${tagObj.name}`,
-            JSON.stringify(tagObj),
-            {
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': '*',
-                },
-            }
-        );
-
-        if (response.status === 200) {
-            dispatch({type: UpdateTag, payload: tagObj});
-        } else {
-            dispatch({type: ServerError, payload: response.data['msg']});
-        }
-
-        if (response.status === 200 && addToNote !== undefined) {
-            await updateNote(addToNote, undefined, undefined, tagObj.name)(dispatch);
-            dispatch({
-                type: UpdateNote,
-                payload: {
-                    ...addToNote,
-                    tags: [
-                        ...addToNote.tags,
-                        tagObj.name,
-                    ],
-                }
-            });
-        }
-    }
-};
-
-export const updateTag = (tagObj: NoteTag, tagDescription?: string, tagColor?: string) => {
-    return async (dispatch: any) => {
-        const updatedTagObj = Object.assign({}, tagObj);
-        if (tagDescription !== undefined) {
-            updatedTagObj.description = tagDescription;
-        }
-        if (tagColor !== undefined) {
-            updatedTagObj.color = tagColor;
-        }
-
-        const response = await axios.post(
-            `update_tag/${updatedTagObj.name}`,
-            JSON.stringify(updatedTagObj),
-            {
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': '*',
-                },
-            }
-        );
-
-        if (response.status === 200) {
-            dispatch({type: UpdateTag, payload: updatedTagObj});
-        } else {
-            dispatch({type: ServerError, payload: response.data['msg']});
-        }
-    }
-};
 
 export const createNewNote = (noteID: NoteID, name: string) => {
     return async (dispatch: any) => {
-        dispatch({type: StartLoading});
-
-        dispatch({type: RemoveNewNoteRecord});
+        dispatch({type: CreateNote_START, payload: undefined});
 
         const response = await axios.get(`create_note/${noteID}/${name}`);
 
         if (response.status === 200) {
-            dispatch({type: NewNote, payload: construct_Note(response.data)});
+            dispatch({type: CreateNote_SUCCESS, payload: construct_Note(response.data)});
         } else {
-            dispatch({type: ServerError, payload: response.data['msg']});
+            dispatch({type: CreateNote_REJECTED, payload: response.data['msg']});
         }
     }
 };
@@ -238,32 +147,14 @@ export const createNewNote = (noteID: NoteID, name: string) => {
 export const loadNote = (noteID: NoteID) => {
     return async (dispatch: any) => {
 
-        dispatch({type:  StartLoading});
+        dispatch({type:  LoadNote_START, payload: undefined});
 
         const response = await axios.get(`get_note/${noteID}`);
 
         if (response.status === 200) {
-            dispatch({type: LoadNote, payload: construct_Note(response.data)});
+            dispatch({type: LoadNote_SUCCESS, payload: construct_Note(response.data)});
         } else {
-            dispatch({type: ServerError, payload: response.data['msg']});
+            dispatch({type: LoadNote_REJECTED, payload: response.data['msg']});
         }
-    };
-};
-
-export const loadStructure = () => {
-    return async (dispatch: any) => {
-        const response = await axios.get('get_structure');
-
-        dispatch({
-            type: UpdateNoteHeadStore,
-            payload: construct_NoteHeadStore(response.data['note_head']),
-        });
-
-        dispatch({
-           type: UpdateTagStore,
-           payload: construct_TagStore(response.data['tag_list']),
-        });
-
-        dispatch({type: UpdateHomePage, payload: response.data['home_page']})
     };
 };

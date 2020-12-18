@@ -10,28 +10,25 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import ListIcon from '@material-ui/icons/List';
 
-import { loadStructure } from "./store/note/note_actions";
+import { loadStructure } from "./store/structure/structure_actions";
 import { connect, ConnectedProps } from "react-redux";
 
-import {Route, Switch, Redirect, withRouter, Link} from "react-router-dom";
+import { Route, Switch, Redirect, withRouter } from "react-router-dom";
 import { RouteComponentProps } from "react-router";
-import {NoteID} from "./store/messages";
+import { NoteID } from "./store/messages";
 import TagPage from "./pages/TagPage";
 import NoteListPage from "./pages/NoteListPage";
 import NotePage from "./pages/NotePage";
-import {Button} from "@material-ui/core";
-import {RootState} from "./store";
+import { Button } from "@material-ui/core";
+import { RootState } from "./store";
 import IconButton from "@material-ui/core/IconButton";
 import TagListPage from "./pages/TagListPage";
-import {toggleNewNoteCreator} from "./store/system/system_actions";
 import NewNoteCreator from "./components/NewNoteCreator";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    homePage: store.note.homePage,
-
-    isLoading: store.note.isLoading,
-    error: store.note.error,
+    isLoading: store.structure.isLoading,
+    error: store.structure.error,
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {
@@ -76,7 +73,7 @@ class App extends React.Component<AppProps, AppState>{
         return (
             <AppBar position="static">
                 <Toolbar variant="dense">
-                    <Button onClick={() => this.props.history.push(`/note/${this.props.homePage}`)}>
+                    <Button onClick={() => this.props.history.push(`/home`)}>
                         <HomeIcon color="action"/>
                         Home
                     </Button>
@@ -125,8 +122,6 @@ class App extends React.Component<AppProps, AppState>{
                     <Route path={'/note/:pathNoteID'} render={() => <NotePage/>} />
                     <Route path={'/tag/:pathTagName'} render={() => <TagPage/>} />
                     <Route path={'/tag_list'} render={() => <TagListPage/>} />
-
-                    <Redirect from="/home" to={`/note/${this.props.homePage}`} />
 
                     <Redirect from="/" to="/home" />
                 </Switch>

@@ -1,14 +1,14 @@
 import * as React from "react";
 // @ts-ignore
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import {RootState} from "../store";
-import {connect, ConnectedProps} from "react-redux";
-import {headStoreToList} from "./utils";
-import {NoteHead} from "../store/messages";
+import { RootState } from "../store";
+import { connect, ConnectedProps } from "react-redux";
+import { headStoreToList } from "./utils";
+import { NoteHead } from "../store/messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteList: headStoreToList(store.note.noteHeadStore),
+    noteList: headStoreToList(store.structure.noteHeadStore),
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {}

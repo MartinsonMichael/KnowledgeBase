@@ -1,7 +1,7 @@
-import {NoteTag} from "../store/messages";
+import { NoteTag } from "../store/messages";
 import * as React from "react";
-import {InputBase, TextField, Paper} from "@material-ui/core";
-import {Link} from "react-router-dom";
+import { InputBase } from "@material-ui/core";
+import { Link } from "react-router-dom";
 
 export function renderTagLink(tag: NoteTag): React.ReactNode {
     const { name, description } = tag;

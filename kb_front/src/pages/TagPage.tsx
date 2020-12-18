@@ -6,7 +6,7 @@ import { RouteComponentProps, withRouter } from "react-router";
 import { renderNoteList } from "../components/NoteList";
 import {Button, CircularProgress, TextField} from "@material-ui/core";
 import { renderError } from "../components/ErrorPlate";
-import { updateTag } from "../store/note/note_actions";
+import { updateTag } from "../store/structure/structure_actions";
 import { headStoreToList } from "../components/utils";
 import EditIcon from "@material-ui/core/SvgIcon/SvgIcon";
 import SaveIcon from '@material-ui/icons/Save';
@@ -14,11 +14,11 @@ import {renderUnsavedChangedMarker} from "../components/UnsaveTracker";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadStore: headStoreToList(store.note.noteHeadStore),
-    tagStore: store.note.tagStore,
+    noteHeadStore: headStoreToList(store.structure.noteHeadStore),
+    tagStore: store.structure.tagStore,
 
-    isLoading: store.note.isLoading,
-    error: store.note.error,
+    isLoading: store.structure.isLoading,
+    error: store.structure.error,
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {

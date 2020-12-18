@@ -1,138 +1,89 @@
-import {Note, NoteHeadStore, NoteID, TagStore} from "../messages";
+import { Note, NoteID } from "../messages";
 import { NoteActionTypes } from "./note_actions";
 
 export interface NoteState {
-    note?: Note
-    noteHeadStore?: NoteHeadStore
-    tagStore?: TagStore
-    homePage?: NoteID,
-    createdNote?: NoteID,
+    note?: Note,
+    newNoteID?: NoteID,
+    error?: string,
 
-    isLoading: boolean
-    error?: string
+    isLoading_NoteLoad: boolean,
+    isLoading_NoteUpdate: boolean,
+    isLoading_NoteCreate: boolean,
 }
 
 const initialState: NoteState = {
-    isLoading: false,
+    note: undefined,
+    newNoteID: undefined,
     error: undefined,
-};
 
-export function NoteReducer(state = initialState, action: NoteActionTypes): NoteState {
+    isLoading_NoteLoad: false,
+    isLoading_NoteUpdate: false,
+    isLoading_NoteCreate: false,
+
+} as NoteState;
+
+export function NoteReducer(state: NoteState = initialState, action: NoteActionTypes): NoteState {
     switch (action.type) {
-        case "StartLoading":
+        // note loading actions
+        case "LoadNote_START":
             return {
                 ...state,
-                isLoading: true,
+                isLoading_NoteLoad: true,
                 error: undefined,
-            };
-
-        case "ServerError":
+            } as NoteState;
+        case "LoadNote_REJECTED":
             return {
                 ...state,
-                isLoading: false,
+                isLoading_NoteLoad: false,
                 error: action.payload,
             };
-
-        case "UpdateNoteHeadStore":
+        case "LoadNote_SUCCESS":
             return {
                 ...state,
-                noteHeadStore: action.payload,
-            };
-
-        case "UpdateTagStore":
-            return {
-                ...state,
-                tagStore: action.payload,
-            };
-
-        case "UpdateTag":
-            if (state.tagStore === undefined) {
-                return {
-                    ...state,
-                    isLoading: false,
-                    error: "Cant update Tag, no TagStore",
-                }
-            }
-            const newTagStore = state.tagStore;
-            newTagStore[action.payload.name] = action.payload;
-            return {
-                ...state,
-                tagStore: newTagStore
-            };
-
-        case "LoadNote":
-            return {
-                ...state,
-                isLoading: false,
-                error: undefined,
+                isLoading_NoteLoad: false,
                 note: action.payload,
             };
 
-        case "UpdateNoteBody":
-            if (state.note === undefined) {
-                return {
-                    ...state,
-                    isLoading: false,
-                    error: "Can't update Note body, current Note object is undefined."
-                }
-            }
+        // note update actions
+        case "UpdateNote_START":
             return {
                 ...state,
-                isLoading: false,
-                note: {
-                    ...state.note,
-                    body: action.payload,
-                }
+                isLoading_NoteUpdate: true,
+                error: undefined,
+            } as NoteState;
+        case "UpdateNote_REJECTED":
+            return {
+                ...state,
+                isLoading_NoteUpdate: false,
+                error: action.payload,
             };
-
-        case "UpdateNote":
-            if (state.noteHeadStore === undefined) {
-                return {
-                    ...state,
-                    isLoading: false,
-                    error: "Cant update list of all notes, cause it undefined"
-                }
-            }
-            const newNoteHeadStore = state.noteHeadStore;
-            newNoteHeadStore[action.payload.id] = action.payload;
+        case "UpdateNote_SUCCESS":
             return {
                 ...state,
-                isLoading: false,
+                isLoading_NoteUpdate: false,
                 note: action.payload,
-                noteHeadStore: newNoteHeadStore,
             };
 
-        case "RemoveNewNoteRecord":
+        // create new note actions
+        case "CreateNote_START":
             return {
                 ...state,
-                createdNote: undefined,
-            };
-
-        case "NewNote":
-            if (state.noteHeadStore === undefined) {
-                return {
-                    ...state,
-                    isLoading: false,
-                    error: "Cant update list of all notes, cause it undefined"
-                }
-            }
-            const newNoteHeadStore2 = state.noteHeadStore;
-            newNoteHeadStore2[action.payload.id] = action.payload;
-            return {
-                ...state,
-                isLoading: false,
+                isLoading_NoteCreate: true,
                 error: undefined,
-                createdNote: action.payload.id,
-                noteHeadStore: newNoteHeadStore2,
-            };
-
-        case "UpdateHomePage":
+            } as NoteState;
+        case "CreateNote_REJECTED":
             return {
                 ...state,
-                isLoading: false,
-                error: undefined,
-                homePage: action.payload,
+                isLoading_NoteCreate: false,
+                error: action.payload,
             };
+        case "CreateNote_SUCCESS":
+            return {
+                ...state,
+                isLoading_NoteCreate: false,
+                newNoteID: action.payload.id,
+            };
+
         default:
             return state
     }
