@@ -79,7 +79,7 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
                 {showTagsLabel ? <span style={{ marginRight: "5px" }}>Tags:</span> : null}
                 {
                     tags
-                        .filter((tag: string) => tag !== null && tag !== undefined && tag.length != 0)
+                        .filter((tag: string) => tag !== null && tag !== undefined && tag.length !== 0)
                         .map((tag: string) => (
                             <div style={{ marginRight: "5px" }} key={ this.props.parentNoteID + tag + 'div' }>
                                 <Button

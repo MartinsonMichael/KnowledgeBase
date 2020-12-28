@@ -117,6 +117,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
     }
 
     componentDidMount(): void {
+        console.log("HERE");
         this.loadNote()
     }
 
@@ -125,9 +126,10 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
 
         if (needID === "undefined") {
             alert("no note ID");
+            console.log("no note ID");
             return;
         }
-        loadNote(needID);
+        this.props.loadNote(needID);
     }
 
     forceUpdate(): void {

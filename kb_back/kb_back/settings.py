@@ -81,7 +81,7 @@ DATABASES = {
         'USER': 'kb_user',
         'PASSWORD': 'knowledgebase_psw',
         'HOST': 'localhost' if os.environ.get("DOCKER_LAUNCH", "false") == "false" else 'db',
-        'PORT': '5432',
+        'PORT': '5433' if os.environ.get("DOCKER_LAUNCH", "false") == "false" else '5432',
     }
 }
 print(f'Use docker-launch : {os.environ.get("DOCKER_LAUNCH", "false")}')

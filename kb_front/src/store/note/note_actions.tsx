@@ -121,7 +121,7 @@ export const updateNote = (
         );
 
         if (response.status === 200) {
-            dispatch({type: UpdateNote_SUCCESS, payload: construct_Note(response.data)});
+            dispatch({type: UpdateNote_SUCCESS, payload: newNoteObj });
         } else {
             dispatch({type: UpdateNote_REJECTED, payload: response.data['msg']});
         }
