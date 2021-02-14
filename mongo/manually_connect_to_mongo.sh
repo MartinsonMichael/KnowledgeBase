@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker exec -it studygram_db mongo -host localhost -port 27017
+docker exec -it mongo_kb mongo -host localhost -port 27017

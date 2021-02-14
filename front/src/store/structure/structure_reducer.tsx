@@ -33,7 +33,7 @@ export function StructureReducer(state = initialState, action: StructureActionTy
                 ...state,
                 isLoading: false,
                 error: action.payload,
-            };
+            } as StructureState;
 
         case "UpdateNoteHeadStore":
             return {

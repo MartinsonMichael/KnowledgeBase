@@ -6,6 +6,7 @@ import {
     construct_TagStore,
     TagStore, NoteHead, Note,
 } from "../messages";
+import * as msg from "../messages";
 import axios from "../client"
 import {updateNote, UpdateNote_SUCCESS} from "../note/note_actions";
 
