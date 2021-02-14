@@ -1,16 +1,48 @@
 syntax = "proto3";
 
+
+message Tag {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string color = 4;
+}
+
+message TagList {
+    repeated Tag list = 1;
+}
+
+message Note {
+    string id = 1;
+    string name = 2;
+    repeated string tags = 3;
+    repeated string links = 4;
+    string body = 5;
+}
+
+message NoteID {
+    string id = 1;
+}
+
 message NoteHeader {
     string id = 1;
     string name = 2;
+    repeated string tags = 3;
+    repeated string links = 4;
 }
 
 message NoteHeaderList {
     repeated NoteHeader list = 1;
 }
 
-message Null {}
+message Structure {
+    repeated NoteHeader headList = 1;
+    repeated Tag tagList = 2;
+}
 
 service NoteService {
-  rpc getAllNotesHeaders(Null) returns (NoteHeaderList) {}
+    rpc getStructure(Null) returns (Structure) {}
+    rpc getNotesHeaderList(Null) returns (NoteHeaderList) {}
+
+    rpc getNotes(NoteID) returns (Note) {}
 }

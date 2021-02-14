@@ -21,7 +21,7 @@ import json
 from typing import List
 from django.http import HttpResponse, HttpRequest
 
-from .messages import *
+from .generated_messages import *
  
 
 """
@@ -30,13 +30,13 @@ from .messages import *
 def _base_type_to_py_types(atr_type: str) -> str:
     assert _is_base_type(atr_type), f"Attempt to convert non base type {atr_type} ty py base type"
 
-    if atr_type == "int":
+    if atr_type == "int32":
         return "int"
     elif atr_type == "string":
         return "str"
     elif atr_type == "float":
         return "float"
-    elif atr_type == "boolean":
+    elif atr_type == "bool":
         return "bool"
     else:
         ValueError(f"unknown base py type: {atr_type}")
@@ -190,7 +190,7 @@ def generate_services(parse_result: ParseResult, service_path: str) -> None:
                         file.write(f"{TAB}def {method.name}(self) -> None:\n")
 
                 file.write(
-                    f"{TAB}{TAB}raise NotImplemented"
+                    f"{TAB}{TAB}raise NotImplemented\n"
                 )
                 file.write("\n\n")
 
@@ -201,16 +201,35 @@ def generate_impl_file(parse_result: ParseResult, py_path: str) -> None:
         imp_path = os.path.join(py_path, f"{service.name}_impl.py")
         if os.path.exists(imp_path):
             logger.log(35, f"implementation file for service {service.name}  already exists, it won't be rewritten")
-            return
+            continue
         logger.log(35, f"implementation file for service {service.name} doesn't exists, it will be created")
 
         with open(imp_path, "w") as file:
             file.write(
-                f"from .services import Abstract{service.name}"
+                f"from .services import Abstract{service.name}\n"
+                f"from .generated_messages import *\n"
                 f"\n\n"
                 f"class {service.name}(Abstract{service.name}):\n"
-                f"{TAB}pass\n"
+                f"\n"
             )
+
+            for method in service.methods:
+                if method.input_type != "Null":
+                    if method.output_type != "Null":
+                        file.write(
+                            f"{TAB}def {method.name}(self, input_data: {method.input_type}) -> {method.output_type}:\n")
+                    else:
+                        file.write(f"{TAB}def {method.name}(self, input_data: {method.input_type}) -> None:\n")
+                else:
+                    if method.output_type != "Null":
+                        file.write(f"{TAB}def {method.name}(self) -> {method.output_type}:\n")
+                    else:
+                        file.write(f"{TAB}def {method.name}(self) -> None:\n")
+
+                file.write(
+                    f"{TAB}{TAB}raise NotImplemented\n"
+                )
+                file.write("\n")
 
 
 def generate_urls(parse_result: ParseResult, urls_path: str) -> None:
@@ -219,7 +238,6 @@ def generate_urls(parse_result: ParseResult, urls_path: str) -> None:
             f"{HEAD}"
             f"\n\n"
             f"from django.urls import path\n"
-            f"from functools import partial\n"
             f"\n"
         )
         for service in parse_result.services:
@@ -234,15 +252,17 @@ def generate_urls(parse_result: ParseResult, urls_path: str) -> None:
         file.write(f"urlpatterns = [\n")
 
         for service in parse_result.services:
+            file.write(f"{TAB}# urls for {service.name}\n")
             for method in service.methods:
                 file.write(f"{TAB}path('{method.name}', service_{service.name}.service_{method.name}),\n")
+            file.write(f"\n")
 
         file.write(f"]\n")
 
 
 def py_gen(parse_result: ParseResult, py_path: str) -> None:
     logger.log(35, "py generation...")
-    generate_messages(parse_result, os.path.join(py_path, "messages.py"))
+    generate_messages(parse_result, os.path.join(py_path, "generated_messages.py"))
     generate_services(parse_result, os.path.join(py_path, "services.py"))
     generate_impl_file(parse_result, py_path)
     generate_urls(parse_result, os.path.join(py_path, "api_urls.py"))

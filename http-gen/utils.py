@@ -160,7 +160,7 @@ def parse_file(proto_file_path: str) -> ParseResult:
 
 
 def _is_base_type(atr_type: str) -> bool:
-    return atr_type in ['int', 'string', 'float', 'boolean']
+    return atr_type in ['int32', 'string', 'float', 'bool']
 
 
 def validate_parsed_data(parsed_results: ParseResult) -> None:
