@@ -1,36 +1,25 @@
 syntax = "proto3";
 
-// test msg
-message TestOne {
-    string text = 1;
+message SimpleMsg {
+    int32 integer_field = 1;
+    float float_field = 2;
+    string string_field = 3;
+    repeated bool boolean_field = 4;
 }
 
-// test msg
-message Test {
-    repeated TestOne list = 1;
-}
-
-message Simple {
-    int32 id = 1;
-    float latitude = 2;
-    string name = 3;
-    repeated bool used = 4;
-}
-
-message Complex {
-    repeated Test testList = 1;
-    string id = 2;
-    TestOne singleTest = 3;
+message ComplexMsg {
+    repeated SimpleMsg simpleMsgList = 1;
+    repeated string string_list = 2;
+    SimpleMsg singleSimple = 3;
+    bool single_boolean = 4;
 }
 
 service TestService {
     // test method
-    rpc getTestList(Test) returns (Null) {}
+    rpc getSimpleMsg(Null) returns (SimpleMsg) {}
+    rpc getComplexMsg(Null) returns (ComplexMsg) {}
 
-    rpc getComplexByComplex(Complex) returns (Complex) {}
-
-    rpc getBasicComplex(Null) returns (Complex) {}
-
-    rpc changeMisterPresident(Null) returns (Null) {}
-
+    rpc getComplexBySimple(SimpleMsg) returns (ComplexMsg) {}
+    rpc postComplex(ComplexMsg) returns (Null) {}
+    rpc postNull(Null) returns (Null) {}
 }

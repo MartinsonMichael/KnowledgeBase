@@ -161,7 +161,8 @@ def generate_services(parse_result: ParseResult, service_path: str) -> None:
                     f"{TAB}{TAB}{TAB}return HttpResponse(\n"
                     f"{TAB}{TAB}{TAB}{TAB}content='error while processing request',\n"
                     f"{TAB}{TAB}{TAB}{TAB}status=400,\n"
-                    f"{TAB}{TAB}{TAB})\n\n"
+                    f"{TAB}{TAB}{TAB})\n"
+                    f"\n"
                 )
 
                 if method.output_type != "Null":
@@ -169,13 +170,15 @@ def generate_services(parse_result: ParseResult, service_path: str) -> None:
                         f"{TAB}{TAB}return HttpResponse(\n"
                         f"{TAB}{TAB}{TAB}content=output_data.to_bytes(),\n"
                         f"{TAB}{TAB}{TAB}status=200,\n"
-                        f"{TAB}{TAB})\n\n"
+                        f"{TAB}{TAB})\n"
+                        f"\n"
                     )
                 else:
                     file.write(
                         f"{TAB}{TAB}return HttpResponse(\n"
                         f"{TAB}{TAB}{TAB}status=200,\n"
-                        f"{TAB}{TAB})\n\n"
+                        f"{TAB}{TAB})\n"
+                        f"\n"
                     )
 
                 if method.input_type != "Null":
@@ -191,8 +194,9 @@ def generate_services(parse_result: ParseResult, service_path: str) -> None:
 
                 file.write(
                     f"{TAB}{TAB}raise NotImplemented\n"
+                    f"\n"
                 )
-                file.write("\n\n")
+            file.write("\n")
 
 
 def generate_impl_file(parse_result: ParseResult, py_path: str) -> None:

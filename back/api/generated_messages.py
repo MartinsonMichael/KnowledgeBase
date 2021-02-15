@@ -157,86 +157,55 @@ class Structure:
         )
 
 
-class TestOne:
-    def __init__(self, text: str):
-        self.text: str = text
+class SimpleMsg:
+    def __init__(self, integer_field: int, float_field: float, string_field: str, boolean_field: List[bool]):
+        self.integer_field: int = integer_field
+        self.float_field: float = float_field
+        self.string_field: str = string_field
+        self.boolean_field: List[bool] = boolean_field
 
     def to_bytes(self) -> str:
         return json.dumps({
-            'text': self.text,
+            'integer_field': self.integer_field,
+            'float_field': self.float_field,
+            'string_field': self.string_field,
+            'boolean_field': self.boolean_field,
         })
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'TestOne':
+    def from_bytes(data: bytes) -> 'SimpleMsg':
         obj = json.loads(data)
-        return TestOne(
-            text=obj['text'],
+        return SimpleMsg(
+            integer_field=obj['integer_field'],
+            float_field=obj['float_field'],
+            string_field=obj['string_field'],
+            boolean_field=obj['boolean_field'],
         )
 
 
-class Test:
-    def __init__(self, list: List['TestOne']):
-        self.list: List['TestOne'] = list
+class ComplexMsg:
+    def __init__(self, simpleMsgList: List['SimpleMsg'], string_list: List[str], singleSimple: 'SimpleMsg', single_boolean: bool):
+        self.simpleMsgList: List['SimpleMsg'] = simpleMsgList
+        self.string_list: List[str] = string_list
+        self.singleSimple: 'SimpleMsg' = singleSimple
+        self.single_boolean: bool = single_boolean
 
     def to_bytes(self) -> str:
         return json.dumps({
-            'list': [x.to_bytes() for x in self.list],
+            'simpleMsgList': [x.to_bytes() for x in self.simpleMsgList],
+            'string_list': self.string_list,
+            'singleSimple': self.singleSimple.to_bytes(),
+            'single_boolean': self.single_boolean,
         })
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'Test':
+    def from_bytes(data: bytes) -> 'ComplexMsg':
         obj = json.loads(data)
-        return Test(
-            list=[TestOne.from_bytes(x) for x in obj['list']],
-        )
-
-
-class Simple:
-    def __init__(self, id: int, latitude: float, name: str, used: List[bool]):
-        self.id: int = id
-        self.latitude: float = latitude
-        self.name: str = name
-        self.used: List[bool] = used
-
-    def to_bytes(self) -> str:
-        return json.dumps({
-            'id': self.id,
-            'latitude': self.latitude,
-            'name': self.name,
-            'used': self.used,
-        })
-
-    @staticmethod
-    def from_bytes(data: bytes) -> 'Simple':
-        obj = json.loads(data)
-        return Simple(
-            id=obj['id'],
-            latitude=obj['latitude'],
-            name=obj['name'],
-            used=obj['used'],
-        )
-
-
-class Complex:
-    def __init__(self, testList: List['Test'], id: str, singleTest: 'TestOne'):
-        self.testList: List['Test'] = testList
-        self.id: str = id
-        self.singleTest: 'TestOne' = singleTest
-
-    def to_bytes(self) -> str:
-        return json.dumps({
-            'testList': [x.to_bytes() for x in self.testList],
-            'id': self.id,
-            'singleTest': self.singleTest.to_bytes(),
-        })
-
-    @staticmethod
-    def from_bytes(data: bytes) -> 'Complex':
-        obj = json.loads(data)
-        return Complex(
-            testList=[Test.from_bytes(x) for x in obj['testList']],
-            id=obj['id'],
-            singleTest=TestOne.from_bytes(obj['singleTest']),
+        return ComplexMsg(
+            simpleMsgList=[SimpleMsg.from_bytes(x) for x in obj['simpleMsgList']],
+            string_list=obj['string_list'],
+            singleSimple=SimpleMsg.from_bytes(obj['singleSimple']),
+            single_boolean=obj['single_boolean'],
         )
 
 

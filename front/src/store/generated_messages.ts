@@ -83,50 +83,31 @@ export function construct_Structure(x: any): Structure {
 }
 
 
-export interface TestOne {
-    text: string
+export interface SimpleMsg {
+    integer_field: number
+    float_field: number
+    string_field: string
+    boolean_field: boolean[]
 }
-export function construct_TestOne(x: any): TestOne {
-    return x as TestOne
-}
-
-
-export interface Test {
-    list: TestOne[]
-}
-export function construct_Test(x: any): Test {
-    return {
-        'list': [
-            ...x['list'].map((item: any) => construct_TestOne(item))
-        ],
-    } as Test
+export function construct_SimpleMsg(x: any): SimpleMsg {
+    return x as SimpleMsg
 }
 
 
-export interface Simple {
-    id: number
-    latitude: number
-    name: string
-    used: boolean[]
+export interface ComplexMsg {
+    simpleMsgList: SimpleMsg[]
+    string_list: string[]
+    singleSimple: SimpleMsg
+    single_boolean: boolean
 }
-export function construct_Simple(x: any): Simple {
-    return x as Simple
-}
-
-
-export interface Complex {
-    testList: Test[]
-    id: string
-    singleTest: TestOne
-}
-export function construct_Complex(x: any): Complex {
+export function construct_ComplexMsg(x: any): ComplexMsg {
     return {
         ...x,
-        'testList': [
-            ...x['testList'].map((item: any) => construct_Test(item))
+        'simpleMsgList': [
+            ...x['simpleMsgList'].map((item: any) => construct_SimpleMsg(item))
         ],
-        'singleTest': construct_TestOne(x['singleTest']),
-    } as Complex
+        'singleSimple': construct_SimpleMsg(x['singleSimple']),
+    } as ComplexMsg
 }
 
 
