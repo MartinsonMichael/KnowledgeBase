@@ -10,7 +10,7 @@ HEAD = """# This file is generated, DO NOT EDIT IT
 # Michael Martinson http generator (c)"""
 MESSAGE_HEAD = f"""{HEAD}
 
-from typing import List
+from typing import List, Dict
 import json
 
 
@@ -18,7 +18,7 @@ import json
 SERVICE_HEAD = f"""{HEAD}
 
 import json
-from typing import List
+from typing import List, Dict
 from django.http import HttpResponse, HttpRequest
 
 from .generated_messages import *
@@ -42,17 +42,25 @@ def _base_type_to_py_types(atr_type: str) -> str:
         ValueError(f"unknown base py type: {atr_type}")
 
 
-def _make_attribute_declaration(atr: MessageAttribute) -> str:
-    if _is_base_type(atr.atr_type):
-        if atr.repeated:
-            return f"{atr.atr_name}: List[{_base_type_to_py_types(atr.atr_type)}]"
-        else:
-            return f"{atr.atr_name}: {_base_type_to_py_types(atr.atr_type)}"
+def _make_py_type(atr_type: str) -> str:
+    if _is_base_type(atr_type):
+        return _base_type_to_py_types(atr_type)
+    else:
+        return f"'{atr_type}'"
+
+
+def _make_atr_type(atr: MessageAttribute) -> str:
+    if atr.is_map:
+        return f"Dict[{_make_py_type(atr.map_key_type)}, {_make_py_type(atr.map_value_type)}]"
     else:
         if atr.repeated:
-            return f"{atr.atr_name}: List['{atr.atr_type}']"
+            return f"List[{_make_py_type(atr.atr_type)}]"
         else:
-            return f"{atr.atr_name}: '{atr.atr_type}'"
+            return f"{_make_py_type(atr.atr_type)}"
+
+
+def _make_attribute_declaration(atr: MessageAttribute) -> str:
+    return f"{atr.atr_name}: {_make_atr_type(atr)}"
 
 
 def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
@@ -80,16 +88,23 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                 f"{TAB}{TAB}return json.dumps({{\n"
             )
             for atr in msg.attributes:
-                if not atr.repeated:
-                    if _is_base_type(atr.atr_type):
-                        file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name},\n")
+                if not atr.is_map:
+                    if not atr.repeated:
+                        if _is_base_type(atr.atr_type):
+                            file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name},\n")
+                        else:
+                            file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name}.to_bytes(),\n")
                     else:
-                        file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name}.to_bytes(),\n")
+                        if _is_base_type(atr.atr_type):
+                            file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name},\n")
+                        else:
+                            file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': [x.to_bytes() for x in self.{atr.atr_name}],\n")
                 else:
-                    if _is_base_type(atr.atr_type):
-                        file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name},\n")
+                    if _is_base_type(atr.map_value_type):
+                        file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': {{key: value for key, value in self.{atr.atr_name}.items()}},\n")
                     else:
-                        file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': [x.to_bytes() for x in self.{atr.atr_name}],\n")
+                        file.write(
+                            f"{TAB}{TAB}{TAB}'{atr.atr_name}': {{key: value.to_bytes() for key, value in self.{atr.atr_name}.items()}},\n")
             file.write(
                 f"{TAB}{TAB}}})"
             )
@@ -110,16 +125,23 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                 for atr in msg.attributes:
                     file.write(TAB + TAB + TAB)
                     file.write(f"{atr.atr_name}=")
-                    if not atr.repeated:
-                        if _is_base_type(atr.atr_type):
-                            file.write(f"obj['{atr.atr_name}'],\n")
+                    if not atr.is_map:
+                        if not atr.repeated:
+                            if _is_base_type(atr.atr_type):
+                                file.write(f"obj['{atr.atr_name}'],\n")
+                            else:
+                                file.write(f"{atr.atr_type}.from_bytes(obj['{atr.atr_name}']),\n")
                         else:
-                            file.write(f"{atr.atr_type}.from_bytes(obj['{atr.atr_name}']),\n")
+                            if _is_base_type(atr.atr_type):
+                                file.write(f"obj['{atr.atr_name}'],\n")
+                            else:
+                                file.write(f"[{atr.atr_type}.from_bytes(x) for x in obj['{atr.atr_name}']],\n")
                     else:
-                        if _is_base_type(atr.atr_type):
+                        if _is_base_type(atr.map_value_type):
                             file.write(f"obj['{atr.atr_name}'],\n")
                         else:
-                            file.write(f"[{atr.atr_type}.from_bytes(x) for x in obj['{atr.atr_name}']],\n")
+                            file.write(f"{{key: value.from_bytes() for key, value in obj['{atr.atr_name}'].items()}},\n")
+
                 file.write(f"{TAB}{TAB})")
                 file.write("\n\n\n")
 

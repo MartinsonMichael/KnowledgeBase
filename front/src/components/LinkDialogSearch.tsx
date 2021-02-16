@@ -17,8 +17,8 @@ import { NoteHead, NoteTag } from "../store/messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteList: headStoreToList(store.structure.noteHeadStore),
-    tagList: tagStoreToList(store.structure.tagStore),
+    noteList: headStoreToList(store.structure.noteHeadStore.heads),
+    tagList: tagStoreToList(store.structure.tagStore.tags),
 
     dialogState: store.systemState.linkSearchState,
     isLoading: store.structure.isLoading,

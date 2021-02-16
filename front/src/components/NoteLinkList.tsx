@@ -8,7 +8,7 @@ import { Button } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadStore: store.structure.noteHeadStore,
+    noteHeadStore: store.structure.noteHeadStore.heads,
 });
 const connector = connect(mapStoreStateToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>

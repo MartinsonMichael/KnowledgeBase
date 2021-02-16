@@ -8,7 +8,7 @@ import { NoteHead } from "../store/messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteList: headStoreToList(store.structure.noteHeadStore),
+    noteList: headStoreToList(store.structure.noteHeadStore.heads),
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {}

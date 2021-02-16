@@ -6,23 +6,24 @@ import { RouteComponentProps, withRouter } from "react-router";
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 import { renderError } from "../components/ErrorPlate";
-import { updateTag } from "../store/structure/structure_actions";
+import { updateTag } from "../store/structureService/structureService_actions";
 import Paper from "@material-ui/core/Paper";
 import {tagStoreToList} from "../components/utils";
 import {renderTagLink} from "../components/TagLink";
+import {Tag} from "../store/generated_messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    tagList: tagStoreToList(store.structure.tagStore),
+    tagList: tagStoreToList(store.structure.tagStore.tags),
 
     isLoading: store.structure.isLoading,
     error: store.structure.error,
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        updateTag: (tagObj: NoteTag, description: string, color: string) => dispatch(
-            updateTag(tagObj, description, color)
-        ),
+        // updateTag: (tag_id: string, description: string, color: string) => dispatch(
+        //     updateTag(tag_id, description, color)
+        // ),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);

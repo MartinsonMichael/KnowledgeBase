@@ -1,12 +1,12 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import { NoteHead, NoteTag } from "../store/messages";
+import { NoteHead, Tag } from "../store/generated_messages";
 import { RouteComponentProps, withRouter } from "react-router";
 import { renderNoteList } from "../components/NoteList";
 import {Button, CircularProgress, TextField} from "@material-ui/core";
 import { renderError } from "../components/ErrorPlate";
-import { updateTag } from "../store/structure/structure_actions";
+import { updateTag } from "../store/structureService/structureService_actions";
 import { headStoreToList } from "../components/utils";
 import EditIcon from "@material-ui/core/SvgIcon/SvgIcon";
 import SaveIcon from '@material-ui/icons/Save';
@@ -14,16 +14,16 @@ import {renderUnsavedChangedMarker} from "../components/UnsaveTracker";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadStore: headStoreToList(store.structure.noteHeadStore),
-    tagStore: store.structure.tagStore,
+    noteHeadStore: headStoreToList(store.structure.noteHeadStore.heads),
+    tagStore: store.structure.tagStore.tags,
 
     isLoading: store.structure.isLoading,
     error: store.structure.error,
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        updateTag: (tagObj: NoteTag, description: string, color: string) => dispatch(
-            updateTag(tagObj, description, color)
+        updateTag: (tag_id: string, name: string, description: string, color: string) => dispatch(
+            updateTag(tag_id, name, description, color)
         ),
     }
 };
@@ -31,7 +31,7 @@ const connector = connect(mapStoreStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 export interface TagPageState {
-    currentTag?: NoteTag
+    currentTag: Tag
     updateCount: number
 
     isEditMode: boolean
@@ -50,7 +50,7 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
         super(props);
         this.state = {
             updateCount: 0,
-            currentTag: undefined,
+            currentTag: {} as Tag,
             isEditMode: false,
         };
 
@@ -91,10 +91,10 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
                 currentTag: {
                     ...this.state.currentTag,
                     description: newDescription,
-                },
+                } as Tag,
             });
             this.props.updateTag(
-                this.state.currentTag, this.state.currentTag.description, this.state.currentTag.color,
+                this.state.currentTag., this.state.currentTag.description, this.state.currentTag.color,
             );
             return
         }

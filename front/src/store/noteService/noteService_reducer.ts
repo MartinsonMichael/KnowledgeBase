@@ -3,14 +3,14 @@ import { NoteServiceActionType } from "./noteService_actions"
 
 
 export interface NoteServiceState {
-    // TODO add valuable state, probably rename
+    note?: msg.Note,
 
     isLoading: boolean
     error?: string
 }
 
 const initialState: NoteServiceState = {
-    // TODO add valuable state, probably rename
+    note: undefined,
 
     isLoading: false,
     error: undefined,
@@ -19,21 +19,21 @@ const initialState: NoteServiceState = {
 
 export function NoteServiceReducer(state = initialState, action: NoteServiceActionType): NoteServiceState {
     switch (action.type) {
-        case "getStructure_START":
+        case "getNote_START":
             return {
                 ...state,
                 isLoading: true,
                 error: undefined,
             } as NoteServiceState;
 
-        case "getStructure_SUCCESS":
+        case "getNote_SUCCESS":
             return {
                 ...state,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;
 
-        case "getStructure_REJECTED":
+        case "getNote_REJECTED":
             return {
                 ...state,
                 isLoading: false,
@@ -41,21 +41,21 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
             } as NoteServiceState;
 
 
-        case "getNotesHeaderList_START":
+        case "addNoteTag_START":
             return {
                 ...state,
                 isLoading: true,
                 error: undefined,
             } as NoteServiceState;
 
-        case "getNotesHeaderList_SUCCESS":
+        case "addNoteTag_SUCCESS":
             return {
                 ...state,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;
 
-        case "getNotesHeaderList_REJECTED":
+        case "addNoteTag_REJECTED":
             return {
                 ...state,
                 isLoading: false,
@@ -63,21 +63,109 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
             } as NoteServiceState;
 
 
-        case "getNotes_START":
+        case "delNoteTag_START":
             return {
                 ...state,
                 isLoading: true,
                 error: undefined,
             } as NoteServiceState;
 
-        case "getNotes_SUCCESS":
+        case "delNoteTag_SUCCESS":
             return {
                 ...state,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;
 
-        case "getNotes_REJECTED":
+        case "delNoteTag_REJECTED":
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            } as NoteServiceState;
+
+
+        case "addNoteLink_START":
+            return {
+                ...state,
+                isLoading: true,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "addNoteLink_SUCCESS":
+            return {
+                ...state,
+                isLoading: false,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "addNoteLink_REJECTED":
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            } as NoteServiceState;
+
+
+        case "delNoteLink_START":
+            return {
+                ...state,
+                isLoading: true,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "delNoteLink_SUCCESS":
+            return {
+                ...state,
+                isLoading: false,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "delNoteLink_REJECTED":
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            } as NoteServiceState;
+
+
+        case "updateNoteName_START":
+            return {
+                ...state,
+                isLoading: true,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "updateNoteName_SUCCESS":
+            return {
+                ...state,
+                isLoading: false,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "updateNoteName_REJECTED":
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            } as NoteServiceState;
+
+
+        case "updateNoteBody_START":
+            return {
+                ...state,
+                isLoading: true,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "updateNoteBody_SUCCESS":
+            return {
+                ...state,
+                isLoading: false,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "updateNoteBody_REJECTED":
             return {
                 ...state,
                 isLoading: false,

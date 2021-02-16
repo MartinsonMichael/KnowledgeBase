@@ -3,7 +3,7 @@ import Editor from "rich-markdown-editor";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
 import { construct_Note, Note, NoteHead, NoteID, NoteTag } from "../store/messages";
-import { loadNote, updateNote } from "../store/note/note_actions";
+import * as noteAct from "../store/noteService/noteService_actions";
 import { RouteComponentProps, withRouter } from "react-router";
 import TagBar from "../components/TagBar";
 import { renderError } from "../components/ErrorPlate";
@@ -31,41 +31,20 @@ const mapStoreStateToProps = (store: RootState) => ({
     note: store.note.note,
     noteHeadStore: store.structure.noteHeadStore,
 
-    isLoading_NoteLoad: store.note.isLoading_NoteLoad,
-    isLoading_NoteUpdate: store.note.isLoading_NoteUpdate,
     error: store.note.error,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        loadNote: (note_id: NoteID) => dispatch(loadNote(note_id)),
+        loadNote: (note_id: NoteID) => dispatch(noteAct.getNote(note_id)),
 
-        updateName: (note: Note | undefined, name: string) => dispatch(
-            updateNote(note, name)
-        ),
-        updateBody: (note: Note | undefined, body: string,) => dispatch(
-            updateNote(note, undefined, body)
-        ),
-        addTag: (note: Note | undefined, tagName: string) => dispatch(
-            updateNote(note, undefined, undefined, tagName)
-        ),
-        delTag: (note: Note | undefined, tagName: string) => dispatch(
-            updateNote(note, undefined, undefined, undefined, tagName)
-        ),
-        addLink: (note: Note | undefined, linkID: string) => dispatch(
-            updateNote(note, undefined, undefined, undefined, undefined, linkID)
-        ),
-        delLink: (note: Note | undefined, linkID: string) => dispatch(
-            updateNote(note, undefined, undefined, undefined, undefined, undefined, linkID)
-        ),
+        updateName: (note: string, name: string) => dispatch(noteAct.updateNoteName(note, name)),
+        updateBody: (note: string, body: string,) => dispatch(noteAct.updateNoteName(note, body)),
 
         openDialogLinks: () => dispatch(ChangeLinkDialogState("link")),
-        // openDialogTags: () => dispatch(ChangeLinkDialogState("tag")),
         closeDialog: () => dispatch(ChangeLinkDialogState("close")),
 
         openCreateTagDialog: () => dispatch(OpenNewTagCreatorSystemAction()),
-
-        // updateHomePage: (homePage: NoteID) => dispatch(updateHomePage(homePage)),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
@@ -174,7 +153,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     placeholder="Start to add body for this Note..."
                     style={{ width: "100%" }}
                     value={ body }
-                    onChange={e => this.props.updateBody(this.props.note, e.target.value)}
+                    // onChange={e => this.props.updateBody(this.props.note.id, e.target.value)}
                     ref={el=>this.inputBody=el}
                     onKeyDown={e => {
 
@@ -284,7 +263,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             </Button>
                         }
                         { renderUnsavedChangedMarker(this.state.unsavedChangesNumber) }
-                        { this.props.isLoading_NoteUpdate ? <CircularProgress/> : null }
+                        {/*{ this.props.isLoading_NoteUpdate ? <CircularProgress/> : null }*/}
                     </div>
                     { this.renderNoteSettings() }
 
@@ -301,7 +280,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                                 fullWidth
                                 size="small"
                                 value={ this.props.note.name }
-                                onChange={e => this.props.updateName(this.props.note, e.target.value)}
+                                // onChange={e => this.props.updateName(this.props.note, e.target.value)}
                             />
                         }
                     </div>
@@ -315,13 +294,13 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             showDeleteButtons={this.state.bodyState === "edit"}
                             onTagAdd={(tagName) => {
                                 if (this.props.note !== undefined) {
-                                    this.props.addTag(this.props.note, tagName);
+                                    // this.props.addTag(this.props.note, tagName);
                                     this.setState({unsavedChangesNumber: 0})
                                 }
                             }}
                             onTagDelete={(tagName) => {
                                 if (this.props.note !== undefined) {
-                                    this.props.delTag(this.props.note, tagName);
+                                    // this.props.delTag(this.props.note, tagName);
                                     this.setState({unsavedChangesNumber: 0})
                                 }
                             }}
@@ -374,28 +353,28 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                 </div>
                 <div style={{ width: "30%" }}>
                     Link from this note:
-                    <NoteLinkList
-                        showTags
-                        noteIDList={ links }
-                        showDelButtons={ this.state.bodyState === "edit" }
-                        showAddButton
-                        onAdd={(linkNoteID: NoteID) => {
-                            if (this.props.note !== undefined) {
-                                this.props.addLink(
-                                    this.props.note,
-                                    linkNoteID,
-                                )
-                            }
-                        }}
-                        onDelete={(linkNoteID: NoteID) => {
-                            if (this.props.note !== undefined) {
-                                this.props.delLink(
-                                    this.props.note,
-                                    linkNoteID,
-                                )
-                            }
-                        }}
-                    />
+                    {/*<NoteLinkList*/}
+                    {/*    showTags*/}
+                    {/*    noteIDList={ links }*/}
+                    {/*    showDelButtons={ this.state.bodyState === "edit" }*/}
+                    {/*    showAddButton*/}
+                    {/*    onAdd={(linkNoteID: NoteID) => {*/}
+                    {/*        if (this.props.note !== undefined) {*/}
+                    {/*            this.props.addLink(*/}
+                    {/*                this.props.note.id,*/}
+                    {/*                linkNoteID,*/}
+                    {/*            )*/}
+                    {/*        }*/}
+                    {/*    }}*/}
+                    {/*    onDelete={(linkNoteID: NoteID) => {*/}
+                    {/*        if (this.props.note !== undefined) {*/}
+                    {/*            this.props.delLink(*/}
+                    {/*                this.props.note,*/}
+                    {/*                linkNoteID,*/}
+                    {/*            )*/}
+                    {/*        }*/}
+                    {/*    }}*/}
+                    {/*/>*/}
                 </div>
             </div>
         );

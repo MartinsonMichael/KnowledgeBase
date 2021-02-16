@@ -32,6 +32,17 @@ def _base_type_to_ts_types(atr_type: str) -> str:
         ValueError(f"unknown base py type: {atr_type}")
 
 
+def _make_map_type(atr: MessageAttribute) -> str:
+    if _is_base_type(atr.map_value_type):
+        return (
+            f"{{[key: {_base_type_to_ts_types(atr.map_key_type)}]: {_base_type_to_ts_types(atr.map_value_type)}}}"
+        )
+    else:
+        return (
+            f"{{[key: {_base_type_to_ts_types(atr.map_key_type)}]: {atr.map_value_type}}}"
+        )
+
+
 def _is_all_atr_basic(msg: Message) -> bool:
     for atr in msg.attributes:
         if not _is_base_type(atr.atr_type):
@@ -57,14 +68,17 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                 f"export interface {msg.name} {{\n"
             )
             for atr in msg.attributes:
-                if _is_base_type(atr.atr_type):
-                    file.write(
-                        f"{TAB}{atr.atr_name}: {_base_type_to_ts_types(atr.atr_type)}"
-                    )
+                if not atr.is_map:
+                    if _is_base_type(atr.atr_type):
+                        file.write(
+                            f"{TAB}{atr.atr_name}: {_base_type_to_ts_types(atr.atr_type)}"
+                        )
+                    else:
+                        file.write(f"{TAB}{atr.atr_name}: {atr.atr_type}")
+                    if atr.repeated:
+                        file.write("[]")
                 else:
-                    file.write(f"{TAB}{atr.atr_name}: {atr.atr_type}")
-                if atr.repeated:
-                    file.write("[]")
+                    file.write(f"{TAB}{atr.atr_name}: {_make_map_type(atr)}")
                 file.write("\n")
             file.write("}\n")
 
@@ -85,6 +99,8 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                         # file.write(
                         #     f"{TAB}{TAB}'{atr.atr_name}': x['{atr.atr_name}'],\n"
                         # )
+                    elif atr.is_map:
+                        file.write(f"{TAB}{TAB}'{atr.atr_name}': x['{atr.atr_name}'] as {_make_map_type(atr)},\n")
                     else:
                         if atr.repeated:
                             file.write(

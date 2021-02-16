@@ -3,12 +3,12 @@ import * as React from "react";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
-import { NoteTag } from "../store/messages";
+import { Tag } from "../store/generated_messages";
 import { tagStoreToList } from "./utils";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    tagList: tagStoreToList(store.structure.tagStore),
+    tagList: tagStoreToList(store.structure.tagStore.tags),
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {}
@@ -17,7 +17,7 @@ const connector = connect(mapStoreStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 export type TagSelectProps = PropsFromRedux & {
-    onSelect: (tagObj: NoteTag) => void,
+    onSelect: (tagObj: Tag) => void,
     focusOnOpen?: boolean,
 }
 

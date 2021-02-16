@@ -1,6 +1,47 @@
 // This file is generated, DO NOT EDIT IT
 // Michael Martinson http generator (c)
 
+export interface NoteHeadStore {
+    heads: {[key: string]: NoteHead}
+}
+export function construct_NoteHeadStore(x: any): NoteHeadStore {
+    return {
+        'heads': x['heads'] as {[key: string]: NoteHead},
+    } as NoteHeadStore
+}
+
+
+export interface TagStore {
+    tags: {[key: string]: Tag}
+}
+export function construct_TagStore(x: any): TagStore {
+    return {
+        'tags': x['tags'] as {[key: string]: Tag},
+    } as TagStore
+}
+
+
+export interface Structure {
+    head_store: NoteHeadStore
+    tag_store: TagStore
+}
+export function construct_Structure(x: any): Structure {
+    return {
+        'head_store': construct_NoteHeadStore(x['head_store']),
+        'tag_store': construct_TagStore(x['tag_store']),
+    } as Structure
+}
+
+
+export interface TagCreateRequest {
+    name: string
+    add_to_note_id: string
+}
+export function construct_TagCreateRequest(x: any): TagCreateRequest {
+    return x as TagCreateRequest
+}
+
+
 export interface Tag {
     id: string
     name: string
@@ -9,18 +50,6 @@ export interface Tag {
 }
 export function construct_Tag(x: any): Tag {
     return x as Tag
-}
-
-
-export interface TagList {
-    list: Tag[]
-}
-export function construct_TagList(x: any): TagList {
-    return {
-        'list': [
-            ...x['list'].map((item: any) => construct_Tag(item))
-        ],
-    } as TagList
 }
 
 
@@ -36,50 +65,77 @@ export function construct_Note(x: any): Note {
 }
 
 
-export interface NoteID {
-    id: string
-}
-export function construct_NoteID(x: any): NoteID {
-    return x as NoteID
-}
-
-
-export interface NoteHeader {
+export interface NoteHead {
     id: string
     name: string
     tags: string[]
     links: string[]
 }
-export function construct_NoteHeader(x: any): NoteHeader {
-    return x as NoteHeader
+export function construct_NoteHead(x: any): NoteHead {
+    return x as NoteHead
 }
 
 
-export interface NoteHeaderList {
-    list: NoteHeader[]
+export interface NoteRequest {
+    id: string
 }
-export function construct_NoteHeaderList(x: any): NoteHeaderList {
-    return {
-        'list': [
-            ...x['list'].map((item: any) => construct_NoteHeader(item))
-        ],
-    } as NoteHeaderList
+export function construct_NoteRequest(x: any): NoteRequest {
+    return x as NoteRequest
 }
 
 
-export interface Structure {
-    headList: NoteHeader[]
-    tagList: Tag[]
+export interface NoteTagUpdate {
+    note_id: string
+    tag_name: string
 }
-export function construct_Structure(x: any): Structure {
-    return {
-        'headList': [
-            ...x['headList'].map((item: any) => construct_NoteHeader(item))
-        ],
-        'tagList': [
-            ...x['tagList'].map((item: any) => construct_Tag(item))
-        ],
-    } as Structure
+export function construct_NoteTagUpdate(x: any): NoteTagUpdate {
+    return x as NoteTagUpdate
+}
+
+
+export interface NoteLinkUpdate {
+    note_id: string
+    link_note_id: string
+}
+export function construct_NoteLinkUpdate(x: any): NoteLinkUpdate {
+    return x as NoteLinkUpdate
+}
+
+
+export interface NoteNameUpdate {
+    note_id: string
+    new_name: string
+}
+export function construct_NoteNameUpdate(x: any): NoteNameUpdate {
+    return x as NoteNameUpdate
+}
+
+
+export interface NoteBodyUpdate {
+    note_id: string
+    new_body: string
+}
+export function construct_NoteBodyUpdate(x: any): NoteBodyUpdate {
+    return x as NoteBodyUpdate
+}
+
+
+export interface NoteUpdateResponse {
+    success: boolean
+    error_msg: string
+}
+export function construct_NoteUpdateResponse(x: any): NoteUpdateResponse {
+    return x as NoteUpdateResponse
+}
+
+
+export interface NewNote {
+    pre_note_id: string
+    name: string
+    link_from: string
+}
+export function construct_NewNote(x: any): NewNote {
+    return x as NewNote
 }
 
 

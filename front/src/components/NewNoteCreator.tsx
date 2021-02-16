@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import {createNewNote, updateNote} from "../store/note/note_actions";
+import { createNewNote, addNoteLink } from "../store/noteService/noteService_actions";
 import { RouteComponentProps, withRouter } from "react-router";
 import {CircularProgress, Dialog, TextField} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
@@ -12,16 +12,16 @@ import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    newNoteID: store.note.newNoteID,
+    newNoteID: undefined,
 
-    isLoading: store.note.isLoading_NoteCreate,
+    isLoading: store.note.isLoading,
     error: store.note.error,
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        createNewNote: (noteID: string, name: string) => dispatch(createNewNote(noteID, name)),
+        createNewNote: (noteID: string, name: string) => dispatch(createNewNote(noteID, name, "")),
         addLink: (note: Note, linkToAdd: NoteID) => dispatch(
-            updateNote(note, undefined, undefined, undefined, undefined, linkToAdd)
+            addNoteLink(note.id, linkToAdd),
         ),
     }
 };
@@ -95,7 +95,7 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
             if (this.props.error === undefined && this.props.newNoteID !== undefined) {
 
                 if (this.props.noteToAddNewAsLink !== undefined) {
-                    this.props.addLink(this.props.noteToAddNewAsLink, this.props.newNoteID)
+                    this.props.addLink(this.props.noteToAddNewAsLink, "")
                 }
 
                 this.setState({ creationState: "ready" });

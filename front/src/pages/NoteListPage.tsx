@@ -1,15 +1,15 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import {renderNoteList} from "../components/NoteList";
-import {filterNoteList, headStoreToList} from "../components/utils";
+import { renderNoteList } from "../components/NoteList";
+import { filterNoteList, headStoreToList } from "../components/utils";
 import { Paper } from "@material-ui/core";
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from "@material-ui/core/InputBase/InputBase";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadList: headStoreToList(store.structure.noteHeadStore),
+    noteHeadList: headStoreToList(store.structure.noteHeadStore.heads),
 
     isLoading: store.structure.isLoading,
     error: store.structure.error,

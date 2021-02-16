@@ -1,17 +1,28 @@
 import logging
 import os
 import re
-from typing import List
-
+from typing import List, Optional
 
 logger = logging.Logger(__name__)
 
 
 class MessageAttribute:
-    def __init__(self, atr_name: str, atr_type: str, repeated: bool):
+    def __init__(
+            self,
+            atr_name: Optional[str] = None,
+            atr_type: Optional[str] = None,
+            repeated: Optional[bool] = False,
+            is_map: Optional[bool] = False,
+            map_key_type: Optional[str] = None,
+            map_value_type: Optional[str] = None,
+    ):
         self.atr_name = atr_name
         self.atr_type = atr_type
         self.repeated = repeated
+
+        self.is_map = is_map
+        self.map_key_type = map_key_type
+        self.map_value_type = map_value_type
 
     def __str__(self):
         return f"{self.atr_name}: {'[]' if self.repeated else ''}{self.atr_type}"
@@ -122,12 +133,25 @@ def parse_file(proto_file_path: str) -> ParseResult:
                 r"\s*(?P<repeated>repeated)?\s*(?P<type>\w+)\s+(?P<name>\w+)(\s+=\s+(?P<number>\d+))?",
                 line,
             )
+            m_map = re.match(
+                r"\s*map<(?P<map_key_type>\w+)\s*,\s*(?P<map_value_type>\w+)>\s+(?P<name>\w+)(\s+=\s+(?P<number>\d+))?",
+                line,
+            )
             if m is not None:
                 msg.attributes.append(
                     MessageAttribute(
                         atr_name=m.group('name'),
                         atr_type=m.group('type'),
                         repeated=m.group('repeated') == 'repeated',
+                    )
+                )
+            elif m_map is not None:
+                msg.attributes.append(
+                    MessageAttribute(
+                        is_map=True,
+                        atr_name=m_map.group('name'),
+                        map_key_type=m_map.group('map_key_type'),
+                        map_value_type=m_map.group('map_value_type'),
                     )
                 )
             else:
@@ -170,6 +194,8 @@ def validate_parsed_data(parsed_results: ParseResult) -> None:
             if atr.atr_type in msg_names:
                 continue
             elif _is_base_type(atr.atr_type):
+                continue
+            elif atr.is_map and _is_base_type(atr.map_key_type) and (_is_base_type(atr.map_value_type) or atr.map_value_type in msg_names):
                 continue
             else:
                 raise ValueError(f"message {msg.name} contain attribute with unknown type {atr.atr_type}")
