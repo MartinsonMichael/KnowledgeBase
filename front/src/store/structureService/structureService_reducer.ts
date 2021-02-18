@@ -3,16 +3,16 @@ import { StructureServiceActionType } from "./structureService_actions"
 
 
 export interface StructureServiceState {
-    noteHeadStore: msg.NoteHeadStore,
-    tagStore: msg.TagStore,
+    noteHeadStore?: msg.NoteHeadStore,
+    tagStore?: msg.TagStore,
 
     isLoading: boolean
     error?: string
 }
 
 const initialState: StructureServiceState = {
-    noteHeadStore: {} as msg.NoteHeadStore,
-    tagStore: {} as msg.TagStore,
+    noteHeadStore: undefined,
+    tagStore: undefined,
 
     isLoading: false,
     error: undefined,

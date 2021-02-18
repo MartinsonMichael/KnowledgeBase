@@ -9,7 +9,7 @@ import InputBase from "@material-ui/core/InputBase/InputBase";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadList: headStoreToList(store.structure.noteHeadStore.heads),
+    noteHeadList: headStoreToList(store.structure.noteHeadStore),
 
     isLoading: store.structure.isLoading,
     error: store.structure.error,

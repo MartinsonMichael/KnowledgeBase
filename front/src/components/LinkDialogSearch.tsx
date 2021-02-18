@@ -13,12 +13,12 @@ import Switch from "@material-ui/core/Switch";
 import { ChangeLinkDialogState } from "../store/system/system_actions";
 import TagSelect from "./TagSelect";
 import NoteNameSelect from "./NoteNameSelect";
-import { NoteHead, NoteTag } from "../store/messages";
+import { NoteHead, Tag } from "../store/generated_messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteList: headStoreToList(store.structure.noteHeadStore.heads),
-    tagList: tagStoreToList(store.structure.tagStore.tags),
+    noteList: headStoreToList(store.structure.noteHeadStore),
+    tagList: tagStoreToList(store.structure.tagStore),
 
     dialogState: store.systemState.linkSearchState,
     isLoading: store.structure.isLoading,
@@ -39,7 +39,7 @@ export interface LinkSearchState {}
 
 export interface LinkDialogSearchResult {
     type: LinkSearchMode,
-    payload: NoteTag | NoteHead
+    payload: Tag | NoteHead
 }
 export type LinkSearchProps = PropsFromRedux & {
     onSelect: (result: LinkDialogSearchResult) => void,
@@ -93,7 +93,7 @@ class LinkSearch extends React.Component<LinkSearchProps, LinkSearchState>{
                 </Grid>
                 { this.props.dialogState === "tag" ?
                     <TagSelect
-                        onSelect={(noteTag: NoteTag) => {
+                        onSelect={(noteTag: Tag) => {
                             this.props.onSelect({type: "tag", payload: noteTag});
                             this.props.closeDialog();
                         }}

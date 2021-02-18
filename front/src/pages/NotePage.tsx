@@ -2,7 +2,6 @@ import * as React from "react";
 import Editor from "rich-markdown-editor";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import { construct_Note, Note, NoteHead, NoteID, NoteTag } from "../store/messages";
 import * as noteAct from "../store/noteService/noteService_actions";
 import { RouteComponentProps, withRouter } from "react-router";
 import TagBar from "../components/TagBar";
@@ -15,15 +14,11 @@ import QueueIcon from '@material-ui/icons/Queue';
 import TagCreator from "../components/NewTagCreator"
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
-import LinkSearch from "../components/LinkDialogSearch";
 import { ChangeLinkDialogState, OpenNewTagCreatorSystemAction } from "../store/system/system_actions";
-import { createMDLinkToNote, createMDLinkToTag, insertStringIntoString } from "../components/utils";
-import NoteLinkList from "../components/NoteLinkList";
 import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import Dialog from "@material-ui/core/Dialog/Dialog";
 import NewNoteCreator from "../components/NewNoteCreator";
 import {renderUnsavedChangedMarker} from "../components/UnsaveTracker";
-import axios from "../store/client";
 
 
 
@@ -36,7 +31,7 @@ const mapStoreStateToProps = (store: RootState) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        loadNote: (note_id: NoteID) => dispatch(noteAct.getNote(note_id)),
+        loadNote: (note_id: string) => dispatch(noteAct.getNote(note_id)),
 
         updateName: (note: string, name: string) => dispatch(noteAct.updateNoteName(note, name)),
         updateBody: (note: string, body: string,) => dispatch(noteAct.updateNoteName(note, body)),
@@ -61,7 +56,7 @@ export interface NotePageState {
 
 
 type PathParamsType = {
-  pathNoteID: NoteID
+  pathstring: string
 }
 
 export type NotePageProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {}
@@ -101,7 +96,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
     }
 
     loadNote(): void {
-        let needID = this.props.match.params.pathNoteID;
+        let needID = this.props.match.params.pathstring;
 
         if (needID === "undefined") {
             alert("no note ID");
@@ -124,7 +119,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
         const { id, body } = this.props.note;
         if (this.state.bodyState === "view") {
             return (
-                <div key={id + this.props.match.params.pathNoteID + body}>
+                <div key={id + this.props.match.params.pathstring + body}>
                 <Editor
                     readOnly
                     placeholder="No any body yet"
@@ -286,7 +281,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     </div>
                     <div style={{ display: "flex", alignItems: "center" }}>
                         <TagBar
-                            parentNoteID={ id }
+                            parentstring={ id }
                             tags={ tags }
                             showTagsLabel
                             size={ 16 }
@@ -338,7 +333,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     {/*        this.setState({localNoteBody: newBody, unsavedChangesNumber: 0});*/}
                     {/*    }*/}
                     {/*    if (result.type === "tag") {*/}
-                    {/*        const noteTag = result.payload as NoteTag;*/}
+                    {/*        const noteTag = result.payload as Tag;*/}
                     {/*        this.updateBodyAndName(*/}
                     {/*            insertStringIntoString(*/}
                     {/*                this.state.localNoteBody,*/}
@@ -358,19 +353,19 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     {/*    noteIDList={ links }*/}
                     {/*    showDelButtons={ this.state.bodyState === "edit" }*/}
                     {/*    showAddButton*/}
-                    {/*    onAdd={(linkNoteID: NoteID) => {*/}
+                    {/*    onAdd={(linkstring: string) => {*/}
                     {/*        if (this.props.note !== undefined) {*/}
                     {/*            this.props.addLink(*/}
                     {/*                this.props.note.id,*/}
-                    {/*                linkNoteID,*/}
+                    {/*                linkstring,*/}
                     {/*            )*/}
                     {/*        }*/}
                     {/*    }}*/}
-                    {/*    onDelete={(linkNoteID: NoteID) => {*/}
+                    {/*    onDelete={(linkstring: string) => {*/}
                     {/*        if (this.props.note !== undefined) {*/}
                     {/*            this.props.delLink(*/}
                     {/*                this.props.note,*/}
-                    {/*                linkNoteID,*/}
+                    {/*                linkstring,*/}
                     {/*            )*/}
                     {/*        }*/}
                     {/*    }}*/}

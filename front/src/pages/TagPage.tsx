@@ -14,8 +14,8 @@ import {renderUnsavedChangedMarker} from "../components/UnsaveTracker";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadStore: headStoreToList(store.structure.noteHeadStore.heads),
-    tagStore: store.structure.tagStore.tags,
+    noteHeadStore: headStoreToList(store.structure.noteHeadStore),
+    tagStore: store.structure.tagStore,
 
     isLoading: store.structure.isLoading,
     error: store.structure.error,
@@ -67,17 +67,17 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
             return
         }
         this.setState({
-            currentTag: this.props.tagStore[this.props.match.params.pathTagName],
+            currentTag: this.props.tagStore.tags[this.props.match.params.pathTagName],
         })
     }
 
     componentDidMount(): void {
         if (this.props.tagStore === undefined) {
-            this.setState({currentTag: undefined})
+            this.setState({currentTag: {} as Tag});
             return
         }
         this.setState({
-            currentTag: this.props.tagStore[this.props.match.params.pathTagName],
+            currentTag: this.props.tagStore.tags[this.props.match.params.pathTagName],
         })
     }
 
@@ -94,7 +94,10 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
                 } as Tag,
             });
             this.props.updateTag(
-                this.state.currentTag., this.state.currentTag.description, this.state.currentTag.color,
+                this.state.currentTag.id,
+                this.state.currentTag.name,
+                this.state.currentTag.description,
+                this.state.currentTag.color,
             );
             return
         }
@@ -160,7 +163,8 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
                                     e.preventDefault();
                                     if (this.state.currentTag !== undefined) {
                                         this.props.updateTag(
-                                            this.state.currentTag,
+                                            this.state.currentTag.id,
+                                            this.state.currentTag.name,
                                             this.state.currentTag.description,
                                             this.state.currentTag.color,
                                         );

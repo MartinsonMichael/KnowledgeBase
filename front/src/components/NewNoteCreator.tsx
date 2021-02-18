@@ -7,12 +7,12 @@ import {CircularProgress, Dialog, TextField} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import { renderError } from "./ErrorPlate";
 import DialogActions from "@material-ui/core/DialogActions/DialogActions";
-import {Note, NoteID} from "../store/messages";
+import { Note } from "../store/generated_messages";
 import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    newNoteID: undefined,
+    newstring: undefined,
 
     isLoading: store.note.isLoading,
     error: store.note.error,
@@ -20,7 +20,7 @@ const mapStoreStateToProps = (store: RootState) => ({
 const mapDispatchToProps = (dispatch: any) => {
     return {
         createNewNote: (noteID: string, name: string) => dispatch(createNewNote(noteID, name, "")),
-        addLink: (note: Note, linkToAdd: NoteID) => dispatch(
+        addLink: (note: Note, linkToAdd: string) => dispatch(
             addNoteLink(note.id, linkToAdd),
         ),
     }
@@ -30,7 +30,7 @@ type PropsFromRedux = ConnectedProps<typeof connector>
 
 type CreationState = "fill-form" | "waiting" | "ready"
 export interface NewNotePageState {
-    newNoteID: string
+    newstring: string
     newNoteName: string
 
     creationState: CreationState
@@ -48,7 +48,7 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
     constructor(props: NewNotePageProps) {
         super(props);
         this.state = {
-            newNoteID: NewNoteCreator.generateRandomNoteId(),
+            newstring: NewNoteCreator.generateRandomNoteId(),
             newNoteName: "",
 
             creationState: "fill-form",
@@ -67,7 +67,7 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
             alert("Note name must be not empty");
             return
         }
-        this.props.createNewNote(this.state.newNoteID, this.state.newNoteName);
+        this.props.createNewNote(this.state.newstring, this.state.newNoteName);
         this.setState({ creationState: "waiting" })
     }
 
@@ -92,7 +92,7 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
     render(): React.ReactNode {
 
         if (this.state.creationState === "waiting") {
-            if (this.props.error === undefined && this.props.newNoteID !== undefined) {
+            if (this.props.error === undefined && this.props.newstring !== undefined) {
 
                 if (this.props.noteToAddNewAsLink !== undefined) {
                     this.props.addLink(this.props.noteToAddNewAsLink, "")
@@ -128,8 +128,8 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
                     <p/>
                     <TextField
                         disabled={ this.state.creationState !== "fill-form" }
-                        value={ this.state.newNoteID }
-                        onChange={e => this.setState({ newNoteID: e.target.value })}
+                        value={ this.state.newstring }
+                        onChange={e => this.setState({ newstring: e.target.value })}
                     />
                     <p/>
                 </DialogContent>
@@ -138,7 +138,7 @@ class NewNoteCreator extends React.Component<NewNotePageProps, NewNotePageState>
                         variant="contained"
                         color="primary"
                         onClick={ () => {
-                            this.props.history.push(`/note/${ this.props.newNoteID }`);
+                            this.props.history.push(`/note/${ this.props.newstring }`);
                             this.props.close()
                         } }
                         disabled={ this.state.creationState !== "ready" }

@@ -3,6 +3,7 @@ env/
 pyenv/
 notes/
 db_dumps/
+back/api/migrations/
 
 
 logs

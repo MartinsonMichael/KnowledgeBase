@@ -9,14 +9,14 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import Button from "@material-ui/core/Button";
 import { CloseNewTagCreatorSystemAction, OpenNewTagCreatorSystemAction } from "../store/system/system_actions";
-import {Note, NoteTag} from "../store/messages";
+import { Note, Tag } from "../store/generated_messages";
 import { Link } from "react-router-dom";
 import { TextField } from "@material-ui/core";
 import { createNewTag } from "../store/structureService/structureService_actions";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    tagList: tagStoreToList(store.structure.tagStore.tags),
+    tagList: tagStoreToList(store.structure.tagStore),
     isOpen: store.systemState.isNewTagCreatorOpen,
 
     isLoading: store.structure.isLoading,
@@ -26,7 +26,7 @@ const mapDispatchToProps = (dispatch: any) => {
     return {
         close: () => dispatch(CloseNewTagCreatorSystemAction()),
         open: () => dispatch(OpenNewTagCreatorSystemAction()),
-        create: (tagObj: NoteTag, addToNote?: Note) => dispatch(createNewTag(tagObj.name, "")),
+        create: (tagObj: Tag, addToNote?: Note) => dispatch(createNewTag(tagObj.name, "")),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
@@ -66,7 +66,7 @@ class TagCreator extends React.Component<TagCreatorProps, TagCreatorState>{
             alert("Name length must be positive");
             return;
         }
-        if (this.props.tagList.filter((tagObj: NoteTag) => tagObj.name === this.state.inputName).length !== 0) {
+        if (this.props.tagList.filter((tagObj: Tag) => tagObj.name === this.state.inputName).length !== 0) {
             alert("You can't create two identical tags");
             return;
         }
@@ -75,7 +75,7 @@ class TagCreator extends React.Component<TagCreatorProps, TagCreatorState>{
                 name: this.state.inputName,
                 description: this.state.inputDescription,
                 color: this.state.inputColor,
-            } as NoteTag,
+            } as Tag,
             this.props.noteToAddNewTag,
         );
 
@@ -88,7 +88,7 @@ class TagCreator extends React.Component<TagCreatorProps, TagCreatorState>{
         }
 
         let similarTagList = this.props.tagList
-            .filter((tagObj: NoteTag) => tagObj.name.includes(this.state.inputName));
+            .filter((tagObj: Tag) => tagObj.name.includes(this.state.inputName));
 
         if (similarTagList.length === 0) {
             return <span>No similar Tags</span>
@@ -101,7 +101,7 @@ class TagCreator extends React.Component<TagCreatorProps, TagCreatorState>{
 
         return (
             <div>
-                { similarTagList.map((tagObj: NoteTag) => (
+                { similarTagList.map((tagObj: Tag) => (
                         <div style={{ marginBottom: "10px" }}>
                             <div>
                             <Link to={`/tag/${tagObj.name}`}>#{tagObj.name}</Link>

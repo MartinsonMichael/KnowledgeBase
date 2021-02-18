@@ -1,7 +1,7 @@
 # This file is generated, DO NOT EDIT IT
 # Michael Martinson http generator (c)
 
-from typing import List, Dict
+from typing import List, Dict, Union
 import json
 
 
@@ -9,16 +9,15 @@ class NoteHeadStore:
     def __init__(self, heads: Dict[str, 'NoteHead']):
         self.heads: Dict[str, 'NoteHead'] = heads
 
-    def to_bytes(self) -> str:
-        return json.dumps({
-            'heads': {key: value.to_bytes() for key, value in self.heads.items()},
-        })
+    def to_json(self) -> Union[Dict, List]:
+        return {
+            'heads': {key: value.to_json() for key, value in self.heads.items()},
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'NoteHeadStore':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'NoteHeadStore':
         return NoteHeadStore(
-            heads={key: value.from_bytes() for key, value in obj['heads'].items()},
+            heads={key: value.from_json() for key, value in obj['heads'].items()},
         )
 
 
@@ -26,16 +25,15 @@ class TagStore:
     def __init__(self, tags: Dict[str, 'Tag']):
         self.tags: Dict[str, 'Tag'] = tags
 
-    def to_bytes(self) -> str:
-        return json.dumps({
-            'tags': {key: value.to_bytes() for key, value in self.tags.items()},
-        })
+    def to_json(self) -> Union[Dict, List]:
+        return {
+            'tags': {key: value.to_json() for key, value in self.tags.items()},
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'TagStore':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'TagStore':
         return TagStore(
-            tags={key: value.from_bytes() for key, value in obj['tags'].items()},
+            tags={key: value.from_json() for key, value in obj['tags'].items()},
         )
 
 
@@ -44,18 +42,17 @@ class Structure:
         self.head_store: 'NoteHeadStore' = head_store
         self.tag_store: 'TagStore' = tag_store
 
-    def to_bytes(self) -> str:
-        return json.dumps({
-            'head_store': self.head_store.to_bytes(),
-            'tag_store': self.tag_store.to_bytes(),
-        })
+    def to_json(self) -> Union[Dict, List]:
+        return {
+            'head_store': self.head_store.to_json(),
+            'tag_store': self.tag_store.to_json(),
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'Structure':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'Structure':
         return Structure(
-            head_store=NoteHeadStore.from_bytes(obj['head_store']),
-            tag_store=TagStore.from_bytes(obj['tag_store']),
+            head_store=NoteHeadStore.from_json(obj['head_store']),
+            tag_store=TagStore.from_json(obj['tag_store']),
         )
 
 
@@ -64,15 +61,14 @@ class TagCreateRequest:
         self.name: str = name
         self.add_to_note_id: str = add_to_note_id
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'name': self.name,
             'add_to_note_id': self.add_to_note_id,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'TagCreateRequest':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'TagCreateRequest':
         return TagCreateRequest(
             name=obj['name'],
             add_to_note_id=obj['add_to_note_id'],
@@ -86,17 +82,16 @@ class Tag:
         self.description: str = description
         self.color: str = color
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'id': self.id,
             'name': self.name,
             'description': self.description,
             'color': self.color,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'Tag':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'Tag':
         return Tag(
             id=obj['id'],
             name=obj['name'],
@@ -113,18 +108,17 @@ class Note:
         self.links: List[str] = links
         self.body: str = body
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'id': self.id,
             'name': self.name,
             'tags': self.tags,
             'links': self.links,
             'body': self.body,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'Note':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'Note':
         return Note(
             id=obj['id'],
             name=obj['name'],
@@ -141,17 +135,16 @@ class NoteHead:
         self.tags: List[str] = tags
         self.links: List[str] = links
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'id': self.id,
             'name': self.name,
             'tags': self.tags,
             'links': self.links,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'NoteHead':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'NoteHead':
         return NoteHead(
             id=obj['id'],
             name=obj['name'],
@@ -164,14 +157,13 @@ class NoteRequest:
     def __init__(self, id: str):
         self.id: str = id
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'id': self.id,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'NoteRequest':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'NoteRequest':
         return NoteRequest(
             id=obj['id'],
         )
@@ -182,15 +174,14 @@ class NoteTagUpdate:
         self.note_id: str = note_id
         self.tag_name: str = tag_name
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'note_id': self.note_id,
             'tag_name': self.tag_name,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'NoteTagUpdate':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'NoteTagUpdate':
         return NoteTagUpdate(
             note_id=obj['note_id'],
             tag_name=obj['tag_name'],
@@ -202,15 +193,14 @@ class NoteLinkUpdate:
         self.note_id: str = note_id
         self.link_note_id: str = link_note_id
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'note_id': self.note_id,
             'link_note_id': self.link_note_id,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'NoteLinkUpdate':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'NoteLinkUpdate':
         return NoteLinkUpdate(
             note_id=obj['note_id'],
             link_note_id=obj['link_note_id'],
@@ -222,15 +212,14 @@ class NoteNameUpdate:
         self.note_id: str = note_id
         self.new_name: str = new_name
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'note_id': self.note_id,
             'new_name': self.new_name,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'NoteNameUpdate':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'NoteNameUpdate':
         return NoteNameUpdate(
             note_id=obj['note_id'],
             new_name=obj['new_name'],
@@ -242,15 +231,14 @@ class NoteBodyUpdate:
         self.note_id: str = note_id
         self.new_body: str = new_body
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'note_id': self.note_id,
             'new_body': self.new_body,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'NoteBodyUpdate':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'NoteBodyUpdate':
         return NoteBodyUpdate(
             note_id=obj['note_id'],
             new_body=obj['new_body'],
@@ -262,15 +250,14 @@ class NoteUpdateResponse:
         self.success: bool = success
         self.error_msg: str = error_msg
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'success': self.success,
             'error_msg': self.error_msg,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'NoteUpdateResponse':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'NoteUpdateResponse':
         return NoteUpdateResponse(
             success=obj['success'],
             error_msg=obj['error_msg'],
@@ -283,16 +270,15 @@ class NewNote:
         self.name: str = name
         self.link_from: str = link_from
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'pre_note_id': self.pre_note_id,
             'name': self.name,
             'link_from': self.link_from,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'NewNote':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'NewNote':
         return NewNote(
             pre_note_id=obj['pre_note_id'],
             name=obj['name'],
@@ -307,17 +293,16 @@ class SimpleMsg:
         self.string_field: str = string_field
         self.boolean_field: List[bool] = boolean_field
 
-    def to_bytes(self) -> str:
-        return json.dumps({
+    def to_json(self) -> Union[Dict, List]:
+        return {
             'integer_field': self.integer_field,
             'float_field': self.float_field,
             'string_field': self.string_field,
             'boolean_field': self.boolean_field,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'SimpleMsg':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'SimpleMsg':
         return SimpleMsg(
             integer_field=obj['integer_field'],
             float_field=obj['float_field'],
@@ -333,21 +318,20 @@ class ComplexMsg:
         self.singleSimple: 'SimpleMsg' = singleSimple
         self.single_boolean: bool = single_boolean
 
-    def to_bytes(self) -> str:
-        return json.dumps({
-            'simpleMsgList': [x.to_bytes() for x in self.simpleMsgList],
+    def to_json(self) -> Union[Dict, List]:
+        return {
+            'simpleMsgList': [x.to_json() for x in self.simpleMsgList],
             'string_list': self.string_list,
-            'singleSimple': self.singleSimple.to_bytes(),
+            'singleSimple': self.singleSimple.to_json(),
             'single_boolean': self.single_boolean,
-        })
+        }
 
     @staticmethod
-    def from_bytes(data: bytes) -> 'ComplexMsg':
-        obj = json.loads(data)
+    def from_json(obj: Dict) -> 'ComplexMsg':
         return ComplexMsg(
-            simpleMsgList=[SimpleMsg.from_bytes(x) for x in obj['simpleMsgList']],
+            simpleMsgList=[SimpleMsg.from_json(x) for x in obj['simpleMsgList']],
             string_list=obj['string_list'],
-            singleSimple=SimpleMsg.from_bytes(obj['singleSimple']),
+            singleSimple=SimpleMsg.from_json(obj['singleSimple']),
             single_boolean=obj['single_boolean'],
         )
 

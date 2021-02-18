@@ -1,12 +1,12 @@
 import * as React from "react";
 import TagSelect from "./TagSelect";
-import { NoteID, NoteTag } from "../store/messages";
+import { Tag } from "../store/generated_messages";
 import { Button, Chip, IconButton } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 import { RouteComponentProps, withRouter } from "react-router";
 
 export type TagBarProps = RouteComponentProps<{}> & {
-    parentNoteID: NoteID,
+    parentstring: string,
     tags: string[]
     size?: number
     showTagsLabel?: boolean
@@ -56,7 +56,7 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
         return (
             <div style={{ display: "flex", marginRight: "5px" }}>
                 <TagSelect
-                    onSelect={(tagObj: NoteTag) => {
+                    onSelect={(tagObj: Tag) => {
                         if (this.props.onTagAdd !== undefined) {
                             this.props.onTagAdd(tagObj.name)
                         }
@@ -74,14 +74,14 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
         return (
             <div
                 style={{ display: "flex", fontSize: size, alignItems: "center"  }}
-                key={ this.props.parentNoteID + 'tagbar' }
+                key={ this.props.parentstring + 'tagbar' }
             >
                 {showTagsLabel ? <span style={{ marginRight: "5px" }}>Tags:</span> : null}
                 {
                     tags
                         .filter((tag: string) => tag !== null && tag !== undefined && tag.length !== 0)
                         .map((tag: string) => (
-                            <div style={{ marginRight: "5px" }} key={ this.props.parentNoteID + tag + 'div' }>
+                            <div style={{ marginRight: "5px" }} key={ this.props.parentstring + tag + 'div' }>
                                 <Button
                                     onClick={() => this.props.history.push(`/tag/${tag}`)}
                                     size="small"

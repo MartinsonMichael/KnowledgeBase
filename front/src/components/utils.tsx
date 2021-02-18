@@ -1,42 +1,21 @@
-import {Note, NoteHead, NoteHeadStore, NoteID, NoteTag, TagStore} from "../store/messages";
+import { Note, NoteHead, NoteHeadStore, Tag, TagStore } from "../store/generated_messages";
 
 export function headStoreToList(noteHeadStore: NoteHeadStore | undefined): NoteHead[] {
     if (noteHeadStore === undefined) {
         return [] as NoteHead[]
     }
-    return [...Object.keys(noteHeadStore).map(key => noteHeadStore[key])]
+    return [...Object.keys(noteHeadStore.heads).map(key => noteHeadStore.heads[key])]
 }
 
-export function tagStoreToList(tagStore: TagStore | undefined): NoteTag[] {
+export function tagStoreToList(tagStore: TagStore | undefined): Tag[] {
     if (tagStore === undefined) {
-        return [] as NoteTag[]
+        return [] as Tag[]
     }
-    return [...Object.keys(tagStore).map(key => tagStore[key])]
+    return [...Object.keys(tagStore.tags).map(key => tagStore.tags[key])]
 }
 
-export function getNoteIDByName(name: string, noteHeadStore: NoteHeadStore | undefined) : NoteID | undefined {
-    if (noteHeadStore === undefined) {
-        return undefined;
-    }
-    const possibleObject = Object.keys(noteHeadStore).filter(noteID => noteHeadStore[noteID].name === name)
-    if (possibleObject.length !== 1) {
-        return undefined;
-    }
-    return possibleObject[0]
-}
 
-export function getNoteNameByID(noteID: NoteID, noteHeadStore: NoteHeadStore | undefined) : string | undefined {
-    if (noteHeadStore === undefined) {
-        return undefined;
-    }
-    if (!Object.keys(noteHeadStore).includes(noteID)) {
-        return undefined;
-    }
-    const possibleObject = noteHeadStore[noteID];
-    return possibleObject.name
-}
-
-export function createMDLinkToNote(noteID: NoteID, noteName: string): string {
+export function createMDLinkToNote(noteID: string, noteName: string): string {
     let nameToShow = noteName;
     if (nameToShow.length > 35) {
         nameToShow = nameToShow.substring(0, 32) + "..."

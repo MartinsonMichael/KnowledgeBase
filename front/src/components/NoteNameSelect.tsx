@@ -4,11 +4,11 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
 import { headStoreToList } from "./utils";
-import { NoteHead } from "../store/messages";
+import { NoteHead } from "../store/generated_messages";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteList: headStoreToList(store.structure.noteHeadStore.heads),
+    noteList: headStoreToList(store.structure.noteHeadStore),
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {}

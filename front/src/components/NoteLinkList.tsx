@@ -1,6 +1,6 @@
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
-import { NoteHead, NoteHeadStore, NoteID } from "../store/messages";
+import { NoteHead, NoteHeadStore } from "../store/generated_messages";
 import * as React from "react";
 import NoteNameSelect from "./NoteNameSelect";
 import { renderNoteLink } from "./NoteLink";
@@ -8,19 +8,19 @@ import { Button } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 
 const mapStoreStateToProps = (store: RootState) => ({
-    noteHeadStore: store.structure.noteHeadStore.heads,
+    globalNoteHeadStore: store.structure.noteHeadStore,
 });
 const connector = connect(mapStoreStateToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 export type NoteLinkListProps = PropsFromRedux & {
-    noteIDList: NoteID[],
+    noteIDList: string[],
     noteHeadStore: NoteHeadStore | undefined,
     showTags: boolean
     showDelButtons: boolean
-    onDelete?: (id: NoteID) => void | undefined,
+    onDelete?: (id: string) => void | undefined,
     showAddButton: boolean,
-    onAdd?: (id: NoteID) => void | undefined
+    onAdd?: (id: string) => void | undefined
 }
 
 type NoteLinkListState = {
@@ -70,12 +70,12 @@ class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState>
             <div>
                 { this.props.noteIDList.length === 0 ? <span style={{color: "grey"}}>No links</span> : null }
 
-                { this.props.noteIDList.map((noteID: NoteID) =>
+                { this.props.noteIDList.map((noteID: string) =>
                     // @ts-ignore
                     <div key={ noteID }>
                         { renderNoteLink(
                             // @ts-ignore
-                            this.props.noteHeadStore[noteID],
+                            this.props.noteHeadStore.heads[noteID],
                             this.props.showTags,
                             (this.props.showDelButtons ? this.props.onDelete : undefined),
                         )}

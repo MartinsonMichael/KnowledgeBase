@@ -1,4 +1,4 @@
-import { Note, NoteHead, NoteID } from "../store/messages";
+import { Note, NoteHead } from "../store/generated_messages";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import TagBar from "./TagBar";
@@ -8,7 +8,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 export function renderNoteLink(
     note: Note | NoteHead,
     showTags: boolean = false,
-    onDelete?: (id: NoteID) => void | undefined,
+    onDelete?: (id: string) => void | undefined,
 ): React.ReactNode {
     const { id, name, tags } = note;
 
@@ -17,7 +17,7 @@ export function renderNoteLink(
             <div key={id} style={{ marginBottom: "10px" }}>
                 <Link to={`/note/${id}`}> {name} </Link>
                 { showTags ? (
-                    <TagBar tags={tags} size={10} key={id} parentNoteID={ id }/>
+                    <TagBar tags={tags} size={10} key={id} parentstring={ id }/>
                 ) : null }
             </div>
         )
@@ -37,7 +37,7 @@ export function renderNoteLink(
                 <div>
                     <Link to={`/note/${ id }`}>{ name }</Link>
                     { showTags ? (
-                        <TagBar tags={ tags } size={ 10 } key={ id } parentNoteID={ id }/>
+                        <TagBar tags={ tags } size={ 10 } key={ id } parentstring={ id }/>
                     ) : null }
                 </div>
             </div>

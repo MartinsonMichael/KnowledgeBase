@@ -8,7 +8,7 @@ import { tagStoreToList } from "./utils";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    tagList: tagStoreToList(store.structure.tagStore.tags),
+    tagList: tagStoreToList(store.structure.tagStore),
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {}

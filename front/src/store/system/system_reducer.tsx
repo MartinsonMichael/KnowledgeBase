@@ -1,6 +1,5 @@
 import { SystemActionTypes } from "./system_actions";
 import { LinkSearchMode } from "../../components/LinkDialogSearch";
-import {NoteID} from "../messages";
 
 export interface SystemState {
     linkSearchState: LinkSearchMode,

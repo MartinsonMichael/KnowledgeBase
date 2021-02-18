@@ -1,25 +1,30 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from djongo import models
 
 
 class NoteTag(models.Model):
-    tag_id = models.AutoField(primary_key=True, auto_created=True)
+    tag_id = models.ObjectIdField()
 
     title = models.TextField(unique=True)
     color = models.TextField(default="")
     description = models.TextField(default="")
 
+    objects = models.DjongoManager()
+
 
 class NoteDB(models.Model):
-    note_id = models.AutoField(primary_key=True, auto_created=True)
-
+    note_id = models.ObjectIdField()
     title = models.TextField(unique=True)
 
     body = models.TextField(default="")
 
-    tags = models.ManyToManyField('NoteTag', db_index=False)
+    tags = models.ManyToManyField(NoteTag, db_index=False)
     links = models.ManyToManyField('NoteDB', db_index=False)
+
+    objects = models.DjongoManager()
 
 
 class KbUser(models.Model):
-    user_id = models.AutoField(primary_key=True, auto_created=True)
+    user_id = models.ObjectIdField()
+
+    objects = models.DjongoManager()

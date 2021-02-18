@@ -10,7 +10,7 @@ HEAD = """# This file is generated, DO NOT EDIT IT
 # Michael Martinson http generator (c)"""
 MESSAGE_HEAD = f"""{HEAD}
 
-from typing import List, Dict
+from typing import List, Dict, Union
 import json
 
 
@@ -84,8 +84,8 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
             file.write("\n")
 
             file.write(
-                f"{TAB}def to_bytes(self) -> str:\n"
-                f"{TAB}{TAB}return json.dumps({{\n"
+                f"{TAB}def to_json(self) -> Union[Dict, List]:\n"
+                f"{TAB}{TAB}return {{\n"
             )
             for atr in msg.attributes:
                 if not atr.is_map:
@@ -93,33 +93,33 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                         if _is_base_type(atr.atr_type):
                             file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name},\n")
                         else:
-                            file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name}.to_bytes(),\n")
+                            file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name}.to_json(),\n")
                     else:
                         if _is_base_type(atr.atr_type):
                             file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': self.{atr.atr_name},\n")
                         else:
-                            file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': [x.to_bytes() for x in self.{atr.atr_name}],\n")
+                            file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': [x.to_json() for x in self.{atr.atr_name}],\n")
                 else:
                     if _is_base_type(atr.map_value_type):
                         file.write(f"{TAB}{TAB}{TAB}'{atr.atr_name}': {{key: value for key, value in self.{atr.atr_name}.items()}},\n")
                     else:
                         file.write(
-                            f"{TAB}{TAB}{TAB}'{atr.atr_name}': {{key: value.to_bytes() for key, value in self.{atr.atr_name}.items()}},\n")
+                            f"{TAB}{TAB}{TAB}'{atr.atr_name}': {{key: value.to_json() for key, value in self.{atr.atr_name}.items()}},\n")
             file.write(
-                f"{TAB}{TAB}}})"
+                f"{TAB}{TAB}}}"
             )
             file.write("\n\n")
 
             file.write(
                 f"{TAB}@staticmethod\n"
-                f"{TAB}def from_bytes(data: bytes) -> '{msg.name}':\n"
+                f"{TAB}def from_json(obj: Dict) -> '{msg.name}':\n"
             )
             if len(msg.attributes) == 0:
                 file.write(f"{TAB}{TAB}pass")
 
             else:
                 file.write(
-                    f"{TAB}{TAB}obj = json.loads(data)\n"
+                    # f"{TAB}{TAB}obj = json.loads(data)\n"
                     f"{TAB}{TAB}return {msg.name}(\n"
                 )
                 for atr in msg.attributes:
@@ -130,17 +130,17 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                             if _is_base_type(atr.atr_type):
                                 file.write(f"obj['{atr.atr_name}'],\n")
                             else:
-                                file.write(f"{atr.atr_type}.from_bytes(obj['{atr.atr_name}']),\n")
+                                file.write(f"{atr.atr_type}.from_json(obj['{atr.atr_name}']),\n")
                         else:
                             if _is_base_type(atr.atr_type):
                                 file.write(f"obj['{atr.atr_name}'],\n")
                             else:
-                                file.write(f"[{atr.atr_type}.from_bytes(x) for x in obj['{atr.atr_name}']],\n")
+                                file.write(f"[{atr.atr_type}.from_json(x) for x in obj['{atr.atr_name}']],\n")
                     else:
                         if _is_base_type(atr.map_value_type):
                             file.write(f"obj['{atr.atr_name}'],\n")
                         else:
-                            file.write(f"{{key: value.from_bytes() for key, value in obj['{atr.atr_name}'].items()}},\n")
+                            file.write(f"{{key: value.from_json() for key, value in obj['{atr.atr_name}'].items()}},\n")
 
                 file.write(f"{TAB}{TAB})")
                 file.write("\n\n\n")
@@ -159,12 +159,15 @@ def generate_services(parse_result: ParseResult, service_path: str) -> None:
                 if method.input_type != "Null":
                     file.write(
                         f"{TAB}{TAB}try:\n"
-                        f"{TAB}{TAB}{TAB}input_data: {method.input_type} = {method.input_type}.from_bytes(request.body)\n"
+                        f"{TAB}{TAB}{TAB}input_data: {method.input_type} = {method.input_type}.from_json(json.loads(request.body))\n"
                         f"{TAB}{TAB}except:\n"
-                        f"{TAB}{TAB}{TAB}return HttpResponse(\n"
+                        f"{TAB}{TAB}{TAB}response = HttpResponse(\n"
                         f"{TAB}{TAB}{TAB}{TAB}content='error while parsing request',\n"
                         f"{TAB}{TAB}{TAB}{TAB}status=400,\n"
-                        f"{TAB}{TAB}{TAB})\n\n"
+                        f"{TAB}{TAB}{TAB})\n"
+                        f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Origin\"] = \"*\"\n"
+                        f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Headers\"] = \"*\"\n"
+                        f"{TAB}{TAB}{TAB}return response\n"
                     )
 
                 file.write(f"{TAB}{TAB}try:\n")
@@ -180,28 +183,35 @@ def generate_services(parse_result: ParseResult, service_path: str) -> None:
                         file.write(f"{TAB}{TAB}{TAB}self.{method.name}()\n")
                 file.write(
                     f"{TAB}{TAB}except:\n"
-                    f"{TAB}{TAB}{TAB}return HttpResponse(\n"
+                    f"{TAB}{TAB}{TAB}response = HttpResponse(\n"
                     f"{TAB}{TAB}{TAB}{TAB}content='error while processing request',\n"
                     f"{TAB}{TAB}{TAB}{TAB}status=400,\n"
                     f"{TAB}{TAB}{TAB})\n"
+                    f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Origin\"] = \"*\"\n"
+                    f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Headers\"] = \"*\"\n"
+                    f"{TAB}{TAB}{TAB}return response\n"
                     f"\n"
                 )
 
                 if method.output_type != "Null":
                     file.write(
-                        f"{TAB}{TAB}return HttpResponse(\n"
-                        f"{TAB}{TAB}{TAB}content=output_data.to_bytes(),\n"
+                        f"{TAB}{TAB}response = HttpResponse(\n"
+                        f"{TAB}{TAB}{TAB}content=json.dumps(output_data.to_json()),\n"
                         f"{TAB}{TAB}{TAB}status=200,\n"
                         f"{TAB}{TAB})\n"
-                        f"\n"
                     )
                 else:
                     file.write(
-                        f"{TAB}{TAB}return HttpResponse(\n"
+                        f"{TAB}{TAB}response =HttpResponse(\n"
                         f"{TAB}{TAB}{TAB}status=200,\n"
                         f"{TAB}{TAB})\n"
-                        f"\n"
                     )
+                file.write(
+                    f"{TAB}{TAB}response[\"Access-Control-Allow-Origin\"] = \"*\"\n"
+                    f"{TAB}{TAB}response[\"Access-Control-Allow-Headers\"] = \"*\"\n"
+                    f"{TAB}{TAB}return response\n"
+                    f"\n"
+                )
 
                 if method.input_type != "Null":
                     if method.output_type != "Null":

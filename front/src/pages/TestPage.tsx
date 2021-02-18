@@ -1,7 +1,6 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import { construct_Note, Note, NoteHead, NoteID, NoteTag } from "../store/messages";
 import { RouteComponentProps, withRouter } from "react-router";
 
 
@@ -14,7 +13,7 @@ const mapStoreStateToProps = (store: RootState) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
     return {
-        // loadNote: (note_id: NoteID) => dispatch(loadNote(note_id)),
+        // loadNote: (note_id: string) => dispatch(loadNote(note_id)),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);

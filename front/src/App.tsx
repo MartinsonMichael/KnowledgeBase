@@ -15,7 +15,6 @@ import { connect, ConnectedProps } from "react-redux";
 
 import { Route, Switch, Redirect, withRouter } from "react-router-dom";
 import { RouteComponentProps } from "react-router";
-// import { NoteID } from "./store/messages";
 // import TagPage from "./pages/TagPage";
 // import NoteListPage from "./pages/NoteListPage";
 // import NotePage from "./pages/NotePage";
@@ -48,7 +47,7 @@ type PathParamsType = {}
 export type AppProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {}
 
 interface AppState {
-    newNoteID: string
+    newstring: string
     showNoteCreatePost: boolean
 
     isNewNoteCreatorOpen: boolean
@@ -60,7 +59,7 @@ class App extends React.Component<AppProps, AppState>{
     constructor(props: AppProps) {
         super(props);
         this.state = {
-            newNoteID: "",
+            newstring: "",
             showNoteCreatePost: false,
             isNewNoteCreatorOpen: false,
         }
@@ -121,7 +120,7 @@ class App extends React.Component<AppProps, AppState>{
                 <Switch>
                     <Route path='/home' render={() => <HomePage/>}/>
                     {/*<Route path='/fullList' render={() => <NoteListPage/>} />*/}
-                    {/*<Route path='/note/:pathNoteID' render={() => <NotePage/>} />*/}
+                    {/*<Route path='/note/:pathstring' render={() => <NotePage/>} />*/}
                     {/*<Route path='/tag/:pathTagName' render={() => <TagPage/>} />*/}
                     {/*<Route path='/tag_list' render={() => <TagListPage/>} />*/}
 

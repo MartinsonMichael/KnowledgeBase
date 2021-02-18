@@ -1,9 +1,7 @@
 // potentially this can be generated
 
-export type NoteID = string
-
 export interface Note {
-    id: NoteID
+    id: string
     name: string
     tags: string[]
     links: string[]
@@ -11,7 +9,7 @@ export interface Note {
 }
 export function construct_Note(x: any): Note {
     return {
-        'id': x['id'] as NoteID,
+        'id': x['id'] as string,
         'name': x['name'],
         'tags': x['tags'],
         'links': x['links'],
@@ -19,29 +17,29 @@ export function construct_Note(x: any): Note {
     } as Note
 }
 
-export interface NoteTag {
+export interface Tag {
     name: string
     color: string
     description: string,
 }
-export function construct_NoteTag(x: any): NoteTag {
+export function construct_Tag(x: any): Tag {
     return {
         'name': x['tag_name'],
         'color': x['tag_color'],
         'description': x['tag_description'],
-    } as NoteTag
+    } as Tag
 }
 export interface TagStore {
-    [key: string]: NoteTag
+    [key: string]: Tag
 }
 export function construct_TagStore(x: any): TagStore {
-    const tagList: NoteTag[] = [
+    const tagList: Tag[] = [
         ...x.map((tagObj: any) => {
             return {
                 name: tagObj['tag_name'],
                 description: tagObj['tag_description'],
                 color: tagObj['tag_color'],
-            } as NoteTag
+            } as Tag
         })
     ];
     const tagStore: TagStore = {};
@@ -52,14 +50,14 @@ export function construct_TagStore(x: any): TagStore {
 }
 
 export interface NoteHead {
-    id: NoteID
+    id: string
     name: string
     tags: string[]
     links: string[]
 }
 export function construct_NoteHead(x: any): NoteHead {
     return {
-        id: x['id'] as NoteID,
+        id: x['id'] as string,
         name: x['name'],
         tags: x['tags'],
         links: x['links'],

@@ -57,6 +57,13 @@ def _has_basic_atr(msg: Message) -> bool:
     return False
 
 
+def _has_map_atr(msg: Message) -> bool:
+    for atr in msg.attributes:
+        if atr.is_map:
+            return True
+    return False
+
+
 def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
     with open(msg_path, "w") as file:
         file.write(
@@ -88,20 +95,12 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                     f"{TAB}return x as {msg.name}\n"
                     f"}}\n\n\n"
                 )
-            else:
+            elif not _has_map_atr(msg):
                 file.write(f"{TAB}return {{\n")
                 if _has_basic_atr(msg):
                     file.write(f"{TAB}{TAB}...x,\n")
                 for atr in msg.attributes:
-                    if _is_base_type(atr.atr_type):
-                        pass
-                        # DO NOTHING, cause we have ...x
-                        # file.write(
-                        #     f"{TAB}{TAB}'{atr.atr_name}': x['{atr.atr_name}'],\n"
-                        # )
-                    elif atr.is_map:
-                        file.write(f"{TAB}{TAB}'{atr.atr_name}': x['{atr.atr_name}'] as {_make_map_type(atr)},\n")
-                    else:
+                    if not _is_base_type(atr.atr_type):
                         if atr.repeated:
                             file.write(
                                 f"{TAB}{TAB}'{atr.atr_name}': [\n"
@@ -111,7 +110,41 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                         else:
                             file.write(f"{TAB}{TAB}'{atr.atr_name}': construct_{atr.atr_type}(x['{atr.atr_name}']),\n")
                 file.write(f"{TAB}}} as {msg.name}\n")
-                file.write("}\n\n\n")
+                file.write(f"}}\n\n\n")
+            else:
+                file.write(f"{TAB}let obj = {{\n")
+                if _has_basic_atr(msg):
+                    file.write(f"{TAB}{TAB}...x,\n")
+                for atr in msg.attributes:
+                    if not _is_base_type(atr.atr_type) and not atr.is_map:
+                        if atr.repeated:
+                            file.write(
+                                f"{TAB}{TAB}'{atr.atr_name}': [\n"
+                                f"{TAB}{TAB}{TAB}...x['{atr.atr_name}'].map((item: any) => construct_{atr.atr_type}(item))\n"
+                                f"{TAB}{TAB}],\n"
+                            )
+                        else:
+                            file.write(f"{TAB}{TAB}'{atr.atr_name}': construct_{atr.atr_type}(x['{atr.atr_name}']),\n")
+                    if atr.is_map:
+                        file.write(f"{TAB}{TAB}'{atr.atr_name}': {{}} as {_make_map_type(atr)},\n")
+                file.write(f"{TAB}}};\n")
+                for atr in msg.attributes:
+                    if not atr.is_map:
+                        continue
+                    file.write(
+                        f"{TAB}Object.keys(x['{atr.atr_name}']).forEach(\n"
+                        f"{TAB}{TAB}(obj_key: {atr.map_key_type}) => obj.{atr.atr_name}[obj_key] = "
+                    )
+                    if _is_base_type(atr.map_value_type):
+                        file.write(f"x['{atr.atr_name}'][obj_key]\n")
+                    else:
+                        file.write(f"construct_{atr.map_value_type}(x['{atr.atr_name}'][obj_key])\n")
+                    file.write(f"{TAB});")
+                file.write(
+                    f"\n"
+                    f"{TAB}return obj as {msg.name};"
+                    f"}}\n\n\n"
+                )
 
 
 def generate_methods(parse_result: ParseResult, ts_path: str) -> None:

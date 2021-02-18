@@ -36,6 +36,14 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
 
     render(): React.ReactNode {
 
+        if (this.props.tagStore === undefined || this.props.noteHeadStore === undefined) {
+            return (
+                <div>
+                    no loaded data
+                </div>
+            )
+        }
+
         return (
             <div>
                 loaded { Object.keys(this.props.tagStore.tags).length } tags

@@ -75,23 +75,25 @@ WSGI_APPLICATION = 'back.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'kb_database',
-    #     'USER': 'kb_user',
-    #     'PASSWORD': 'knowledgebase_psw',
-    #     'HOST': 'localhost' if os.environ.get("DOCKER_LAUNCH", "false") == "false" else 'db',
-    #     'PORT': '5433' if os.environ.get("DOCKER_LAUNCH", "false") == "false" else '5432',
-    # }
-    # mongo
-    "default": {
-        "ENGINE": "djongo",
-        "NAME": "system2",
-        "ENFORCE_SCHEMA": False,
-        "CLIENT": {
-            "host": "localhost",
-        }
+    # postgres
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'system2',
+        'USER': 'dev',
+        'PASSWORD': 'dev',
+        'HOST': 'localhost',
+        'PORT': '5435',
     }
+
+    # mongo
+    # "default": {
+    #     "ENGINE": "djongo",
+    #     "NAME": "system2",
+    #     "ENFORCE_SCHEMA": False,
+    #     "CLIENT": {
+    #         "host": "localhost",
+    #     }
+    # }
 }
 
 print(f'Use docker-launch : {os.environ.get("DOCKER_LAUNCH", "false")}')

@@ -5,20 +5,26 @@ export interface NoteHeadStore {
     heads: {[key: string]: NoteHead}
 }
 export function construct_NoteHeadStore(x: any): NoteHeadStore {
-    return {
-        'heads': x['heads'] as {[key: string]: NoteHead},
-    } as NoteHeadStore
-}
+    let obj = {
+        'heads': {} as {[key: string]: NoteHead},
+    };
+    Object.keys(x['heads']).forEach(
+        (obj_key: string) => obj.heads[obj_key] = construct_NoteHead(x['heads'][obj_key])
+    );
+    return obj as NoteHeadStore;}
 
 
 export interface TagStore {
     tags: {[key: string]: Tag}
 }
 export function construct_TagStore(x: any): TagStore {
-    return {
-        'tags': x['tags'] as {[key: string]: Tag},
-    } as TagStore
-}
+    let obj = {
+        'tags': {} as {[key: string]: Tag},
+    };
+    Object.keys(x['tags']).forEach(
+        (obj_key: string) => obj.tags[obj_key] = construct_Tag(x['tags'][obj_key])
+    );
+    return obj as TagStore;}
 
 
 export interface Structure {
