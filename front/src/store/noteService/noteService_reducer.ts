@@ -29,6 +29,7 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
         case "getNote_SUCCESS":
             return {
                 ...state,
+                note: action.payload,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;

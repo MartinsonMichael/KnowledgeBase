@@ -30,6 +30,12 @@ export const getNote = (id: string) => {
             {
                 'id': id,
             },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
         );
 
         if (response.status === 200) {
@@ -68,6 +74,12 @@ export const createNewNote = (pre_note_id: string, name: string, link_from: stri
                 'name': name,
                 'link_from': link_from,
             },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
         );
 
         if (response.status === 200) {
@@ -104,6 +116,12 @@ export const addNoteTag = (note_id: string, tag_name: string) => {
             {
                 'note_id': note_id,
                 'tag_name': tag_name,
+            },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
             },
         );
 
@@ -142,6 +160,12 @@ export const delNoteTag = (note_id: string, tag_name: string) => {
                 'note_id': note_id,
                 'tag_name': tag_name,
             },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
         );
 
         if (response.status === 200) {
@@ -178,6 +202,12 @@ export const addNoteLink = (note_id: string, link_note_id: string) => {
             {
                 'note_id': note_id,
                 'link_note_id': link_note_id,
+            },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
             },
         );
 
@@ -216,6 +246,12 @@ export const delNoteLink = (note_id: string, link_note_id: string) => {
                 'note_id': note_id,
                 'link_note_id': link_note_id,
             },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
         );
 
         if (response.status === 200) {
@@ -253,6 +289,12 @@ export const updateNoteName = (note_id: string, new_name: string) => {
                 'note_id': note_id,
                 'new_name': new_name,
             },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
         );
 
         if (response.status === 200) {
@@ -289,6 +331,12 @@ export const updateNoteBody = (note_id: string, new_body: string) => {
             {
                 'note_id': note_id,
                 'new_body': new_body,
+            },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
             },
         );
 

@@ -25,7 +25,15 @@ export const getSimpleMsg = () => {
     return async (dispatch: any) => {
         dispatch({type: getSimpleMsg_START, payload: undefined});
 
-        const response = await axios.get('getSimpleMsg');
+        const response = await axios.get(
+            'getSimpleMsg',
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
+        );
 
         if (response.status === 200) {
             dispatch({type: getSimpleMsg_SUCCESS, payload: msg.construct_SimpleMsg(response.data)});
@@ -56,7 +64,15 @@ export const getComplexMsg = () => {
     return async (dispatch: any) => {
         dispatch({type: getComplexMsg_START, payload: undefined});
 
-        const response = await axios.get('getComplexMsg');
+        const response = await axios.get(
+            'getComplexMsg',
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
+        );
 
         if (response.status === 200) {
             dispatch({type: getComplexMsg_SUCCESS, payload: msg.construct_ComplexMsg(response.data)});
@@ -94,6 +110,12 @@ export const getComplexBySimple = (integer_field: number, float_field: number, s
                 'float_field': float_field,
                 'string_field': string_field,
                 'boolean_field': boolean_field,
+            },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
             },
         );
 
@@ -134,6 +156,12 @@ export const postComplex = (simpleMsgList: msg.SimpleMsg[], string_list: string[
                 'singleSimple': singleSimple,
                 'single_boolean': single_boolean,
             },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
         );
 
         if (response.status === 200) {
@@ -165,7 +193,15 @@ export const postNull = () => {
     return async (dispatch: any) => {
         dispatch({type: postNull_START, payload: undefined});
 
-        const response = await axios.get('postNull');
+        const response = await axios.get(
+            'postNull',
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
+        );
 
         if (response.status === 200) {
             dispatch({type: postNull_SUCCESS, payload: undefined});

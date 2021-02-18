@@ -25,7 +25,15 @@ export const getStructure = () => {
     return async (dispatch: any) => {
         dispatch({type: getStructure_START, payload: undefined});
 
-        const response = await axios.get('getStructure');
+        const response = await axios.get(
+            'getStructure',
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
+        );
 
         if (response.status === 200) {
             dispatch({type: getStructure_SUCCESS, payload: msg.construct_Structure(response.data)});
@@ -61,6 +69,12 @@ export const createNewTag = (name: string, add_to_note_id: string) => {
             {
                 'name': name,
                 'add_to_note_id': add_to_note_id,
+            },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
             },
         );
 
@@ -100,6 +114,12 @@ export const updateTag = (id: string, name: string, description: string, color: 
                 'name': name,
                 'description': description,
                 'color': color,
+            },
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
             },
         );
 

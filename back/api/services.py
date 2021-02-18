@@ -2,6 +2,7 @@
 # Michael Martinson http generator (c)
 
 import json
+from django.views.decorators.csrf import csrf_exempt
 from typing import List, Dict
 from django.http import HttpResponse, HttpRequest
 
@@ -10,7 +11,13 @@ from .generated_messages import *
 
 class AbstractStructureService:
 
+    @csrf_exempt
     def service_getStructure(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             output_data: Structure = self.getStructure()
         except:
@@ -33,7 +40,13 @@ class AbstractStructureService:
     def getStructure(self) -> Structure:
         raise NotImplemented
 
+    @csrf_exempt
     def service_createNewTag(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: TagCreateRequest = TagCreateRequest.from_json(json.loads(request.body))
         except:
@@ -66,7 +79,13 @@ class AbstractStructureService:
     def createNewTag(self, input_data: TagCreateRequest) -> Tag:
         raise NotImplemented
 
+    @csrf_exempt
     def service_updateTag(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: Tag = Tag.from_json(json.loads(request.body))
         except:
@@ -102,27 +121,16 @@ class AbstractStructureService:
 
 class AbstractNoteService:
 
+    @csrf_exempt
     def service_getNote(self, request: HttpRequest, **kwargs) -> HttpResponse:
-        try:
-            input_data: NoteRequest = NoteRequest.from_json(json.loads(request.body))
-        except:
-            response = HttpResponse(
-                content='error while parsing request',
-                status=400,
-            )
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
             response["Access-Control-Allow-Origin"] = "*"
             response["Access-Control-Allow-Headers"] = "*"
             return response
-        try:
-            output_data: Note = self.getNote(input_data)
-        except:
-            response = HttpResponse(
-                content='error while processing request',
-                status=400,
-            )
-            response["Access-Control-Allow-Origin"] = "*"
-            response["Access-Control-Allow-Headers"] = "*"
-            return response
+        input_data: NoteRequest = NoteRequest.from_json(json.loads(request.body))
+
+        output_data: Note = self.getNote(input_data)
 
         response = HttpResponse(
             content=json.dumps(output_data.to_json()),
@@ -135,7 +143,13 @@ class AbstractNoteService:
     def getNote(self, input_data: NoteRequest) -> Note:
         raise NotImplemented
 
+    @csrf_exempt
     def service_createNewNote(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: NewNote = NewNote.from_json(json.loads(request.body))
         except:
@@ -168,7 +182,13 @@ class AbstractNoteService:
     def createNewNote(self, input_data: NewNote) -> NoteUpdateResponse:
         raise NotImplemented
 
+    @csrf_exempt
     def service_addNoteTag(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: NoteTagUpdate = NoteTagUpdate.from_json(json.loads(request.body))
         except:
@@ -201,7 +221,13 @@ class AbstractNoteService:
     def addNoteTag(self, input_data: NoteTagUpdate) -> NoteUpdateResponse:
         raise NotImplemented
 
+    @csrf_exempt
     def service_delNoteTag(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: NoteTagUpdate = NoteTagUpdate.from_json(json.loads(request.body))
         except:
@@ -234,7 +260,13 @@ class AbstractNoteService:
     def delNoteTag(self, input_data: NoteTagUpdate) -> NoteUpdateResponse:
         raise NotImplemented
 
+    @csrf_exempt
     def service_addNoteLink(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: NoteLinkUpdate = NoteLinkUpdate.from_json(json.loads(request.body))
         except:
@@ -267,7 +299,13 @@ class AbstractNoteService:
     def addNoteLink(self, input_data: NoteLinkUpdate) -> NoteUpdateResponse:
         raise NotImplemented
 
+    @csrf_exempt
     def service_delNoteLink(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: NoteLinkUpdate = NoteLinkUpdate.from_json(json.loads(request.body))
         except:
@@ -300,7 +338,13 @@ class AbstractNoteService:
     def delNoteLink(self, input_data: NoteLinkUpdate) -> NoteUpdateResponse:
         raise NotImplemented
 
+    @csrf_exempt
     def service_updateNoteName(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: NoteNameUpdate = NoteNameUpdate.from_json(json.loads(request.body))
         except:
@@ -333,7 +377,13 @@ class AbstractNoteService:
     def updateNoteName(self, input_data: NoteNameUpdate) -> NoteUpdateResponse:
         raise NotImplemented
 
+    @csrf_exempt
     def service_updateNoteBody(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: NoteBodyUpdate = NoteBodyUpdate.from_json(json.loads(request.body))
         except:
@@ -369,7 +419,13 @@ class AbstractNoteService:
 
 class AbstractTestService:
 
+    @csrf_exempt
     def service_getSimpleMsg(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             output_data: SimpleMsg = self.getSimpleMsg()
         except:
@@ -392,7 +448,13 @@ class AbstractTestService:
     def getSimpleMsg(self) -> SimpleMsg:
         raise NotImplemented
 
+    @csrf_exempt
     def service_getComplexMsg(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             output_data: ComplexMsg = self.getComplexMsg()
         except:
@@ -415,7 +477,13 @@ class AbstractTestService:
     def getComplexMsg(self) -> ComplexMsg:
         raise NotImplemented
 
+    @csrf_exempt
     def service_getComplexBySimple(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: SimpleMsg = SimpleMsg.from_json(json.loads(request.body))
         except:
@@ -448,7 +516,13 @@ class AbstractTestService:
     def getComplexBySimple(self, input_data: SimpleMsg) -> ComplexMsg:
         raise NotImplemented
 
+    @csrf_exempt
     def service_postComplex(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             input_data: ComplexMsg = ComplexMsg.from_json(json.loads(request.body))
         except:
@@ -480,7 +554,13 @@ class AbstractTestService:
     def postComplex(self, input_data: ComplexMsg) -> None:
         raise NotImplemented
 
+    @csrf_exempt
     def service_postNull(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            response = HttpResponse()
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
         try:
             self.postNull()
         except:

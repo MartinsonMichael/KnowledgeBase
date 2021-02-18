@@ -209,7 +209,17 @@ def generate_methods(parse_result: ParseResult, ts_path: str) -> None:
                     f"\n"
                 )
                 if method.input_type == "Null":
-                    file.write(f"{TAB}{TAB}const response = await axios.get('{method.name}');\n")
+                    file.write(
+                        f"{TAB}{TAB}const response = await axios.get(\n"
+                        f"{TAB}{TAB}{TAB}'{method.name}',\n"
+                        f"{TAB}{TAB}{TAB}{{\n"
+                        f"{TAB}{TAB}{TAB}{TAB}'headers': {{\n"
+                        f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Origin': '*',\n"
+                        f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Headers': '*',\n"
+                        f"{TAB}{TAB}{TAB}{TAB}}},\n"
+                        f"{TAB}{TAB}{TAB}}},\n"
+                        f"{TAB}{TAB});\n"
+                    )
                 else:
                     file.write(
                         f"{TAB}{TAB}const response = await axios.post(\n"
@@ -219,7 +229,14 @@ def generate_methods(parse_result: ParseResult, ts_path: str) -> None:
                     msg: Message = find_message_by_name(parse_result, method.input_type)
                     for atr in msg.attributes:
                         file.write(f"{TAB}{TAB}{TAB}{TAB}'{atr.atr_name}': {atr.atr_name},\n")
+
                     file.write(
+                        f"{TAB}{TAB}{TAB}}},\n"
+                        f"{TAB}{TAB}{TAB}{{\n"
+                        f"{TAB}{TAB}{TAB}{TAB}'headers': {{\n"
+                        f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Origin': '*',\n"
+                        f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Headers': '*',\n"
+                        f"{TAB}{TAB}{TAB}{TAB}}},\n"
                         f"{TAB}{TAB}{TAB}}},\n"
                         f"{TAB}{TAB});\n"
                     )

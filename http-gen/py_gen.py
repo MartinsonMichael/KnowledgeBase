@@ -18,6 +18,7 @@ import json
 SERVICE_HEAD = f"""{HEAD}
 
 import json
+from django.views.decorators.csrf import csrf_exempt
 from typing import List, Dict
 from django.http import HttpResponse, HttpRequest
 
@@ -154,7 +155,14 @@ def generate_services(parse_result: ParseResult, service_path: str) -> None:
             file.write(f"class Abstract{service.name}:\n\n")
             for method in service.methods:
                 file.write(
+                    f"{TAB}@csrf_exempt\n"
                     f"{TAB}def service_{method.name}(self, request: HttpRequest, **kwargs) -> HttpResponse:\n"
+                    f"{TAB}{TAB}if request.method == 'OPTIONS':\n"
+                    f"{TAB}{TAB}{TAB}response = HttpResponse()\n"
+                    f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Origin\"] = \"*\"\n"
+                    f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Headers\"] = \"*\"\n"
+                    f"{TAB}{TAB}{TAB}return response\n"
+
                 )
                 if method.input_type != "Null":
                     file.write(

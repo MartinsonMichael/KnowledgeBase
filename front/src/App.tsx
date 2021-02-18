@@ -15,15 +15,14 @@ import { connect, ConnectedProps } from "react-redux";
 
 import { Route, Switch, Redirect, withRouter } from "react-router-dom";
 import { RouteComponentProps } from "react-router";
-// import TagPage from "./pages/TagPage";
-// import NoteListPage from "./pages/NoteListPage";
-// import NotePage from "./pages/NotePage";
 import { Button } from "@material-ui/core";
 import { RootState } from "./store";
 import IconButton from "@material-ui/core/IconButton";
-// import TagListPage from "./pages/TagListPage";
-// import NewNoteCreator from "./components/NewNoteCreator";
 import HomePage from "./pages/HomePage";
+import NotePage from "./pages/NotePage";
+import TagPage from "./pages/TagPage";
+import TagListPage from "./pages/TagListPage";
+import NoteListPage from "./pages/NoteListPage";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -119,10 +118,10 @@ class App extends React.Component<AppProps, AppState>{
                 {/*/>*/}
                 <Switch>
                     <Route path='/home' render={() => <HomePage/>}/>
-                    {/*<Route path='/fullList' render={() => <NoteListPage/>} />*/}
-                    {/*<Route path='/note/:pathstring' render={() => <NotePage/>} />*/}
-                    {/*<Route path='/tag/:pathTagName' render={() => <TagPage/>} />*/}
-                    {/*<Route path='/tag_list' render={() => <TagListPage/>} />*/}
+                    <Route path='/fullList' render={() => <NoteListPage/>} />
+                    <Route path='/note/:pathstring' render={() => <NotePage/>} />
+                    <Route path='/tag/:pathTagName' render={() => <TagPage/>} />
+                    <Route path='/tag_list' render={() => <TagListPage/>} />
 
                     <Redirect from="/" to="/home" />
                 </Switch>
