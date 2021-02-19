@@ -21,14 +21,14 @@ interface getNote_REJECTED_Action {
     payload: string
 }
 
-export const getNote = (id: string) => {
+export const getNote = (note_id: string) => {
     return async (dispatch: any) => {
         dispatch({type: getNote_START, payload: undefined});
 
         const response = await axios.post(
             'getNote',
             {
-                'id': id,
+                'note_id': note_id,
             },
             {
                 'headers': {
@@ -107,7 +107,7 @@ interface addNoteTag_REJECTED_Action {
     payload: string
 }
 
-export const addNoteTag = (note_id: string, tag_name: string) => {
+export const addNoteTag = (note_id: string, tag_id: string) => {
     return async (dispatch: any) => {
         dispatch({type: addNoteTag_START, payload: undefined});
 
@@ -115,7 +115,7 @@ export const addNoteTag = (note_id: string, tag_name: string) => {
             'addNoteTag',
             {
                 'note_id': note_id,
-                'tag_name': tag_name,
+                'tag_id': tag_id,
             },
             {
                 'headers': {
@@ -150,7 +150,7 @@ interface delNoteTag_REJECTED_Action {
     payload: string
 }
 
-export const delNoteTag = (note_id: string, tag_name: string) => {
+export const delNoteTag = (note_id: string, tag_id: string) => {
     return async (dispatch: any) => {
         dispatch({type: delNoteTag_START, payload: undefined});
 
@@ -158,7 +158,7 @@ export const delNoteTag = (note_id: string, tag_name: string) => {
             'delNoteTag',
             {
                 'note_id': note_id,
-                'tag_name': tag_name,
+                'tag_id': tag_id,
             },
             {
                 'headers': {

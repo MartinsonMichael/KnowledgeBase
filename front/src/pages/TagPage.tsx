@@ -3,14 +3,14 @@ import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
 import { NoteHead, Tag } from "../store/generated_messages";
 import { RouteComponentProps, withRouter } from "react-router";
-import { renderNoteList } from "../components/NoteList";
-import {Button, CircularProgress, TextField} from "@material-ui/core";
-import { renderError } from "../components/ErrorPlate";
+import { Button, CircularProgress, TextField } from "@material-ui/core";
+import { renderError } from "../components/renderUtils";
 import { updateTag } from "../store/structureService/structureService_actions";
 import { headStoreToList } from "../components/utils";
 import EditIcon from "@material-ui/core/SvgIcon/SvgIcon";
 import SaveIcon from '@material-ui/icons/Save';
-import {renderUnsavedChangedMarker} from "../components/UnsaveTracker";
+import { renderUnsavedChangedMarker } from "../components/UnsaveTracker";
+import { renderNoteLink } from "../components/NoteLink";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -66,9 +66,9 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
         if (this.state.currentTag !== undefined && this.state.currentTag.name === this.props.match.params.pathTagName) {
             return
         }
-        this.setState({
-            currentTag: this.props.tagStore.tags[this.props.match.params.pathTagName],
-        })
+        // this.setState({
+        //     currentTag: this.props.tagStore.tags[this.props.match.params.pathTagName],
+        // })
     }
 
     componentDidMount(): void {
@@ -76,9 +76,9 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
             this.setState({currentTag: {} as Tag});
             return
         }
-        this.setState({
-            currentTag: this.props.tagStore.tags[this.props.match.params.pathTagName],
-        })
+        // this.setState({
+        //     currentTag: this.props.tagStore.tags[this.props.match.params.pathTagName],
+        // })
     }
 
     lightUpdateTagDescription(newDescription: string) {
@@ -94,7 +94,7 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
                 } as Tag,
             });
             this.props.updateTag(
-                this.state.currentTag.id,
+                this.state.currentTag.tag_id,
                 this.state.currentTag.name,
                 this.state.currentTag.description,
                 this.state.currentTag.color,
@@ -125,15 +125,15 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
         const { name, description } = this.state.currentTag;
 
         let noteList = [] as NoteHead[];
-        if (this.props.noteHeadStore !== undefined) {
-            noteList = Object.entries(this.props.noteHeadStore)
-                .filter((value) => name !== undefined && value[1].tags.includes(name))
-                .map(value => value[1])
-        }
+        // if (this.props.noteHeadStore !== undefined) {
+        //     noteList = Object.entries(this.props.noteHeadStore)
+        //         .filter((value) => name !== undefined && value[1].tags.includes(name))
+        //         .map(value => value[1])
+        // }
 
-        if (this.state.currentTag === undefined) {
-            return <span>Loading... (undefined)</span>
-        }
+        // if (this.state.currentTag === undefined) {
+        //     return <span>Loading... (undefined)</span>
+        // }
 
         return (
             <div style={{margin: "20px"}}>
@@ -163,7 +163,7 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
                                     e.preventDefault();
                                     if (this.state.currentTag !== undefined) {
                                         this.props.updateTag(
-                                            this.state.currentTag.id,
+                                            this.state.currentTag.tag_id,
                                             this.state.currentTag.name,
                                             this.state.currentTag.description,
                                             this.state.currentTag.color,
@@ -177,7 +177,7 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
                     }
                 </div>
                 Notes containing this tag:
-                { renderNoteList(noteList, true) }
+                { noteList.map((noteHead: NoteHead) => renderNoteLink(noteHead)) }
             </div>
         );
     }

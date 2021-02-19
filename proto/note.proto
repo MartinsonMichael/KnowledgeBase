@@ -2,35 +2,28 @@ syntax = "proto3";
 
 
 message Tag {
-    string id = 1;
+    string tag_id = 1;
     string name = 2;
     string description = 3;
     string color = 4;
 }
 
 message Note {
-    string id = 1;
+    string note_id = 1;
     string name = 2;
-    repeated string tags = 3;
-    repeated string links = 4;
+    repeated TagHead tags = 3;
+    repeated NoteHead links = 4;
     string body = 5;
-}
-
-message NoteHead {
-    string id = 1;
-    string name = 2;
-    repeated string tags = 3;
-    repeated string links = 4;
 }
 
 
 message NoteRequest {
-    string id = 1;
+    string note_id = 1;
 }
 
 message NoteTagUpdate {
     string note_id = 1;
-    string tag_name = 2;
+    string tag_id = 2;
 }
 
 message NoteLinkUpdate {

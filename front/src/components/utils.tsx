@@ -1,4 +1,4 @@
-import { Note, NoteHead, NoteHeadStore, Tag, TagStore } from "../store/generated_messages";
+import {Note, NoteHead, NoteHeadStore, Tag, TagHead, TagStore} from "../store/generated_messages";
 
 export function headStoreToList(noteHeadStore: NoteHeadStore | undefined): NoteHead[] {
     if (noteHeadStore === undefined) {
@@ -7,7 +7,7 @@ export function headStoreToList(noteHeadStore: NoteHeadStore | undefined): NoteH
     return [...Object.keys(noteHeadStore.heads).map(key => noteHeadStore.heads[key])]
 }
 
-export function tagStoreToList(tagStore: TagStore | undefined): Tag[] {
+export function tagStoreToList(tagStore: TagStore | undefined): TagHead[] {
     if (tagStore === undefined) {
         return [] as Tag[]
     }
@@ -51,12 +51,17 @@ export function filterNoteList(noteList: NoteHead[] | Note[] | undefined, filter
     const LCFilterStr = filterString.toLowerCase();
     return noteList.filter((noteHead: NoteHead) => (
         noteHead.name.toLowerCase().includes(LCFilterStr) ||
-        noteHead.id.toLowerCase().includes(LCFilterStr) ||
-        noteHead.links.filter(
-            (link: string) => link !== undefined && link !== null && link.toLowerCase().includes(LCFilterStr)
-        ).length !== 0 ||
         noteHead.tags.filter(
-            (tagName: string) => tagName !== undefined && tagName !== null && tagName.toLowerCase().includes(LCFilterStr)
+            (tag: TagHead) => tag.name.toLowerCase().includes(LCFilterStr) || tag.color.toLowerCase().includes(LCFilterStr)
         ).length !== 0
     ))
 }
+
+// export function tagIDListToObjectList(tagIDList: string[], tagStore: TagStore | undefined): Tag[] {
+//     if (tagStore === undefined) {
+//         return [] as Tag[]
+//     }
+//     return [
+//         ...tagIDList.map((tagID: string) => tagStore.tags[tagID])
+//     ]
+// }

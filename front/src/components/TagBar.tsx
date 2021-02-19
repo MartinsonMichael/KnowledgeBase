@@ -1,15 +1,15 @@
 import * as React from "react";
-import TagSelect from "./TagSelect";
-import { Tag } from "../store/generated_messages";
 import { Button, Chip, IconButton } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
+import Selector from "./Selector";
 import { RouteComponentProps, withRouter } from "react-router";
+import { TagHead } from "../store/generated_messages";
+
 
 export type TagBarProps = RouteComponentProps<{}> & {
     parentstring: string,
-    tags: string[]
+    tags: TagHead[]
     size?: number
-    showTagsLabel?: boolean
     showAddButtons?: boolean
     onTagAdd?: (tagName: string) => void,
     showDeleteButtons?: boolean
@@ -19,7 +19,6 @@ export type TagBarProps = RouteComponentProps<{}> & {
 interface TagBarState {
     tagAddPress: boolean
 }
-
 
 
 class TagBar extends React.Component<TagBarProps, TagBarState> {
@@ -55,12 +54,15 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
 
         return (
             <div style={{ display: "flex", marginRight: "5px" }}>
-                <TagSelect
-                    onSelect={(tagObj: Tag) => {
+                <Selector
+                    list={ this.props.tags }
+                    textGetter={ (tag: TagHead) => tag.name }
+                    onSelect={(tag: TagHead) => {
                         if (this.props.onTagAdd !== undefined) {
-                            this.props.onTagAdd(tagObj.name)
+                            this.props.onTagAdd(tag.name)
                         }
                     }}
+                    onNew={ (newTagName: string) => null }
                 />
                 <button onClick={() => this.setState({tagAddPress: false})}>
                     x
@@ -70,36 +72,32 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
     }
 
     render(): React.ReactNode {
-        const { tags, size, showTagsLabel } = this.props;
+        const { tags, size } = this.props;
         return (
             <div
                 style={{ display: "flex", fontSize: size, alignItems: "center"  }}
                 key={ this.props.parentstring + 'tagbar' }
             >
-                {showTagsLabel ? <span style={{ marginRight: "5px" }}>Tags:</span> : null}
-                {
-                    tags
-                        .filter((tag: string) => tag !== null && tag !== undefined && tag.length !== 0)
-                        .map((tag: string) => (
-                            <div style={{ marginRight: "5px" }} key={ this.props.parentstring + tag + 'div' }>
-                                <Button
-                                    onClick={() => this.props.history.push(`/tag/${tag}`)}
-                                    size="small"
-                                >
-                                    <Chip
-                                        label={ "#" + tag }
-                                        onDelete={ (this.props.showDeleteButtons ? e => {
-                                                if (this.props.onTagDelete !== undefined) {
-                                                    this.props.onTagDelete(tag)
-                                                }
-                                            }
-                                            : undefined)
+                { tags.map((tag: TagHead) => (
+                    <div style={{ marginRight: "5px" }} key={ this.props.parentstring + tag.name + 'div' }>
+                        <Button
+                            onClick={() => this.props.history.push(`/tag/${tag.tag_id}`)}
+                            size="small"
+                        >
+                            <Chip
+                                label={ "#" + tag.name }
+                                onDelete={ (this.props.showDeleteButtons ? e => {
+                                        if (this.props.onTagDelete !== undefined) {
+                                            this.props.onTagDelete(tag.name)
                                         }
-                                        size="small"
-                                        variant="outlined"
-                                    />
-                                </Button>
-                            </div>
+                                    }
+                                    : undefined)
+                                }
+                                size="small"
+                                variant="outlined"
+                            />
+                        </Button>
+                    </div>
                 ))}
                 { this.renderTagAdd() }
             </div>

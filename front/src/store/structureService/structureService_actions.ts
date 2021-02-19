@@ -103,14 +103,14 @@ interface updateTag_REJECTED_Action {
     payload: string
 }
 
-export const updateTag = (id: string, name: string, description: string, color: string) => {
+export const updateTag = (tag_id: string, name: string, description: string, color: string) => {
     return async (dispatch: any) => {
         dispatch({type: updateTag_START, payload: undefined});
 
         const response = await axios.post(
             'updateTag',
             {
-                'id': id,
+                'tag_id': tag_id,
                 'name': name,
                 'description': description,
                 'color': color,

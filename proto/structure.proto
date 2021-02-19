@@ -1,12 +1,23 @@
 syntax = "proto3";
 
+message TagHead {
+    string tag_id = 1;
+    string name = 2;
+    string color = 3;
+}
+
+message NoteHead {
+    string note_id = 1;
+    string name = 2;
+    repeated TagHead tags = 3;
+}
 
 message NoteHeadStore {
     map<string, NoteHead> heads = 1;
 }
 
 message TagStore {
-    map<string, Tag> tags = 1;
+    map<string, TagHead> tags = 1;
 }
 
 message Structure {

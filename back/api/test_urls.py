@@ -1,6 +1,7 @@
 # This file is generated, DO NOT EDIT IT
 # Michael Martinson http generator (c)
 import os
+import numpy as np
 
 from django.http import HttpRequest, HttpResponse
 from django.urls import path
@@ -13,6 +14,9 @@ def loadNotes(request: HttpRequest, **kwargs) -> HttpResponse:
     FILE_STORAGE = os.path.join("/", "data", "KnowledgeBase")
 
     all_tags = set()
+
+    NoteTag.objects.all().delete()
+    NoteDB.objects.all().delete()
 
     for file_path in os.listdir(FILE_STORAGE):
         if file_path.endswith('.txt'):
@@ -50,6 +54,13 @@ def loadNotes(request: HttpRequest, **kwargs) -> HttpResponse:
                     note.tags.add(tag_obj)
                 note.save()
                 print(f"Add new note: |{name}|\n")
+
+    note_ids = NoteDB.objects.values('note_id')
+    for note_id in note_ids:
+        note_obj: NoteDB = NoteDB.objects.filter(note_id=note_id['note_id']).first()
+        note_linked_objs = NoteDB.objects.filter(note_id__in=np.random.choice([x['note_id'] for x in note_ids], 3))
+        for note in note_linked_objs:
+            note_obj.links.add(note)
 
     return HttpResponse(content="OK!")
 

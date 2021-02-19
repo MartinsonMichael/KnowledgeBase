@@ -1,11 +1,12 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import { renderNoteList } from "../components/NoteList";
 import { filterNoteList, headStoreToList } from "../components/utils";
 import { Paper } from "@material-ui/core";
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from "@material-ui/core/InputBase/InputBase";
+import { NoteHead } from "../store/generated_messages";
+import { renderNoteLink } from "../components/NoteLink";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -56,10 +57,7 @@ class NoteHeadViewer extends React.Component<NoteListPageProps, NoteListPageStat
                 { this.props.noteHeadList !== undefined ? (
                     <div>
                         {
-                            renderNoteList(
-                                filterNoteList(this.props.noteHeadList, this.state.searchInput),
-                                true,
-                            )
+                            filterNoteList(this.props.noteHeadList, this.state.searchInput).map((noteHead: NoteHead) => renderNoteLink(noteHead))
                         }
                     </div>
                 ) : (

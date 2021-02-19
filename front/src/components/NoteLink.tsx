@@ -7,38 +7,31 @@ import DeleteIcon from '@material-ui/icons/Delete';
 
 export function renderNoteLink(
     note: Note | NoteHead,
-    showTags: boolean = false,
     onDelete?: (id: string) => void | undefined,
 ): React.ReactNode {
-    const { id, name, tags } = note;
+    const { note_id, name, tags } = note;
 
     if (onDelete === undefined) {
         return (
-            <div key={id} style={{ marginBottom: "10px" }}>
-                <Link to={`/note/${id}`}> {name} </Link>
-                { showTags ? (
-                    <TagBar tags={tags} size={10} key={id} parentstring={ id }/>
-                ) : null }
+            <div key={note_id} style={{ marginBottom: "10px" }}>
+                <Link to={`/note/${note_id}`}> {name} </Link>
             </div>
         )
     }
 
     return (
-        <div key={id} style={{ marginBottom: "10px" }}>
+        <div key={note_id} style={{ marginBottom: "10px" }}>
             <div style={{ display: "flex" }}>
                 <div style={{ marginRight: "2px" }}>
                     <IconButton
-                        onClick={() => onDelete(id)}
+                        onClick={() => onDelete(note_id)}
                         size="small"
                     >
                         <DeleteIcon/>
                     </IconButton>
                 </div>
                 <div>
-                    <Link to={`/note/${ id }`}>{ name }</Link>
-                    { showTags ? (
-                        <TagBar tags={ tags } size={ 10 } key={ id } parentstring={ id }/>
-                    ) : null }
+                    <Link to={`/note/${ note_id }`}>{ name }</Link>
                 </div>
             </div>
         </div>

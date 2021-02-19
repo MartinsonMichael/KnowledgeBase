@@ -1,14 +1,13 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
-import { Tag } from "../store/generated_messages";
+import {Tag, TagHead} from "../store/generated_messages";
 import { RouteComponentProps, withRouter } from "react-router";
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
-import { renderError } from "../components/ErrorPlate";
+import { renderError, renderTagLink } from "../components/renderUtils";
 import Paper from "@material-ui/core/Paper";
 import {tagStoreToList} from "../components/utils";
-import {renderTagLink} from "../components/TagLink";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -74,13 +73,12 @@ class TagListPage extends React.Component<TagListPageProps, TagListPageState>{
                     </Paper>
                 </div>
                 { this.props.tagList
-                    .filter((tag: Tag) => (
+                    .filter((tag: TagHead) => (
                             tag.name.toLowerCase().includes(this.state.searchInput.toLowerCase()) ||
-                            tag.description !== null && tag.description.toLowerCase().includes(this.state.searchInput.toLowerCase()
-                            )
+                            tag.color.toLowerCase().includes(this.state.searchInput.toLowerCase())
                         )
                     )
-                    .map((tag: Tag) => (
+                    .map((tag: TagHead) => (
                         <div>
                             { renderTagLink(tag) }
                         </div>

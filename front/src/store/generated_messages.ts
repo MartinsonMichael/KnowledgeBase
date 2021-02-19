@@ -1,6 +1,31 @@
 // This file is generated, DO NOT EDIT IT
 // Michael Martinson http generator (c)
 
+export interface TagHead {
+    tag_id: string
+    name: string
+    color: string
+}
+export function construct_TagHead(x: any): TagHead {
+    return x as TagHead
+}
+
+
+export interface NoteHead {
+    note_id: string
+    name: string
+    tags: TagHead[]
+}
+export function construct_NoteHead(x: any): NoteHead {
+    return {
+        ...x,
+        'tags': [
+            ...x['tags'].map((item: any) => construct_TagHead(item))
+        ],
+    } as NoteHead
+}
+
+
 export interface NoteHeadStore {
     heads: {[key: string]: NoteHead}
 }
@@ -15,14 +40,14 @@ export function construct_NoteHeadStore(x: any): NoteHeadStore {
 
 
 export interface TagStore {
-    tags: {[key: string]: Tag}
+    tags: {[key: string]: TagHead}
 }
 export function construct_TagStore(x: any): TagStore {
     let obj = {
-        'tags': {} as {[key: string]: Tag},
+        'tags': {} as {[key: string]: TagHead},
     };
     Object.keys(x['tags']).forEach(
-        (obj_key: string) => obj.tags[obj_key] = construct_Tag(x['tags'][obj_key])
+        (obj_key: string) => obj.tags[obj_key] = construct_TagHead(x['tags'][obj_key])
     );
     return obj as TagStore;}
 
@@ -49,7 +74,7 @@ export function construct_TagCreateRequest(x: any): TagCreateRequest {
 
 
 export interface Tag {
-    id: string
+    tag_id: string
     name: string
     description: string
     color: string
@@ -60,30 +85,27 @@ export function construct_Tag(x: any): Tag {
 
 
 export interface Note {
-    id: string
+    note_id: string
     name: string
-    tags: string[]
-    links: string[]
+    tags: TagHead[]
+    links: NoteHead[]
     body: string
 }
 export function construct_Note(x: any): Note {
-    return x as Note
-}
-
-
-export interface NoteHead {
-    id: string
-    name: string
-    tags: string[]
-    links: string[]
-}
-export function construct_NoteHead(x: any): NoteHead {
-    return x as NoteHead
+    return {
+        ...x,
+        'tags': [
+            ...x['tags'].map((item: any) => construct_TagHead(item))
+        ],
+        'links': [
+            ...x['links'].map((item: any) => construct_NoteHead(item))
+        ],
+    } as Note
 }
 
 
 export interface NoteRequest {
-    id: string
+    note_id: string
 }
 export function construct_NoteRequest(x: any): NoteRequest {
     return x as NoteRequest
@@ -92,7 +114,7 @@ export function construct_NoteRequest(x: any): NoteRequest {
 
 export interface NoteTagUpdate {
     note_id: string
-    tag_name: string
+    tag_id: string
 }
 export function construct_NoteTagUpdate(x: any): NoteTagUpdate {
     return x as NoteTagUpdate

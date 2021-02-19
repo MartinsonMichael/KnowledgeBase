@@ -128,9 +128,26 @@ class AbstractNoteService:
             response["Access-Control-Allow-Origin"] = "*"
             response["Access-Control-Allow-Headers"] = "*"
             return response
-        input_data: NoteRequest = NoteRequest.from_json(json.loads(request.body))
-
-        output_data: Note = self.getNote(input_data)
+        try:
+            input_data: NoteRequest = NoteRequest.from_json(json.loads(request.body))
+        except:
+            response = HttpResponse(
+                content='error while parsing request',
+                status=400,
+            )
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
+        try:
+            output_data: Note = self.getNote(input_data)
+        except:
+            response = HttpResponse(
+                content='error while processing request',
+                status=400,
+            )
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Headers"] = "*"
+            return response
 
         response = HttpResponse(
             content=json.dumps(output_data.to_json()),

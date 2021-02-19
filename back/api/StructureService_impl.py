@@ -11,24 +11,29 @@ class StructureService(AbstractStructureService):
         return Structure(
             tag_store=TagStore(
                 tags={
-                    tag.tag_id: Tag(id=tag.tag_id, name=tag.title, description=tag.description, color=tag.color)
+                    tag.title: TagHead(tag_id=tag.tag_id, name=tag.title, color=tag.color)
                     for tag in NoteTag.objects.all()
                 },
             ),
             head_store=NoteHeadStore(
                 heads={
                     note['note_id']: NoteHead(
-                        id=note['note_id'],
+                        note_id=note['note_id'],
                         name=note['title'],
-                        tags=note['tags'],
-                        links=[x for x in note['links'] if x is not None and x != ""],
+                        tags=[
+                            TagHead(tag_id=tag_id, name=tag_name, color=tag_color)
+                            for tag_id, tag_name, tag_color
+                            in zip(note['tag_ids'], note['tag_titles'], note['tag_colors'])
+                        ],
                     )
                     for note in (
                         NoteDB.objects
                         .values("note_id", "title")
+                        .order_by("note_id", "tags__tag_id")
                         .annotate(
-                            tags=ArrayAgg("tags__title"),
-                            links=ArrayAgg("links__note_id"),
+                            tag_ids=ArrayAgg("tags__tag_id"),
+                            tag_titles=ArrayAgg("tags__title"),
+                            tag_colors=ArrayAgg("tags__color"),
                         )
                         .all()
                     )
@@ -36,4 +41,35 @@ class StructureService(AbstractStructureService):
             ),
         )
 
+    def createNewTag(self, input_data: TagCreateRequest) -> Tag:
+        tag: NoteTag = NoteTag(
+            title=input_data.name,
+        )
+        tag.save()
+        note_obj: NoteDB = NoteDB.object.filter(note_id=input_data.add_to_note_id).firts()
+        if note_obj is not None:
+            note_obj.tags.add(tag)
+            note_obj.save()
+        return Tag(
+            id=tag.tag_id,
+            name=tag.title,
+            description=tag.description,
+            color=tag.color,
+        )
+
+    def updateTag(self, input_data: Tag) -> Tag:
+        tag: NoteTag = NoteTag.objects.filter(tag_id=input_data.id).first()
+        if tag is None:
+            raise ValueError(f"no such tag: id={input_data.id}")
+        tag.title = input_data.name
+        tag.description = input_data.description
+        tag.color = input_data.color
+        tag.save()
+
+        return Tag(
+            id=tag.tag_id,
+            name=tag.title,
+            description=tag.description,
+            color=tag.color,
+        )
 
