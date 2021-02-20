@@ -6,7 +6,7 @@ import { Paper } from "@material-ui/core";
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from "@material-ui/core/InputBase/InputBase";
 import { NoteHead } from "../store/generated_messages";
-import { renderNoteLink } from "../components/NoteLink";
+import NoteLink from "../components/NoteLink";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -57,7 +57,8 @@ class NoteHeadViewer extends React.Component<NoteListPageProps, NoteListPageStat
                 { this.props.noteHeadList !== undefined ? (
                     <div>
                         {
-                            filterNoteList(this.props.noteHeadList, this.state.searchInput).map((noteHead: NoteHead) => renderNoteLink(noteHead))
+                            filterNoteList(this.props.noteHeadList, this.state.searchInput)
+                                .map((noteHead: NoteHead) => <NoteLink noteHead={noteHead}/>)
                         }
                     </div>
                 ) : (

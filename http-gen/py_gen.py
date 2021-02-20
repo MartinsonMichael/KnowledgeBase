@@ -25,6 +25,10 @@ from django.http import HttpResponse, HttpRequest
 from .generated_messages import *
  
 
+def make_response(content: str = "", status: int = 200) -> HttpResponse:
+    response = HttpResponse(content=content, status=status)
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Headers"] = "*"
 """
 
 
@@ -147,7 +151,7 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                 file.write("\n\n\n")
 
 
-def generate_services(parse_result: ParseResult, service_path: str) -> None:
+def generate_services(parse_result: ParseResult, service_path: str, pytry: bool) -> None:
     with open(service_path, "w") as file:
         file.write(SERVICE_HEAD)
 
@@ -158,24 +162,14 @@ def generate_services(parse_result: ParseResult, service_path: str) -> None:
                     f"{TAB}@csrf_exempt\n"
                     f"{TAB}def service_{method.name}(self, request: HttpRequest, **kwargs) -> HttpResponse:\n"
                     f"{TAB}{TAB}if request.method == 'OPTIONS':\n"
-                    f"{TAB}{TAB}{TAB}response = HttpResponse()\n"
-                    f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Origin\"] = \"*\"\n"
-                    f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Headers\"] = \"*\"\n"
-                    f"{TAB}{TAB}{TAB}return response\n"
-
+                    f"{TAB}{TAB}{TAB}return make_response()\n"
                 )
                 if method.input_type != "Null":
                     file.write(
                         f"{TAB}{TAB}try:\n"
                         f"{TAB}{TAB}{TAB}input_data: {method.input_type} = {method.input_type}.from_json(json.loads(request.body))\n"
-                        f"{TAB}{TAB}except:\n"
-                        f"{TAB}{TAB}{TAB}response = HttpResponse(\n"
-                        f"{TAB}{TAB}{TAB}{TAB}content='error while parsing request',\n"
-                        f"{TAB}{TAB}{TAB}{TAB}status=400,\n"
-                        f"{TAB}{TAB}{TAB})\n"
-                        f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Origin\"] = \"*\"\n"
-                        f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Headers\"] = \"*\"\n"
-                        f"{TAB}{TAB}{TAB}return response\n"
+                        f"{TAB}{TAB}except Exception as e:\n"
+                        f'{TAB}{TAB}{TAB}return make_response(f"error while parsing request:\\n{{str(e)}}", 400)\n'
                     )
 
                 file.write(f"{TAB}{TAB}try:\n")
@@ -190,34 +184,25 @@ def generate_services(parse_result: ParseResult, service_path: str) -> None:
                     else:
                         file.write(f"{TAB}{TAB}{TAB}self.{method.name}()\n")
                 file.write(
-                    f"{TAB}{TAB}except:\n"
-                    f"{TAB}{TAB}{TAB}response = HttpResponse(\n"
-                    f"{TAB}{TAB}{TAB}{TAB}content='error while processing request',\n"
-                    f"{TAB}{TAB}{TAB}{TAB}status=400,\n"
-                    f"{TAB}{TAB}{TAB})\n"
-                    f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Origin\"] = \"*\"\n"
-                    f"{TAB}{TAB}{TAB}response[\"Access-Control-Allow-Headers\"] = \"*\"\n"
-                    f"{TAB}{TAB}{TAB}return response\n"
+                    f"{TAB}{TAB}except ValueError as e:\n"
+                    f'{TAB}{TAB}{TAB}return make_response(str(e), 400)\n'
+                    f"{TAB}{TAB}except Exception as e:\n"
+                    f'{TAB}{TAB}{TAB}return make_response(f"error while processing request:\\n{{str(e)}}", 400)\n'
                     f"\n"
                 )
 
                 if method.output_type != "Null":
                     file.write(
-                        f"{TAB}{TAB}response = HttpResponse(\n"
+                        f"{TAB}{TAB}return make_response(\n"
                         f"{TAB}{TAB}{TAB}content=json.dumps(output_data.to_json()),\n"
                         f"{TAB}{TAB}{TAB}status=200,\n"
                         f"{TAB}{TAB})\n"
                     )
                 else:
                     file.write(
-                        f"{TAB}{TAB}response =HttpResponse(\n"
-                        f"{TAB}{TAB}{TAB}status=200,\n"
-                        f"{TAB}{TAB})\n"
+                        f"{TAB}{TAB}return make_response()\n"
                     )
                 file.write(
-                    f"{TAB}{TAB}response[\"Access-Control-Allow-Origin\"] = \"*\"\n"
-                    f"{TAB}{TAB}response[\"Access-Control-Allow-Headers\"] = \"*\"\n"
-                    f"{TAB}{TAB}return response\n"
                     f"\n"
                 )
 
@@ -304,10 +289,11 @@ def generate_urls(parse_result: ParseResult, urls_path: str) -> None:
         file.write(f"]\n")
 
 
-def py_gen(parse_result: ParseResult, py_path: str) -> None:
-    logger.log(35, "py generation...")
+def py_gen(parse_result: ParseResult, py_path: str, **params) -> None:
+    pytry = params.get('pytry', False)
+    logger.log(35, f"py generation [extra parameters: PyTry={pytry}]...")
     generate_messages(parse_result, os.path.join(py_path, "generated_messages.py"))
-    generate_services(parse_result, os.path.join(py_path, "services.py"))
+    generate_services(parse_result, os.path.join(py_path, "services.py"), pytry)
     generate_impl_file(parse_result, py_path)
     generate_urls(parse_result, os.path.join(py_path, "api_urls.py"))
     logger.log(35, "py generation... DONE")

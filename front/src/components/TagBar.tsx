@@ -3,10 +3,18 @@ import { Button, Chip, IconButton } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 import Selector from "./Selector";
 import { RouteComponentProps, withRouter } from "react-router";
-import { TagHead } from "../store/generated_messages";
+import {NoteHead, TagHead} from "../store/generated_messages";
+import DeleteIcon from "@material-ui/core/SvgIcon/SvgIcon";
+import {RootState} from "../store";
+import {connect, ConnectedProps} from "react-redux";
 
+const mapStoreStateToProps = (store: RootState) => ({
+    tagStore: store.structure.tagStore,
+});
+const connector = connect(mapStoreStateToProps);
+type PropsFromRedux = ConnectedProps<typeof connector>
 
-export type TagBarProps = RouteComponentProps<{}> & {
+export type TagBarProps = PropsFromRedux & RouteComponentProps<{}> & {
     parentstring: string,
     tags: TagHead[]
     size?: number
@@ -50,16 +58,31 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
                 </IconButton>
             )
         }
+        let selectList = [] as TagHead[];
+        if (this.props.tagStore !== undefined) {
+            selectList = [
+                ...Object.keys(this.props.tagStore.tags)
+                    .filter((tag_id: string) =>
+                        this.props.tags.filter(
+                            (tagHead: TagHead) => tagHead.tag_id === tag_id
+                        ).length === 0
+                    )
+                    .map(
+                    // @ts-ignore
+                    (tag_id: string) => this.props.tagStore.tags[tag_id]
+                )
+            ]
+        }
 
 
         return (
             <div style={{ display: "flex", marginRight: "5px" }}>
                 <Selector
-                    list={ this.props.tags }
+                    list={ selectList }
                     textGetter={ (tag: TagHead) => tag.name }
                     onSelect={(tag: TagHead) => {
                         if (this.props.onTagAdd !== undefined) {
-                            this.props.onTagAdd(tag.name)
+                            this.props.onTagAdd(tag.tag_id)
                         }
                     }}
                     onNew={ (newTagName: string) => null }
@@ -80,23 +103,20 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
             >
                 { tags.map((tag: TagHead) => (
                     <div style={{ marginRight: "5px" }} key={ this.props.parentstring + tag.name + 'div' }>
-                        <Button
+                        <Chip
+                            clickable
                             onClick={() => this.props.history.push(`/tag/${tag.tag_id}`)}
-                            size="small"
-                        >
-                            <Chip
-                                label={ "#" + tag.name }
-                                onDelete={ (this.props.showDeleteButtons ? e => {
-                                        if (this.props.onTagDelete !== undefined) {
-                                            this.props.onTagDelete(tag.name)
-                                        }
+                            label={ "#" + tag.name }
+                            onDelete={ (this.props.showDeleteButtons ? e => {
+                                    if (this.props.onTagDelete !== undefined) {
+                                        this.props.onTagDelete(tag.tag_id)
                                     }
-                                    : undefined)
                                 }
-                                size="small"
-                                variant="outlined"
-                            />
-                        </Button>
+                                : undefined)
+                            }
+                            size="small"
+                            variant="outlined"
+                        />
                     </div>
                 ))}
                 { this.renderTagAdd() }
@@ -105,4 +125,4 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
     }
 }
 
-export default withRouter(TagBar);
+export default withRouter(connector(TagBar));

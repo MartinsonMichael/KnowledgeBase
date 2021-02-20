@@ -3,19 +3,22 @@ import { Provider } from 'react-redux'
 import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import {createStore, applyMiddleware} from "redux";
-import {rootReducer} from "./store";
+import { createStore, applyMiddleware } from "redux";
+import { rootReducer } from "./store";
 import thunk from 'redux-thunk';
-import {BrowserRouter} from "react-router-dom";
+import { BrowserRouter} from "react-router-dom";
+import { SnackbarProvider } from "notistack";
 
 const store = createStore(rootReducer, undefined, applyMiddleware(thunk));
 
 ReactDOM.render(
   <React.StrictMode>
       <Provider store={store}>
-           <BrowserRouter>
-                <App/>
-           </BrowserRouter>
+          <SnackbarProvider maxSnack={3}>
+               <BrowserRouter>
+                    <App/>
+               </BrowserRouter>
+          </SnackbarProvider>
       </Provider>
   </React.StrictMode>,
   document.getElementById('root')

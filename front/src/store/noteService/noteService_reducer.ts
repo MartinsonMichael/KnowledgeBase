@@ -1,24 +1,64 @@
 import * as msg from "../generated_messages"
-import { NoteServiceActionType } from "./noteService_actions"
+import { NoteServiceActionType, updateNoteBody } from "./noteService_actions"
+import { noteServiceInplaceActionType } from "./noteService_inplace_actions";
 
 
 export interface NoteServiceState {
-    note?: msg.Note,
+    note?: msg.Note
+    body?: string
+    changeNum: number
+    needUpdate: boolean
 
     isLoading: boolean
     error?: string
+    msg?: string
 }
 
 const initialState: NoteServiceState = {
     note: undefined,
+    body: undefined,
+    changeNum: 0,
+    needUpdate: false,
 
     isLoading: false,
     error: undefined,
+    msg: undefined
 } as NoteServiceState;
 
 
-export function NoteServiceReducer(state = initialState, action: NoteServiceActionType): NoteServiceState {
+export function NoteServiceReducer(
+    state = initialState,
+    action: NoteServiceActionType | noteServiceInplaceActionType
+): NoteServiceState {
     switch (action.type) {
+
+        case "RemoveMsg":
+            return {
+                ...state,
+                msg: undefined,
+            } as NoteServiceState;
+        case "updateLocalBody":
+            console.log("HERE");
+            console.log(action.payload);
+            return {
+                ...state,
+                body: action.payload,
+                needUpdate: state.changeNum > 30,
+                changeNum: state.changeNum + 1,
+            } as NoteServiceState;
+        case "needBodyUpdate":
+            return {
+                ...state,
+                needUpdate: true,
+            } as NoteServiceState;
+        case "noUpdateNeeded":
+            return {
+                ...state,
+                needUpdate: false,
+            } as NoteServiceState;
+
+
+
         case "getNote_START":
             return {
                 ...state,
@@ -30,6 +70,8 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
             return {
                 ...state,
                 note: action.payload,
+                body: action.payload.body,
+                changeNum: 0,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;
@@ -52,6 +94,8 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
         case "addNoteTag_SUCCESS":
             return {
                 ...state,
+                note: action.payload.updatedNote,
+                msg: action.payload.msg,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;
@@ -74,6 +118,8 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
         case "delNoteTag_SUCCESS":
             return {
                 ...state,
+                note: action.payload.updatedNote,
+                msg: action.payload.msg,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;
@@ -96,6 +142,8 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
         case "addNoteLink_SUCCESS":
             return {
                 ...state,
+                note: action.payload.updatedNote,
+                msg: action.payload.msg,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;
@@ -118,6 +166,8 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
         case "delNoteLink_SUCCESS":
             return {
                 ...state,
+                note: action.payload.updatedNote,
+                msg: action.payload.msg,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;
@@ -140,6 +190,8 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
         case "updateNoteName_SUCCESS":
             return {
                 ...state,
+                note: action.payload.updatedNote,
+                msg: action.payload.msg,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;
@@ -162,6 +214,8 @@ export function NoteServiceReducer(state = initialState, action: NoteServiceActi
         case "updateNoteBody_SUCCESS":
             return {
                 ...state,
+                changeNum: 0,
+                msg: action.payload.msg,
                 isLoading: false,
                 error: undefined,
             } as NoteServiceState;

@@ -10,6 +10,8 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import ListIcon from '@material-ui/icons/List';
 
+import { SnackbarProvider, useSnackbar } from 'notistack';
+
 import { getStructure } from "./store/structureService/structureService_actions";
 import { connect, ConnectedProps } from "react-redux";
 
@@ -119,8 +121,8 @@ class App extends React.Component<AppProps, AppState>{
                 <Switch>
                     <Route path='/home' render={() => <HomePage/>}/>
                     <Route path='/fullList' render={() => <NoteListPage/>} />
-                    <Route path='/note/:pathstring' render={() => <NotePage/>} />
-                    <Route path='/tag/:pathTagName' render={() => <TagPage/>} />
+                    <Route path='/note/:note_id' render={() => <NotePage/>} />
+                    <Route path='/tag/:tag_id' render={() => <TagPage/>} />
                     <Route path='/tag_list' render={() => <TagListPage/>} />
 
                     <Redirect from="/" to="/home" />

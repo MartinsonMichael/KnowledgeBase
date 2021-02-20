@@ -349,7 +349,7 @@ def generate_reducer(parse_result: ParseResult, ts_path: str) -> None:
             )
 
 
-def ts_gen(parse_result: ParseResult, ts_path: str) -> None:
+def ts_gen(parse_result: ParseResult, ts_path: str, **params) -> None:
     logger.log(35, "ts generation...")
     generate_messages(parse_result, os.path.join(ts_path, "generated_messages.ts"))
     generate_methods(parse_result, ts_path)

@@ -1,5 +1,4 @@
 import * as React from "react";
-import Editor from "rich-markdown-editor";
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from "../store";
 import * as noteAct from "../store/noteService/noteService_actions";
@@ -12,16 +11,26 @@ import EditIcon from '@material-ui/icons/Edit';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 import { renderUnsavedChangedMarker } from "../components/UnsaveTracker";
-import { renderError } from "../components/renderUtils";
+import { renderError, renderSuccessMsg } from "../components/renderUtils";
 import NoteLinkList from "../components/NoteLinkList";
+import NoteBody from "../components/NoteBody";
+import { needBodyUpdate, removeSuccessMsg } from "../store/noteService/noteService_inplace_actions";
+import {addBrowserHistoryNote, unsetNeedReload} from "../store/system/system_actions";
 
 
 
 const mapStoreStateToProps = (store: RootState) => ({
-    note: store.note.note,
     noteHeadStore: store.structure.noteHeadStore,
     tagStore: store.structure.tagStore,
 
+    note: store.note.note,
+    changeNum: store.note.changeNum,
+
+    needReloading: store.system.needReloading,
+    noteBrowserHistory: store.system.noteBrowserHistory,
+
+    isLoading: store.note.isLoading,
+    msg: store.note.msg,
     error: store.note.error,
 });
 
@@ -30,51 +39,43 @@ const mapDispatchToProps = (dispatch: any) => {
         loadNote: (note_id: string) => dispatch(noteAct.getNote(note_id)),
 
         updateName: (note: string, name: string) => dispatch(noteAct.updateNoteName(note, name)),
-        updateBody: (note: string, body: string,) => dispatch(noteAct.updateNoteName(note, body)),
+        needBodyUpdate: () => dispatch(needBodyUpdate()),
 
         addTag: (note_id: string, tag_id: string) => dispatch(noteAct.addNoteTag(note_id, tag_id)),
         delTag: (note_id: string, tag_id: string) => dispatch(noteAct.delNoteTag(note_id, tag_id)),
 
         addLink: (note_id: string, link_note_id: string) => dispatch(noteAct.addNoteLink(note_id, link_note_id)),
         delLink: (note_id: string, link_note_id: string) => dispatch(noteAct.delNoteLink(note_id, link_note_id)),
+
+        removeMsg: () => dispatch(removeSuccessMsg()),
+        unsetNeedReload: () => dispatch(unsetNeedReload()),
+        addBrowserHistoryNote: (note_id: string) => dispatch(addBrowserHistoryNote(note_id)),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 export interface NotePageState {
-    unsavedChangesNumber: number,
-
-    bodyState: string,
-    addLinkVisible: boolean,
+    bodyState: "view" | "edit",
     showNoteSettings: boolean
-    showNewPageCreator: boolean,
 }
 
 
 type PathParamsType = {
-    pathstring: string
+    note_id: string
 }
 
 export type NotePageProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {}
 
 
 class NotePage extends React.Component<NotePageProps, NotePageState> {
-    private inputBody: any;
 
     constructor(props: NotePageProps) {
         super(props);
         this.state = {
-            unsavedChangesNumber: 0,
-
             bodyState: "view",
-            addLinkVisible: false,
             showNoteSettings: false,
-            showNewPageCreator: false,
         };
-
-        this.renderBody = this.renderBody.bind(this);
-        this.forceUpdate = this.forceUpdate.bind(this);
         this.loadNote = this.loadNote.bind(this);
 
         document.addEventListener('keydown', e => {
@@ -82,79 +83,77 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
             // for cnts+s == save
             if (e.ctrlKey && (e.keyCode === 83)) {
                 e.preventDefault();
-                this.forceUpdate();
             }
-        })
+        });
     }
 
     componentDidMount(): void {
-        console.log("HERE");
         this.loadNote()
     }
 
     loadNote(): void {
-        let needID = this.props.match.params.pathstring;
-
-        if (needID === "undefined") {
-            alert("no note ID");
-            console.log("no note ID");
-            return;
+        let needID = this.props.match.params.note_id;
+        if (needID === undefined) {
+            return
         }
         this.props.loadNote(needID);
     }
 
-    forceUpdate(): void {
-        if (this.props.note !== undefined) {
-            this.setState({unsavedChangesNumber: 0})
+    renderSaveButton(): React.ReactNode {
+        if (this.state.bodyState === "view") {
+            return (
+                <Button onClick={() => this.setState({bodyState: "edit"})} color="primary">
+                    <EditIcon/>
+                    Edit
+                </Button>
+            )
+        }
+        if (this.state.bodyState === "edit" && this.props.note !== undefined) {
+            return (
+                <Button
+                    onClick={() => {
+                        if (this.props.changeNum !== 0) {
+                            this.props.needBodyUpdate();
+                        }
+                        this.setState({bodyState: "view"})
+                    }}
+                >
+                    <SaveIcon/>
+                    Save
+                </Button>
+            )
         }
     }
 
-    renderBody(): React.ReactNode {
-        if (this.props.note === undefined) {
+    showMsg(): React.ReactNode {
+        const { msg } = this.props;
+        if (msg === undefined) {
             return null;
         }
-        const { note_id, body } = this.props.note;
-        if (this.state.bodyState === "view") {
-            return (
-                <div key={note_id + this.props.match.params.pathstring + body}>
-                <Editor
-                    readOnly
-                    placeholder="No any body yet"
-                    defaultValue={ body }
-                    value={ body }
-                    onChange={() => null}
-                    onClickLink={(href: string) => {
-                        if (href.includes("/note/")) {
-                            this.props.history.push(`/note/${href.split("/note/")[1]}`);
-                            return;
-                        }
-                        if (href.includes("/tag/")) {
-                            this.props.history.push(`/tag/${href.split("/tag/")[1]}`);
-                            return;
-                        }
-                        window.open(href, "_blank")
-                    }}
-                />
-                </div>
-            )
+        setTimeout(() => this.props.removeMsg(), 3000);
+        return renderSuccessMsg(msg);
+    }
+
+    showError(): React.ReactNode {
+        const { error } = this.props;
+        if (error === undefined) {
+            return null;
         }
-        if (this.state.bodyState === "edit") {
-            return null
-        }
+        setTimeout(() => this.props.removeMsg(), 5000);
+        return renderError(error);
     }
 
     render(): React.ReactNode {
 
-        if (this.props.error !== undefined) {
-            return renderError(this.props.error)
-        }
-
         if (this.props.note === undefined) {
             return <span>No Note, khm, try to reload page.</span>
         }
+        if (this.props.needReloading) {
+            this.loadNote();
+            this.props.unsetNeedReload();
+        }
 
-
-        const { note_id, tags, links } = this.props.note;
+        const { note_id, tags, links, body } = this.props.note;
         return (
             <div style={{margin: "20px", display: "flex" }}>
                 <div style={{ width: "70%", marginRight: "20px"}}>
@@ -171,8 +170,14 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
 
                     <div style={{ display: "flex", alignItems: "center" }}>
                         <Button
-                            onClick={() => this.props.history.goBack()}
+                            onClick={() => {
+                                const last_note_id = this.props.noteBrowserHistory.pop();
+                                if (last_note_id !== undefined) {
+                                    this.props.history.push(`/note/${last_note_id}`)
+                                }
+                            } }
                             size="small"
+                            disabled={ this.props.noteBrowserHistory.length === 1 }
                         >
                             <ArrowBackIcon/>
                             Back
@@ -182,23 +187,8 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                         >
                             <SettingsIcon/>
                         </IconButton>
-                        {this.state.bodyState === "view" ?
-                            <Button onClick={() => this.setState({bodyState: "edit"})} color="primary">
-                                <EditIcon/>
-                                Edit
-                            </Button>
-                            :
-                            <Button
-                                onClick={() => {
-                                    this.forceUpdate();
-                                    this.setState({ bodyState: "view" })
-                                }}
-                            >
-                                <SaveIcon/>
-                                Save
-                            </Button>
-                        }
-                        { renderUnsavedChangedMarker(this.state.unsavedChangesNumber) }
+                        { this.renderSaveButton() }
+                        { renderUnsavedChangedMarker(this.props.changeNum) }
                     </div>
 
                     <div style={{display: "flex", alignItems: "center" }}>
@@ -209,7 +199,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                                 fullWidth
                                 size="small"
                                 value={ this.props.note.name }
-                                // onChange={e => this.props.updateName(this.props.note, e.target.value)}
+                                onChange={e => this.props.updateName(note_id, e.target.value)}
                             />
                         }
                     </div>
@@ -224,7 +214,10 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             onTagDelete={ (tag_id: string) => this.props.delTag(note_id, tag_id) }
                         />
                     </div>
-                    { this.renderBody() }
+                    <NoteBody
+                        note_id={ note_id }
+                        mode={ this.state.bodyState }
+                    />
                 </div>
                 <div style={{ width: "30%" }}>
                     <NoteLinkList
@@ -235,6 +228,8 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                         onDelete={ (link_note_id: string) => this.props.delLink(note_id, link_note_id) }
                     />
                 </div>
+                { this.showMsg() }
+                { this.showError() }
             </div>
         );
     }

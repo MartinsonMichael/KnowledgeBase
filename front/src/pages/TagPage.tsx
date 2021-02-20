@@ -10,7 +10,7 @@ import { headStoreToList } from "../components/utils";
 import EditIcon from "@material-ui/core/SvgIcon/SvgIcon";
 import SaveIcon from '@material-ui/icons/Save';
 import { renderUnsavedChangedMarker } from "../components/UnsaveTracker";
-import { renderNoteLink } from "../components/NoteLink";
+import NoteLink from "../components/NoteLink";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -39,7 +39,7 @@ export interface TagPageState {
 
 
 type PathParamsType = {
-  pathTagName: string
+  tag_id: string
 }
 
 export type TagPageProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {}
@@ -54,7 +54,7 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
             isEditMode: false,
         };
 
-        console.log(this.props.match.params.pathTagName);
+        console.log(this.props.match.params.tag_id);
 
         this.lightUpdateTagDescription = this.lightUpdateTagDescription.bind(this);
     }
@@ -63,7 +63,7 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
         if (this.props.tagStore === undefined) {
             return
         }
-        if (this.state.currentTag !== undefined && this.state.currentTag.name === this.props.match.params.pathTagName) {
+        if (this.state.currentTag !== undefined && this.state.currentTag.name === this.props.match.params.tag_id) {
             return
         }
         // this.setState({
@@ -177,7 +177,7 @@ class TagPage extends React.Component<TagPageProps, TagPageState>{
                     }
                 </div>
                 Notes containing this tag:
-                { noteList.map((noteHead: NoteHead) => renderNoteLink(noteHead)) }
+                { noteList.map((noteHead: NoteHead) => <NoteLink noteHead={noteHead}/> ) }
             </div>
         );
     }

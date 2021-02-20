@@ -43,7 +43,8 @@ message NoteBodyUpdate {
 
 message NoteUpdateResponse {
     bool success = 1;
-    string error_msg = 2;
+    string msg = 2;
+    Note updatedNote = 3;
 }
 
 message NewNote {

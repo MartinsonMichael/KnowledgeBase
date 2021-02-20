@@ -150,10 +150,14 @@ export function construct_NoteBodyUpdate(x: any): NoteBodyUpdate {
 
 export interface NoteUpdateResponse {
     success: boolean
-    error_msg: string
+    msg: string
+    updatedNote: Note
 }
 export function construct_NoteUpdateResponse(x: any): NoteUpdateResponse {
-    return x as NoteUpdateResponse
+    return {
+        ...x,
+        'updatedNote': construct_Note(x['updatedNote']),
+    } as NoteUpdateResponse
 }
 
 

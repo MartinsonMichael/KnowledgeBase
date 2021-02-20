@@ -3,4 +3,4 @@ FROM postgres:12.0-alpine
 ENV POSTGRES_USER dev
 ENV POSTGRES_PASSWORD dev
 
-ENV POSTGRES_DB studygram_dev
+ENV POSTGRES_DB system2

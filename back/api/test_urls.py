@@ -59,8 +59,12 @@ def loadNotes(request: HttpRequest, **kwargs) -> HttpResponse:
     for note_id in note_ids:
         note_obj: NoteDB = NoteDB.objects.filter(note_id=note_id['note_id']).first()
         note_linked_objs = NoteDB.objects.filter(note_id__in=np.random.choice([x['note_id'] for x in note_ids], 3))
+
+        print(f"add to {note_id['note_id']} -> ", end='')
         for note in note_linked_objs:
             note_obj.links.add(note)
+            print(note.note_id, " ", end='')
+        print("\n")
 
     return HttpResponse(content="OK!")
 

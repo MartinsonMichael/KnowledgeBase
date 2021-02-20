@@ -1,22 +1,23 @@
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
-import { Note, NoteHead, NoteHeadStore } from "../store/generated_messages";
+import { NoteHead } from "../store/generated_messages";
 import * as React from "react";
 import Selector from "./Selector";
-import { renderNoteLink } from "./NoteLink";
+import NoteLink from "./NoteLink";
 import { Button } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 
 const mapStoreStateToProps = (store: RootState) => ({
+    noteHeadStore: store.structure.noteHeadStore,
 });
 const connector = connect(mapStoreStateToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 export type NoteLinkListProps = PropsFromRedux & {
     noteList: NoteHead[],
-    showDelButtons: boolean
+    showDelButtons?: boolean
     onDelete?: (id: string) => void | undefined,
-    showAddButton: boolean,
+    showAddButton?: boolean,
     onAdd?: (id: string) => void | undefined
 }
 
@@ -25,6 +26,11 @@ type NoteLinkListState = {
 }
 
 class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState> {
+    static defaultProps = {
+        showAddButton: false,
+        showDelButtons: false,
+    };
+
     constructor(props: NoteLinkListProps) {
         super(props);
         this.state = {
@@ -37,10 +43,25 @@ class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState>
             return null
         }
         if (this.state.isAddTextLineVisible) {
+            let selectList = [] as NoteHead[];
+            if (this.props.noteHeadStore !== undefined) {
+                selectList = [
+                    ...Object.keys(this.props.noteHeadStore.heads)
+                        .filter((note_id: string) =>
+                            this.props.noteList.filter(
+                                (noteHead: NoteHead) => noteHead.note_id === note_id
+                            ).length === 0
+                        )
+                        .map(
+                        // @ts-ignore
+                        (note_id: string) => this.props.noteHeadStore.heads[note_id]
+                    )
+                ]
+            }
             return (
                 <Selector
-                    list={ this.props.noteList }
-                    textGetter={ (noteHead: NoteHead | Note) => noteHead.name }
+                    list={ selectList }
+                    textGetter={ (noteHead: NoteHead) => noteHead.name }
                     onSelect={(noteHead: NoteHead) => {
                         this.setState({isAddTextLineVisible: false});
                         if (this.props.onAdd !== undefined) {
@@ -63,18 +84,15 @@ class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState>
     render(): React.ReactNode {
         return (
             <div>
-                {/*{ this.props.noteIDList.length === 0 ? <span style={{color: "grey"}}>No links</span> : null }*/}
-
-                {/*{ this.props.noteIDList.map((noteID: string) =>*/}
-                {/*    // @ts-ignore*/}
-                {/*    <div key={ noteID }>*/}
-                {/*        { renderNoteLink(*/}
-                {/*            // @ts-ignore*/}
-                {/*            this.props.noteHeadStore.heads[noteID],*/}
-                {/*            (this.props.showDelButtons ? this.props.onDelete : undefined),*/}
-                {/*        )}*/}
-                {/*    </div>*/}
-                {/*)}*/}
+                { this.props.noteList.map((noteHead: NoteHead) =>
+                    <NoteLink
+                        noteHead={ noteHead }
+                        onDelete={
+                            (this.props.showDelButtons ? this.props.onDelete : undefined)
+                        }
+                        key={ `link-list-${noteHead.note_id}` }
+                    />
+                )}
                 <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                     { this.renderAddButton() }
                 </div>

@@ -265,21 +265,24 @@ class NoteBodyUpdate:
 
 
 class NoteUpdateResponse:
-    def __init__(self, success: bool, error_msg: str):
+    def __init__(self, success: bool, msg: str, updatedNote: 'Note'):
         self.success: bool = success
-        self.error_msg: str = error_msg
+        self.msg: str = msg
+        self.updatedNote: 'Note' = updatedNote
 
     def to_json(self) -> Union[Dict, List]:
         return {
             'success': self.success,
-            'error_msg': self.error_msg,
+            'msg': self.msg,
+            'updatedNote': self.updatedNote.to_json(),
         }
 
     @staticmethod
     def from_json(obj: Dict) -> 'NoteUpdateResponse':
         return NoteUpdateResponse(
             success=obj['success'],
-            error_msg=obj['error_msg'],
+            msg=obj['msg'],
+            updatedNote=Note.from_json(obj['updatedNote']),
         )
 
 

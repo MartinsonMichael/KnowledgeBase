@@ -29,7 +29,6 @@ class StructureService(AbstractStructureService):
                     for note in (
                         NoteDB.objects
                         .values("note_id", "title")
-                        .order_by("note_id", "tags__tag_id")
                         .annotate(
                             tag_ids=ArrayAgg("tags__tag_id"),
                             tag_titles=ArrayAgg("tags__title"),
@@ -46,7 +45,7 @@ class StructureService(AbstractStructureService):
             title=input_data.name,
         )
         tag.save()
-        note_obj: NoteDB = NoteDB.object.filter(note_id=input_data.add_to_note_id).firts()
+        note_obj: NoteDB = NoteDB.object.filter(note_id=input_data.add_to_note_id).first()
         if note_obj is not None:
             note_obj.tags.add(tag)
             note_obj.save()
@@ -58,16 +57,16 @@ class StructureService(AbstractStructureService):
         )
 
     def updateTag(self, input_data: Tag) -> Tag:
-        tag: NoteTag = NoteTag.objects.filter(tag_id=input_data.id).first()
+        tag: NoteTag = NoteTag.objects.filter(tag_id=input_data.tag_id).first()
         if tag is None:
-            raise ValueError(f"no such tag: id={input_data.id}")
+            raise ValueError(f"no such tag: id={input_data.tag_id}")
         tag.title = input_data.name
         tag.description = input_data.description
         tag.color = input_data.color
         tag.save()
 
         return Tag(
-            id=tag.tag_id,
+            tag_id=tag.tag_id,
             name=tag.title,
             description=tag.description,
             color=tag.color,
