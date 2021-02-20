@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+message SimpleMsg {
+    int32 integer_field = 1;
+    float float_field = 2;
+    string string_field = 3;
+    repeated bool boolean_field = 4;
+}
+
+message ComplexMsg {
+    repeated SimpleMsg simpleMsgList = 1;
+    repeated string string_list = 2;
+    SimpleMsg singleSimple = 3;
+    bool single_boolean = 4;
+}
+
+service TestService {
+    // test method
+    rpc getSimpleMsg(Null) returns (SimpleMsg) {}
+    rpc getComplexMsg(Null) returns (ComplexMsg) {}
+
+    rpc getComplexBySimple(SimpleMsg) returns (ComplexMsg) {}
+    rpc postComplex(ComplexMsg) returns (Null) {}
+    rpc postNull(Null) returns (Null) {}
+}

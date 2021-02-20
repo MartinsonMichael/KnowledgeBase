@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+message TagHead {
+    string tag_id = 1;
+    string name = 2;
+    string color = 3;
+}
+
+message NoteHead {
+    string note_id = 1;
+    string name = 2;
+    repeated TagHead tags = 3;
+}
+
+message NoteHeadStore {
+    map<string, NoteHead> heads = 1;
+}
+
+message TagStore {
+    map<string, TagHead> tags = 1;
+}
+
+message Structure {
+    NoteHeadStore head_store = 1;
+    TagStore tag_store = 2;
+}
+
+message TagCreateRequest {
+    string name = 1;
+    string add_to_note_id = 2;
+}
+
+service StructureService {
+    rpc getStructure(Null) returns (Structure) {}
+
+    rpc createNewTag(TagCreateRequest) returns (Tag) {}
+    rpc updateTag(Tag) returns (Tag) {}
+}

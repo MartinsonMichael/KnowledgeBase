@@ -1,16 +1,74 @@
 syntax = "proto3";
 
-message NoteHeader {
-    string id = 1;
+
+message Tag {
+    string tag_id = 1;
     string name = 2;
+    string description = 3;
+    string color = 4;
 }
 
-message NoteHeaderList {
-    repeated NoteHeader list = 1;
+message Note {
+    string note_id = 1;
+    string name = 2;
+    repeated TagHead tags = 3;
+    repeated NoteHead links = 4;
+    string body = 5;
 }
 
-message Null {}
+
+message NoteRequest {
+    string note_id = 1;
+}
+
+message NoteTagUpdate {
+    string note_id = 1;
+    string tag_id = 2;
+}
+
+message NoteLinkUpdate {
+    string note_id = 1;
+    string link_note_id = 2;
+}
+
+message NoteNameUpdate {
+    string note_id = 1;
+    string new_name = 2;
+}
+
+message NoteBodyUpdate {
+    string note_id = 1;
+    string new_body = 2;
+}
+
+message NoteUpdateResponse {
+    bool success = 1;
+    string msg = 2;
+    Note updatedNote = 3;
+}
+
+message NewNote {
+    string pre_note_id = 1;
+    string name = 2;
+    string link_from = 3;
+}
 
 service NoteService {
-  rpc getAllNotesHeaders(Null) returns (NoteHeaderList) {}
+
+    rpc getNote(NoteRequest) returns (Note) {}
+    rpc createNewNote(NewNote) returns (NoteUpdateResponse) {}
+
+    // update note's tag
+    rpc addNoteTag(NoteTagUpdate) returns (NoteUpdateResponse) {}
+    rpc delNoteTag(NoteTagUpdate) returns (NoteUpdateResponse) {}
+
+    // update note's link
+    rpc addNoteLink(NoteLinkUpdate) returns (NoteUpdateResponse) {}
+    rpc delNoteLink(NoteLinkUpdate) returns (NoteUpdateResponse) {}
+
+    // update note's name
+    rpc updateNoteName(NoteNameUpdate) returns (NoteUpdateResponse) {}
+
+    // update note's body
+    rpc updateNoteBody(NoteBodyUpdate) returns (NoteUpdateResponse) {}
 }
