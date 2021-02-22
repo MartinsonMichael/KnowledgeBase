@@ -68,6 +68,8 @@ class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState>
                             this.props.onAdd(noteHead.note_id);
                         }
                     }}
+                    onNew={(noteName: string) => console.log(noteName)}
+                    onNewText={ (input: string) => `New child Note with name '${input}'`}
                 />
             )
         }
