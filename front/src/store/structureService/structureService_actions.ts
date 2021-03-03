@@ -4,6 +4,8 @@
 import axios from "../client"
 import * as msg from "../generated_messages"
 
+import { createNewTag_START_Action, createNewTag_SUCCESS_Action, createNewTag_REJECTED_Action } from "./createNewTag_action"
+
 
 export const getStructure_START = "getStructure_START";
 interface getStructure_START_Action {
@@ -39,49 +41,6 @@ export const getStructure = () => {
             dispatch({type: getStructure_SUCCESS, payload: msg.construct_Structure(response.data)});
         } else {
             dispatch({type: getStructure_REJECTED, payload: response.data});
-        }
-    }
-};
-
-
-export const createNewTag_START = "createNewTag_START";
-interface createNewTag_START_Action {
-    type: typeof createNewTag_START
-    payload: undefined
-}
-export const createNewTag_SUCCESS = "createNewTag_SUCCESS";
-interface createNewTag_SUCCESS_Action {
-    type: typeof createNewTag_SUCCESS
-    payload: msg.Tag
-}
-export const createNewTag_REJECTED = "createNewTag_REJECTED";
-interface createNewTag_REJECTED_Action {
-    type: typeof createNewTag_REJECTED
-    payload: string
-}
-
-export const createNewTag = (name: string, add_to_note_id: string) => {
-    return async (dispatch: any) => {
-        dispatch({type: createNewTag_START, payload: undefined});
-
-        const response = await axios.post(
-            'createNewTag',
-            {
-                'name': name,
-                'add_to_note_id': add_to_note_id,
-            },
-            {
-                'headers': {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': '*',
-                },
-            },
-        );
-
-        if (response.status === 200) {
-            dispatch({type: createNewTag_SUCCESS, payload: msg.construct_Tag(response.data)});
-        } else {
-            dispatch({type: createNewTag_REJECTED, payload: response.data});
         }
     }
 };

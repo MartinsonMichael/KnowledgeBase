@@ -1,7 +1,8 @@
 import logging
 import os
+from typing import TextIO
 
-from utils import ParseResult, _is_base_type, MessageAttribute, Message, find_message_by_name
+from utils import ParseResult, _is_base_type, MessageAttribute, Message, find_message_by_name, ServiceMethod
 
 TAB = "    "
 HEAD = """// This file is generated, DO NOT EDIT IT
@@ -147,118 +148,141 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
                 )
 
 
+def _write_method_to_file(
+        method: ServiceMethod,
+        file: TextIO,
+        parse_result: ParseResult,
+        export_action_interface: bool = False,
+) -> None:
+    file.write(
+        f'export const {method.name}_START = "{method.name}_START";\n'
+        f"{'export ' if export_action_interface else ''}interface {method.name}_START_Action {{\n"
+        f"{TAB}type: typeof {method.name}_START\n"
+        f"{TAB}payload: undefined\n"
+        f"}}\n"
+    )
+    file.write(
+        f'export const {method.name}_SUCCESS = "{method.name}_SUCCESS";\n'
+        f"{'export ' if export_action_interface else ''}interface {method.name}_SUCCESS_Action {{\n"
+        f"{TAB}type: typeof {method.name}_SUCCESS\n"
+    )
+    if method.output_type == "Null":
+        file.write(f"{TAB}payload: undefined\n")
+    elif _is_base_type(method.output_type):
+        file.write(f"{TAB}payload: {_base_type_to_ts_types(method.output_type)}\n")
+    else:
+        file.write(f"{TAB}payload: msg.{method.output_type}\n")
+    file.write(f"}}\n")
+
+    file.write(
+        f'export const {method.name}_REJECTED = "{method.name}_REJECTED";\n'
+        f"{'export ' if export_action_interface else ''}interface {method.name}_REJECTED_Action {{\n"
+        f"{TAB}type: typeof {method.name}_REJECTED\n"
+        f"{TAB}payload: string\n"
+        f"}}\n"
+    )
+    file.write("\n")
+
+    file.write(
+        f"export const {method.name} = ("
+    )
+    if method.input_type != "Null":
+        msg: Message = find_message_by_name(parse_result, method.input_type)
+        for i, atr in enumerate(msg.attributes):
+            if _is_base_type(atr.atr_type):
+                file.write(f"{atr.atr_name}: {_base_type_to_ts_types(atr.atr_type)}")
+            else:
+                file.write(f"{atr.atr_name}: msg.{atr.atr_type}")
+            if atr.repeated:
+                file.write("[]")
+            if i + 1 < len(msg.attributes):
+                file.write(", ")
+    file.write(
+        f") => {{\n"
+        f"{TAB}return async (dispatch: any) => {{\n"
+        f"{TAB}{TAB}dispatch({{type: {method.name}_START, payload: undefined}});\n"
+        f"\n"
+    )
+    if method.input_type == "Null":
+        file.write(
+            f"{TAB}{TAB}const response = await axios.get(\n"
+            f"{TAB}{TAB}{TAB}'{method.name}',\n"
+            f"{TAB}{TAB}{TAB}{{\n"
+            f"{TAB}{TAB}{TAB}{TAB}'headers': {{\n"
+            f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Origin': '*',\n"
+            f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Headers': '*',\n"
+            f"{TAB}{TAB}{TAB}{TAB}}},\n"
+            f"{TAB}{TAB}{TAB}}},\n"
+            f"{TAB}{TAB});\n"
+        )
+    else:
+        file.write(
+            f"{TAB}{TAB}const response = await axios.post(\n"
+            f"{TAB}{TAB}{TAB}'{method.name}',\n"
+            f"{TAB}{TAB}{TAB}{{\n"
+        )
+        msg: Message = find_message_by_name(parse_result, method.input_type)
+        for atr in msg.attributes:
+            file.write(f"{TAB}{TAB}{TAB}{TAB}'{atr.atr_name}': {atr.atr_name},\n")
+
+        file.write(
+            f"{TAB}{TAB}{TAB}}},\n"
+            f"{TAB}{TAB}{TAB}{{\n"
+            f"{TAB}{TAB}{TAB}{TAB}'headers': {{\n"
+            f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Origin': '*',\n"
+            f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Headers': '*',\n"
+            f"{TAB}{TAB}{TAB}{TAB}}},\n"
+            f"{TAB}{TAB}{TAB}}},\n"
+            f"{TAB}{TAB});\n"
+        )
+
+    file.write(
+        f"\n"
+        f"{TAB}{TAB}if (response.status === 200) {{\n"
+        f"{TAB}{TAB}{TAB}dispatch({{type: {method.name}_SUCCESS, payload: "
+    )
+    if method.output_type == "Null":
+        file.write(f"undefined}});\n")
+    elif _is_base_type(method.output_type):
+        file.write(f"response.data}});\n")
+    else:
+        file.write(f"msg.construct_{method.output_type}(response.data)}});\n")
+    file.write(
+        f"{TAB}{TAB}}} else {{\n"
+        f"{TAB}{TAB}{TAB}dispatch({{type: {method.name}_REJECTED, payload: response.data}});\n"
+        f"{TAB}{TAB}}}\n"
+        f"{TAB}}}\n"
+        f"}};\n\n\n"
+    )
+
+
 def generate_methods(parse_result: ParseResult, ts_path: str) -> None:
     for service in parse_result.services:
         dir_name = os.path.join(ts_path, _lower_first_letter(service.name))
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
+        COMMON_METHOD_HEADER = (
+            f"{HEAD}\n\n"
+            f'import axios from "../client"\n'
+            f'import * as msg from "../generated_messages"\n\n'
+        )
         with open(os.path.join(dir_name, f"{_lower_first_letter(service.name)}_actions.ts"), "w") as file:
-            file.write(
-                f"{HEAD}\n\n"
-                f'import axios from "../client"\n'
-                f'import * as msg from "../generated_messages"\n\n\n'
-            )
+            file.write(COMMON_METHOD_HEADER)
             for method in service.methods:
-                file.write(
-                    f'export const {method.name}_START = "{method.name}_START";\n'
-                    f"interface {method.name}_START_Action {{\n"
-                    f"{TAB}type: typeof {method.name}_START\n"
-                    f"{TAB}payload: undefined\n"
-                    f"}}\n"
-                )
-                file.write(
-                    f'export const {method.name}_SUCCESS = "{method.name}_SUCCESS";\n'
-                    f"interface {method.name}_SUCCESS_Action {{\n"
-                    f"{TAB}type: typeof {method.name}_SUCCESS\n"
-                )
-                if method.output_type == "Null":
-                    file.write(f"{TAB}payload: undefined\n")
-                elif _is_base_type(method.output_type):
-                    file.write(f"{TAB}payload: {_base_type_to_ts_types(method.output_type)}\n")
-                else:
-                    file.write(f"{TAB}payload: msg.{method.output_type}\n")
-                file.write(f"}}\n")
-
-                file.write(
-                    f'export const {method.name}_REJECTED = "{method.name}_REJECTED";\n'
-                    f"interface {method.name}_REJECTED_Action {{\n"
-                    f"{TAB}type: typeof {method.name}_REJECTED\n"
-                    f"{TAB}payload: string\n"
-                    f"}}\n"
-                )
-                file.write("\n")
-
-                file.write(
-                    f"export const {method.name} = ("
-                )
-                if method.input_type != "Null":
-                    msg: Message = find_message_by_name(parse_result, method.input_type)
-                    for i, atr in enumerate(msg.attributes):
-                        if _is_base_type(atr.atr_type):
-                            file.write(f"{atr.atr_name}: {_base_type_to_ts_types(atr.atr_type)}")
-                        else:
-                            file.write(f"{atr.atr_name}: msg.{atr.atr_type}")
-                        if atr.repeated:
-                            file.write("[]")
-                        if i + 1 < len(msg.attributes):
-                            file.write(", ")
-                file.write(
-                    f") => {{\n"
-                    f"{TAB}return async (dispatch: any) => {{\n"
-                    f"{TAB}{TAB}dispatch({{type: {method.name}_START, payload: undefined}});\n"
-                    f"\n"
-                )
-                if method.input_type == "Null":
+                if 'Generate-once-ts' in method.changers:
                     file.write(
-                        f"{TAB}{TAB}const response = await axios.get(\n"
-                        f"{TAB}{TAB}{TAB}'{method.name}',\n"
-                        f"{TAB}{TAB}{TAB}{{\n"
-                        f"{TAB}{TAB}{TAB}{TAB}'headers': {{\n"
-                        f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Origin': '*',\n"
-                        f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Headers': '*',\n"
-                        f"{TAB}{TAB}{TAB}{TAB}}},\n"
-                        f"{TAB}{TAB}{TAB}}},\n"
-                        f"{TAB}{TAB});\n"
+                        f'import {{ '
+                        f"{method.name}_START_Action, "
+                        f"{method.name}_SUCCESS_Action, "
+                        f"{method.name}_REJECTED_Action "
+                        f'}} from "./{_lower_first_letter(method.name)}_action"\n'
                     )
-                else:
-                    file.write(
-                        f"{TAB}{TAB}const response = await axios.post(\n"
-                        f"{TAB}{TAB}{TAB}'{method.name}',\n"
-                        f"{TAB}{TAB}{TAB}{{\n"
-                    )
-                    msg: Message = find_message_by_name(parse_result, method.input_type)
-                    for atr in msg.attributes:
-                        file.write(f"{TAB}{TAB}{TAB}{TAB}'{atr.atr_name}': {atr.atr_name},\n")
+            file.write("\n\n")
 
-                    file.write(
-                        f"{TAB}{TAB}{TAB}}},\n"
-                        f"{TAB}{TAB}{TAB}{{\n"
-                        f"{TAB}{TAB}{TAB}{TAB}'headers': {{\n"
-                        f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Origin': '*',\n"
-                        f"{TAB}{TAB}{TAB}{TAB}{TAB}'Access-Control-Allow-Headers': '*',\n"
-                        f"{TAB}{TAB}{TAB}{TAB}}},\n"
-                        f"{TAB}{TAB}{TAB}}},\n"
-                        f"{TAB}{TAB});\n"
-                    )
-
-                file.write(
-                    f"\n"
-                    f"{TAB}{TAB}if (response.status === 200) {{\n"
-                    f"{TAB}{TAB}{TAB}dispatch({{type: {method.name}_SUCCESS, payload: "
-                )
-                if method.output_type == "Null":
-                    file.write(f"undefined}});\n")
-                elif _is_base_type(method.output_type):
-                    file.write(f"response.data}});\n")
-                else:
-                    file.write(f"msg.construct_{method.output_type}(response.data)}});\n")
-                file.write(
-                    f"{TAB}{TAB}}} else {{\n"
-                    f"{TAB}{TAB}{TAB}dispatch({{type: {method.name}_REJECTED, payload: response.data}});\n"
-                    f"{TAB}{TAB}}}\n"
-                    f"{TAB}}}\n"
-                    f"}};\n\n\n"
-                )
+            for method in service.methods:
+                if 'Generate-once-ts' in method.changers:
+                    continue
+                _write_method_to_file(method, file, parse_result)
 
             file.write(
                 f"\nexport type {service.name}ActionType = (\n"
@@ -272,6 +296,16 @@ def generate_methods(parse_result: ParseResult, ts_path: str) -> None:
             file.write(
                 f")"
             )
+
+        for method in service.methods:
+            if 'Generate-once-ts' not in method.changers:
+                continue
+            file_name = os.path.join(dir_name, f"{_lower_first_letter(method.name)}_action.ts")
+            if os.path.exists(file_name):
+                continue
+            with open(file_name, "w") as file:
+                file.write(COMMON_METHOD_HEADER)
+                _write_method_to_file(method, file, parse_result, export_action_interface=True)
 
 
 def generate_reducer(parse_result: ParseResult, ts_path: str) -> None:

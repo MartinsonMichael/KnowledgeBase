@@ -1,4 +1,4 @@
-from .services import AbstractTestService
+from .service_TestService import AbstractTestService
 from .generated_messages import *
 
 

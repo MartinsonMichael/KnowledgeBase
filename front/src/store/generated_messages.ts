@@ -149,7 +149,6 @@ export function construct_NoteBodyUpdate(x: any): NoteBodyUpdate {
 
 
 export interface NoteUpdateResponse {
-    success: boolean
     msg: string
     updatedNote: Note
 }
@@ -162,7 +161,6 @@ export function construct_NoteUpdateResponse(x: any): NoteUpdateResponse {
 
 
 export interface NewNote {
-    pre_note_id: string
     name: string
     link_from: string
 }

@@ -33,6 +33,8 @@ message TagCreateRequest {
 service StructureService {
     rpc getStructure(Null) returns (Structure) {}
 
-    rpc createNewTag(TagCreateRequest) returns (Tag) {}
+    // for this api method I need to use this changer, cause I will add some not standard logic
+    @Generate-once-ts
+    rpc createNewTag(TagCreateRequest) returns (TagStore) {}
     rpc updateTag(Tag) returns (Tag) {}
 }

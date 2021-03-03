@@ -12,6 +12,7 @@ export interface NoteServiceState {
     isLoading: boolean
     error?: string
     msg?: string
+    newNoteID?: string
 }
 
 const initialState: NoteServiceState = {
@@ -22,7 +23,8 @@ const initialState: NoteServiceState = {
 
     isLoading: false,
     error: undefined,
-    msg: undefined
+    msg: undefined,
+    newNoteID: undefined,
 } as NoteServiceState;
 
 
@@ -38,8 +40,6 @@ export function NoteServiceReducer(
                 msg: undefined,
             } as NoteServiceState;
         case "updateLocalBody":
-            console.log("HERE");
-            console.log(action.payload);
             return {
                 ...state,
                 body: action.payload,
@@ -77,6 +77,29 @@ export function NoteServiceReducer(
             } as NoteServiceState;
 
         case "getNote_REJECTED":
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            } as NoteServiceState;
+
+
+        case "createNewNote_START":
+            return {
+                ...state,
+                isLoading: true,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "createNewNote_SUCCESS":
+            return {
+                ...state,
+                newNoteID: action.payload.updatedNote.note_id,
+                isLoading: false,
+                error: undefined,
+            } as NoteServiceState;
+
+        case "createNewNote_REJECTED":
             return {
                 ...state,
                 isLoading: false,

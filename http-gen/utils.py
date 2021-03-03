@@ -15,7 +15,9 @@ class MessageAttribute:
             is_map: Optional[bool] = False,
             map_key_type: Optional[str] = None,
             map_value_type: Optional[str] = None,
+            changers: List[str] = [],
     ):
+        self.changers = changers
         self.atr_name = atr_name
         self.atr_type = atr_type
         self.repeated = repeated
@@ -29,7 +31,8 @@ class MessageAttribute:
 
 
 class Message:
-    def __init__(self):
+    def __init__(self, changers: List[str] = []):
+        self.changers = changers
         self.name: str = ""
         self.attributes: List[MessageAttribute] = []
 
@@ -41,7 +44,8 @@ class Message:
 
 
 class ServiceMethod:
-    def __init__(self, name: str, input_type: str, output_type: str):
+    def __init__(self, name: str, input_type: str, output_type: str, changers: List[str] = []):
+        self.changers = changers
         self.name = name
         self.input_type = input_type
         self.output_type = output_type
@@ -51,7 +55,8 @@ class ServiceMethod:
 
 
 class Service:
-    def __init__(self):
+    def __init__(self, changers: List[str] = []):
+        self.changers: List[str] = changers
         self.name: str = ""
         self.methods: List[ServiceMethod] = []
 
@@ -98,6 +103,9 @@ def parse_file(proto_file_path: str) -> ParseResult:
     msg: Message = Message()
     service: Service = Service()
 
+    POSSIBLE_CHANGERS = ['Generate-once-ts']
+    changers: List[str] = []
+
     for line in open(proto_file_path).readlines():
         if re.match(r"\s*\n", line) is not None:
             continue
@@ -105,9 +113,18 @@ def parse_file(proto_file_path: str) -> ParseResult:
         if re.match(r"\s*//.*\n", line) is not None:
             continue
 
+        if re.match(rf"\s*@[\w|-]+\s*\n", line) is not None:
+            m = re.match(rf"\s*@(?P<changer>{'|'.join(POSSIBLE_CHANGERS)})\s*\n", line)
+            if m is None:
+                logger.log(35, f"unknown changer in line:\n|{line}|")
+                raise ValueError(f"unknown changer in line:\n|{line}|")
+            changers.append(m.group('changer'))
+            continue
+
         if state == "none":
             if line.startswith("message"):
-                msg = Message()
+                msg = Message(changers)
+                changers: List[str] = []
                 m = re.match(r"message\s+(?P<name>\w+)\s+{", line)
                 msg.name = m.group('name')
                 state = "msg"
@@ -116,7 +133,8 @@ def parse_file(proto_file_path: str) -> ParseResult:
 
             if line.startswith("service"):
                 m = re.match(r"service\s+(?P<name>\w+)\s+{", line)
-                service = Service()
+                service = Service(changers)
+                changers: List[str] = []
                 service.name = m.group('name')
                 state = "service"
                 logger.log(35, f"start parse service {service.name}")
@@ -143,8 +161,10 @@ def parse_file(proto_file_path: str) -> ParseResult:
                         atr_name=m.group('name'),
                         atr_type=m.group('type'),
                         repeated=m.group('repeated') == 'repeated',
+                        changers=changers,
                     )
                 )
+                changers: List[str] = []
             elif m_map is not None:
                 msg.attributes.append(
                     MessageAttribute(
@@ -152,8 +172,10 @@ def parse_file(proto_file_path: str) -> ParseResult:
                         atr_name=m_map.group('name'),
                         map_key_type=m_map.group('map_key_type'),
                         map_value_type=m_map.group('map_value_type'),
+                        changers=changers,
                     )
                 )
+                changers: List[str] = []
             else:
                 logger.log(35, f"unexpected message None match in line:\n|{line}|")
 
@@ -174,8 +196,11 @@ def parse_file(proto_file_path: str) -> ParseResult:
                         name=m.group('name'),
                         input_type=m.group('input'),
                         output_type=m.group('output'),
+                        changers=changers,
                     )
                 )
+                logger.log(35, f"add changers: '{', '.join(changers)}' to method {m.group('name')}")
+                changers: List[str] = []
             else:
                 logger.log(35, f"unexpected service None match in line:\n|{line}|")
 

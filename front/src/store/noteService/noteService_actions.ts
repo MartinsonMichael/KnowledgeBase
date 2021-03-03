@@ -4,6 +4,8 @@
 import axios from "../client"
 import * as msg from "../generated_messages"
 
+import { createNewNote_START_Action, createNewNote_SUCCESS_Action, createNewNote_REJECTED_Action } from "./createNewNote_action"
+
 
 export const getNote_START = "getNote_START";
 interface getNote_START_Action {
@@ -42,50 +44,6 @@ export const getNote = (note_id: string) => {
             dispatch({type: getNote_SUCCESS, payload: msg.construct_Note(response.data)});
         } else {
             dispatch({type: getNote_REJECTED, payload: response.data});
-        }
-    }
-};
-
-
-export const createNewNote_START = "createNewNote_START";
-interface createNewNote_START_Action {
-    type: typeof createNewNote_START
-    payload: undefined
-}
-export const createNewNote_SUCCESS = "createNewNote_SUCCESS";
-interface createNewNote_SUCCESS_Action {
-    type: typeof createNewNote_SUCCESS
-    payload: msg.NoteUpdateResponse
-}
-export const createNewNote_REJECTED = "createNewNote_REJECTED";
-interface createNewNote_REJECTED_Action {
-    type: typeof createNewNote_REJECTED
-    payload: string
-}
-
-export const createNewNote = (pre_note_id: string, name: string, link_from: string) => {
-    return async (dispatch: any) => {
-        dispatch({type: createNewNote_START, payload: undefined});
-
-        const response = await axios.post(
-            'createNewNote',
-            {
-                'pre_note_id': pre_note_id,
-                'name': name,
-                'link_from': link_from,
-            },
-            {
-                'headers': {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': '*',
-                },
-            },
-        );
-
-        if (response.status === 200) {
-            dispatch({type: createNewNote_SUCCESS, payload: msg.construct_NoteUpdateResponse(response.data)});
-        } else {
-            dispatch({type: createNewNote_REJECTED, payload: response.data});
         }
     }
 };

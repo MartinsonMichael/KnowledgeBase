@@ -14,11 +14,12 @@ const connector = connect(mapStoreStateToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 export type NoteLinkListProps = PropsFromRedux & {
-    noteList: NoteHead[],
+    noteList: NoteHead[]
     showDelButtons?: boolean
-    onDelete?: (id: string) => void | undefined,
-    showAddButton?: boolean,
-    onAdd?: (id: string) => void | undefined
+    onDelete?: (id: string) => void
+    showAddButton?: boolean
+    onAdd?: (id: string) => void
+    onNew?: (name: string) => void
 }
 
 type NoteLinkListState = {
@@ -68,7 +69,11 @@ class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState>
                             this.props.onAdd(noteHead.note_id);
                         }
                     }}
-                    onNew={(noteName: string) => console.log(noteName)}
+                    onNew={(noteName: string) => {
+                        if (this.props.onNew !== undefined) {
+                            this.props.onNew(noteName);
+                        }
+                    }}
                     onNewText={ (input: string) => `New child Note with name '${input}'`}
                 />
             )

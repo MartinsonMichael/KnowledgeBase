@@ -99,8 +99,10 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
                         if (item.type === "item") {
                             this.props.onSelect(item.item);
                         }
-                        if (this.props.onNew !== undefined) {
-                            this.props.onNew(this.state.inputText);
+                        if (item.type === "new") {
+                            if (this.props.onNew !== undefined) {
+                                this.props.onNew(this.state.inputText);
+                            }
                         }
                     }}
                 />

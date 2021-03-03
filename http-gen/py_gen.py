@@ -29,6 +29,9 @@ def make_response(content: str = "", status: int = 200) -> HttpResponse:
     response = HttpResponse(content=content, status=status)
     response["Access-Control-Allow-Origin"] = "*"
     response["Access-Control-Allow-Headers"] = "*"
+    return response
+    
+    
 """
 
 
@@ -152,10 +155,11 @@ def generate_messages(parse_result: ParseResult, msg_path: str) -> None:
 
 
 def generate_services(parse_result: ParseResult, service_path: str, pytry: bool) -> None:
-    with open(service_path, "w") as file:
-        file.write(SERVICE_HEAD)
+    for service in parse_result.services:
 
-        for service in parse_result.services:
+        with open(os.path.join(service_path, f"service_{service.name}.py"), "w") as file:
+            file.write(SERVICE_HEAD)
+
             file.write(f"class Abstract{service.name}:\n\n")
             for method in service.methods:
                 file.write(
@@ -235,7 +239,7 @@ def generate_impl_file(parse_result: ParseResult, py_path: str) -> None:
 
         with open(imp_path, "w") as file:
             file.write(
-                f"from .services import Abstract{service.name}\n"
+                f"from .service_{service.name} import Abstract{service.name}\n"
                 f"from .generated_messages import *\n"
                 f"\n\n"
                 f"class {service.name}(Abstract{service.name}):\n"
@@ -293,7 +297,7 @@ def py_gen(parse_result: ParseResult, py_path: str, **params) -> None:
     pytry = params.get('pytry', False)
     logger.log(35, f"py generation [extra parameters: PyTry={pytry}]...")
     generate_messages(parse_result, os.path.join(py_path, "generated_messages.py"))
-    generate_services(parse_result, os.path.join(py_path, "services.py"), pytry)
+    generate_services(parse_result, py_path, pytry)
     generate_impl_file(parse_result, py_path)
     generate_urls(parse_result, os.path.join(py_path, "api_urls.py"))
     logger.log(35, "py generation... DONE")

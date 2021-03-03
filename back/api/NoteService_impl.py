@@ -1,6 +1,6 @@
 from django.contrib.postgres.aggregates import ArrayAgg
 
-from .services import AbstractNoteService
+from .service_NoteService import AbstractNoteService
 from .generated_messages import *
 
 from api.models import NoteDB, NoteTag
@@ -68,7 +68,6 @@ class NoteService(AbstractNoteService):
                 )
                 for note_link in note_link_objs
             ],
-
         )
 
     def addNoteTag(self, input_data: NoteTagUpdate) -> NoteUpdateResponse:
@@ -78,7 +77,6 @@ class NoteService(AbstractNoteService):
         tags_already = [x for x in note_obj.tags.iterator() if int(x.tag_id) == int(input_data.tag_id)]
         if len(tags_already) != 0:
             return NoteUpdateResponse(
-                success=True,
                 msg="Already has this tag",
                 updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
             )
@@ -88,7 +86,6 @@ class NoteService(AbstractNoteService):
         note_obj.tags.add(tag)
         note_obj.save()
         return NoteUpdateResponse(
-            success=True,
             msg="Tag added",
             updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
         )
@@ -100,7 +97,6 @@ class NoteService(AbstractNoteService):
         tags_already = [x for x in note_obj.tags.iterator() if int(x.tag_id) == int(input_data.tag_id)]
         if len(tags_already) == 0:
             return NoteUpdateResponse(
-                success=True,
                 msg="Already hasn't this tag",
                 updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
             )
@@ -108,7 +104,6 @@ class NoteService(AbstractNoteService):
             note_obj.tags.remove(tag_obj)
         note_obj.save()
         return NoteUpdateResponse(
-            success=True,
             msg="Tag deleted",
             updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
         )
@@ -120,7 +115,6 @@ class NoteService(AbstractNoteService):
         link_already = [int(x) for x in note_obj.links.iterator() if int(x.note_id) == int(input_data.link_note_id)]
         if len(link_already) != 0:
             return NoteUpdateResponse(
-                success=True,
                 msg="Already has this link",
                 updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
             )
@@ -130,7 +124,6 @@ class NoteService(AbstractNoteService):
         note_obj.links.add(note_link_obj)
         note_obj.save()
         return NoteUpdateResponse(
-            success=True,
             msg="Link added",
             updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
         )
@@ -142,7 +135,6 @@ class NoteService(AbstractNoteService):
         obj_to_del = [x for x in note_obj.links.iterator() if int(x.note_id) == int(input_data.link_note_id)]
         if len(obj_to_del) == 0:
             return NoteUpdateResponse(
-                success=True,
                 msg="Already hasn't this link",
                 updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
             )
@@ -150,7 +142,6 @@ class NoteService(AbstractNoteService):
             note_obj.links.remove(obj)
         note_obj.save()
         return NoteUpdateResponse(
-            success=True,
             msg="Link deleted",
             updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
         )
@@ -162,7 +153,6 @@ class NoteService(AbstractNoteService):
         note_obj.title = input_data.new_name
         note_obj.save()
         return NoteUpdateResponse(
-            success=True,
             msg="Title changed",
             updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
         )
@@ -174,8 +164,23 @@ class NoteService(AbstractNoteService):
         note_obj.body = input_data.new_body
         note_obj.save()
         return NoteUpdateResponse(
-            success=True,
             msg="Body updated",
             updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
         )
 
+    def createNewNote(self, input_data: NewNote) -> NoteUpdateResponse:
+        note_obj: NoteDB = NoteDB(
+            title=input_data.name,
+        )
+        note_obj.save()
+
+        if input_data.link_from is not None:
+            note_obj_link_from: NoteDB = NoteDB.objects.filter(note_id=input_data.link_from).first()
+            if note_obj is not None:
+                note_obj_link_from.links.add(note_obj)
+                note_obj_link_from.save()
+
+        return NoteUpdateResponse(
+            msg="New note created",
+            updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
+        )

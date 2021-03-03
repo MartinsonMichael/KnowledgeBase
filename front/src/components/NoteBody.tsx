@@ -32,8 +32,6 @@ export interface NoteBodyState {}
 export type NoteBodyProps = PropsFromRedux & RouteComponentProps<{}> & {
     mode: "edit" | "view",
     note_id: string,
-    // body: string,
-    // onChange: (body: string) => void,
 }
 
 

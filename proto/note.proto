@@ -16,7 +16,6 @@ message Note {
     string body = 5;
 }
 
-
 message NoteRequest {
     string note_id = 1;
 }
@@ -42,13 +41,11 @@ message NoteBodyUpdate {
 }
 
 message NoteUpdateResponse {
-    bool success = 1;
     string msg = 2;
     Note updatedNote = 3;
 }
 
 message NewNote {
-    string pre_note_id = 1;
     string name = 2;
     string link_from = 3;
 }
@@ -56,6 +53,8 @@ message NewNote {
 service NoteService {
 
     rpc getNote(NoteRequest) returns (Note) {}
+
+    @Generate-once-ts
     rpc createNewNote(NewNote) returns (NoteUpdateResponse) {}
 
     // update note's tag

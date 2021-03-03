@@ -19,9 +19,10 @@ export type TagBarProps = PropsFromRedux & RouteComponentProps<{}> & {
     tags: TagHead[]
     size?: number
     showAddButtons?: boolean
-    onTagAdd?: (tagName: string) => void,
+    onTagAdd?: (tag_id: string) => void,
     showDeleteButtons?: boolean
-    onTagDelete?: (tagName: string) => void,
+    onTagDelete?: (tag_id: string) => void,
+    onNewTag?: (tagName: string) => void,
 }
 
 interface TagBarState {
@@ -85,7 +86,11 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
                             this.props.onTagAdd(tag.tag_id)
                         }
                     }}
-                    onNew={ (newTagName: string) => console.log(newTagName) }
+                    onNew={ (newTagName: string) => {
+                        if (this.props.onNewTag !== undefined) {
+                            this.props.onNewTag(newTagName);
+                        }
+                    }}
                     onNewText={ (input: string) => `Create new tag '${input}'`}
                 />
                 <button onClick={() => this.setState({tagAddPress: false})}>

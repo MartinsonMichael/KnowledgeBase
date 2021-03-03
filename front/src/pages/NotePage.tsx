@@ -15,7 +15,10 @@ import { renderError, renderSuccessMsg } from "../components/renderUtils";
 import NoteLinkList from "../components/NoteLinkList";
 import NoteBody from "../components/NoteBody";
 import { needBodyUpdate, removeSuccessMsg } from "../store/noteService/noteService_inplace_actions";
-import {addBrowserHistoryNote, unsetNeedReload} from "../store/system/system_actions";
+import { addBrowserHistoryNote, unsetNeedReload } from "../store/system/system_actions";
+import { createNewTag } from "../store/structureService/createNewTag_action";
+import {Note, NoteHeadStore} from "../store/generated_messages";
+import {createNewNote} from "../store/noteService/createNewNote_action";
 
 
 
@@ -37,10 +40,12 @@ const mapStoreStateToProps = (store: RootState) => ({
 const mapDispatchToProps = (dispatch: any) => {
     return {
         loadNote: (note_id: string) => dispatch(noteAct.getNote(note_id)),
+        createNewNote: (noteName: string, note: Note | undefined) => dispatch(createNewNote(noteName, note)),
 
         updateName: (note: string, name: string) => dispatch(noteAct.updateNoteName(note, name)),
         needBodyUpdate: () => dispatch(needBodyUpdate()),
 
+        createNewTag: (note_id: string, tagName: string, note: Note | undefined) => dispatch(createNewTag(tagName, note_id, note)),
         addTag: (note_id: string, tag_id: string) => dispatch(noteAct.addNoteTag(note_id, tag_id)),
         delTag: (note_id: string, tag_id: string) => dispatch(noteAct.delNoteTag(note_id, tag_id)),
 
@@ -153,7 +158,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
             this.props.unsetNeedReload();
         }
 
-        const { note_id, tags, links, body } = this.props.note;
+        const { note_id, tags, links } = this.props.note;
         return (
             <div style={{margin: "20px", display: "flex" }}>
                 <div style={{ width: "70%", marginRight: "20px"}}>
@@ -212,6 +217,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             showDeleteButtons={this.state.bodyState === "edit"}
                             onTagAdd={ (tag_id: string) => this.props.addTag(note_id, tag_id) }
                             onTagDelete={ (tag_id: string) => this.props.delTag(note_id, tag_id) }
+                            onNewTag={ (tagName: string) => this.props.createNewTag(note_id, tagName, this.props.note) }
                         />
                     </div>
                     <NoteBody
@@ -226,6 +232,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                         showAddButton
                         onAdd={ (link_note_id: string) => this.props.addLink(note_id, link_note_id) }
                         onDelete={ (link_note_id: string) => this.props.delLink(note_id, link_note_id) }
+                        onNew={ (noteName: string) => this.props.createNewNote(noteName, this.props.note) }
                     />
                 </div>
                 { this.showMsg() }
