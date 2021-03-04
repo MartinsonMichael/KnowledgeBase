@@ -5,6 +5,7 @@ import axios from "../client"
 import * as msg from "../generated_messages"
 
 import { createNewTag_START_Action, createNewTag_SUCCESS_Action, createNewTag_REJECTED_Action } from "./createNewTag_action"
+import { createNewNote_START_Action, createNewNote_SUCCESS_Action, createNewNote_REJECTED_Action } from "./createNewNote_action"
 
 
 export const getStructure_START = "getStructure_START";
@@ -99,6 +100,9 @@ export type StructureServiceActionType = (
     createNewTag_START_Action |
     createNewTag_SUCCESS_Action |
     createNewTag_REJECTED_Action |
+    createNewNote_START_Action |
+    createNewNote_SUCCESS_Action |
+    createNewNote_REJECTED_Action |
     updateTag_START_Action |
     updateTag_SUCCESS_Action |
     updateTag_REJECTED_Action 

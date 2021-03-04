@@ -1,12 +1,15 @@
 import * as React from "react";
-import { Button, Chip, IconButton } from "@material-ui/core";
-import AddIcon from '@material-ui/icons/Add';
-import Selector from "./Selector";
 import { RouteComponentProps, withRouter } from "react-router";
-import {NoteHead, TagHead} from "../store/generated_messages";
-import DeleteIcon from "@material-ui/core/SvgIcon/SvgIcon";
-import {RootState} from "../store";
-import {connect, ConnectedProps} from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
+
+import { Chip, IconButton } from "@material-ui/core";
+import AddIcon from '@material-ui/icons/Add';
+
+import { RootState } from "../store";
+import { TagHead } from "../store/generated_messages";
+
+import Selector from "./Selector";
+
 
 const mapStoreStateToProps = (store: RootState) => ({
     tagStore: store.structure.tagStore,

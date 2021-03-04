@@ -1,14 +1,15 @@
+import * as React from "react";
+import { connect, ConnectedProps } from 'react-redux'
+import { RouteComponentProps, withRouter } from "react-router";
+
+import { RootState } from "../store";
+import { updateCompleted, updateLocalBody } from "../store/noteService/noteService_inplace_actions";
+import { updateNoteBody } from "../store/noteService/noteService_actions";
+
 // @ts-ignore
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 // @ts-ignore
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import * as React from "react";
-import Editor from "rich-markdown-editor";
-import { connect, ConnectedProps } from 'react-redux'
-import { RootState } from "../store";
-import { RouteComponentProps, withRouter } from "react-router";
-import {updateCompleted, updateLocalBody} from "../store/noteService/noteService_inplace_actions";
-import {updateNoteBody} from "../store/noteService/noteService_actions";
 
 
 const mapStoreStateToProps = (store: RootState) => ({

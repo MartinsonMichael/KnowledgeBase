@@ -61,6 +61,29 @@ class AbstractStructureService:
         raise NotImplemented
 
     @csrf_exempt
+    def service_createNewNote(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            return make_response()
+        try:
+            input_data: NewNote = NewNote.from_json(json.loads(request.body))
+        except Exception as e:
+            return make_response(f"error while parsing request:\n{str(e)}", 400)
+        try:
+            output_data: NewNoteResponse = self.createNewNote(input_data)
+        except ValueError as e:
+            return make_response(str(e), 400)
+        except Exception as e:
+            return make_response(f"error while processing request:\n{str(e)}", 400)
+
+        return make_response(
+            content=json.dumps(output_data.to_json()),
+            status=200,
+        )
+
+    def createNewNote(self, input_data: NewNote) -> NewNoteResponse:
+        raise NotImplemented
+
+    @csrf_exempt
     def service_updateTag(self, request: HttpRequest, **kwargs) -> HttpResponse:
         if request.method == 'OPTIONS':
             return make_response()

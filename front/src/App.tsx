@@ -1,30 +1,29 @@
 import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
+import { connect, ConnectedProps } from "react-redux";
+import { RouteComponentProps } from "react-router";
+import { Route, Switch, Redirect, withRouter } from "react-router-dom";
+
+import { Button, Typography, Toolbar, IconButton, AppBar } from "@material-ui/core";
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/ControlPoint';
 import HomeIcon from '@material-ui/icons/Home';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-
 import ListIcon from '@material-ui/icons/List';
 
-import { SnackbarProvider, useSnackbar } from 'notistack';
-
-import { getStructure } from "./store/structureService/structureService_actions";
-import { connect, ConnectedProps } from "react-redux";
-
-import { Route, Switch, Redirect, withRouter } from "react-router-dom";
-import { RouteComponentProps } from "react-router";
-import { Button } from "@material-ui/core";
 import { RootState } from "./store";
-import IconButton from "@material-ui/core/IconButton";
+import { NoteHead, TagHead } from "./store/generated_messages";
+
+import { headStoreToList } from "./components/utils";
+import {needOpenNextNewNote, openedNextNewNote, setNeedReload } from "./store/system/system_actions";
+import { getStructure } from "./store/structureService/structureService_actions";
+import { createNewNote } from "./store/structureService/createNewNote_action";
+
 import HomePage from "./pages/HomePage";
 import NotePage from "./pages/NotePage";
 import TagPage from "./pages/TagPage";
 import TagListPage from "./pages/TagListPage";
 import NoteListPage from "./pages/NoteListPage";
+import Selector from "./components/Selector";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -33,10 +32,17 @@ const mapStoreStateToProps = (store: RootState) => ({
 
     isLoading: store.structure.isLoading,
     error: store.structure.error,
+
+    needOpenNewNote: store.system.needOpenNewNote,
+    newNote: store.system.newNote,
 });
 const mapDispatchToProps = (dispatch: any) => {
     return {
         load: () => dispatch(getStructure()),
+        setNeedReload: () => dispatch(setNeedReload()),
+        createNewNote: (noteName: string) => dispatch(createNewNote(noteName, undefined)),
+        needOpenNextNewNote: () => dispatch(needOpenNextNewNote()),
+        openedNextNewNote: () => dispatch(openedNextNewNote()),
     }
 };
 
@@ -48,10 +54,10 @@ type PathParamsType = {}
 export type AppProps = PropsFromRedux & RouteComponentProps<PathParamsType> & {}
 
 interface AppState {
-    newstring: string
     showNoteCreatePost: boolean
 
     isNewNoteCreatorOpen: boolean
+    isSearchOpen: boolean
 }
 
 
@@ -60,9 +66,10 @@ class App extends React.Component<AppProps, AppState>{
     constructor(props: AppProps) {
         super(props);
         this.state = {
-            newstring: "",
             showNoteCreatePost: false,
+
             isNewNoteCreatorOpen: false,
+            isSearchOpen: false,
         }
     }
 
@@ -86,11 +93,49 @@ class App extends React.Component<AppProps, AppState>{
                         <AddIcon/>
                         Add Note
                     </Button>
-                    <SearchIcon/>
-                    <InputBase
-                        placeholder="Search…"
-                        inputProps={{'aria-label': 'search'}}
-                    />
+                    { this.state.isNewNoteCreatorOpen ?
+                        <Selector
+                            list={ [""] }
+                            textGetter={ (str: string) => str }
+                            onSelect={(newNoteName: string) => null}
+                            onNewText={(input: string) => `Create new note ${input}`}
+                            onNew={(noteName: string) => {
+                                this.props.openedNextNewNote();
+                                this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
+                                this.props.createNewNote(noteName);
+                                this.props.needOpenNextNewNote();
+                            }}
+                        /> : null
+                    }
+
+                    <IconButton onClick={() => this.setState({isSearchOpen: !this.state.isSearchOpen})}>
+                        <SearchIcon/>
+                    </IconButton>
+                    { this.state.isSearchOpen ?
+                        <Selector
+                            list={ headStoreToList(this.props.noteHeadStore) }
+                            textGetter={ (noteHead: NoteHead) => noteHead.name }
+                            filterFunction={ (noteHead: NoteHead, str: string) => {
+                                return (
+                                    noteHead.name.toLowerCase().includes(str)
+                                    || noteHead.tags.filter((tag: TagHead) => tag.name.toLowerCase().includes(str)).length !== 0
+                                )
+                            }}
+                            onSelect={(noteHead: NoteHead) => {
+                                this.props.history.push(`/note/${noteHead.note_id}`);
+                                this.props.setNeedReload();
+                                this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
+                            }}
+                            onNewText={(input: string) => `Create new note ${input}`}
+                            onNew={(noteName: string) => {
+                                this.props.openedNextNewNote();
+                                this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
+                                this.props.createNewNote(noteName);
+                                this.props.needOpenNextNewNote();
+                            }}
+                        />
+                        : null
+                    }
                     <Typography
                         variant="h6"
                         noWrap
@@ -111,6 +156,15 @@ class App extends React.Component<AppProps, AppState>{
     }
 
     render(): React.ReactNode {
+
+        console.log(this.props);
+
+        if (this.props.needOpenNewNote && this.props.newNote !== undefined) {
+            this.props.history.push(`/note/${this.props.newNote.note_id}`);
+            setTimeout(() => this.props.setNeedReload(), 500);
+            this.props.openedNextNewNote();
+        }
+
         return (
             <div>
                 { this.renderAppBar() }

@@ -3,9 +3,10 @@
 
 import axios from "../client"
 import * as msg from "../generated_messages"
-import {addNoteLink_SUCCESS} from "./noteService_actions";
-import {NoteUpdateResponse} from "../generated_messages";
 import {Note} from "../generated_messages";
+import {addNoteLink_SUCCESS} from "../noteService/noteService_actions";
+import {NoteUpdateResponse} from "../generated_messages";
+import {onNewNote} from "../system/system_actions";
 
 export const createNewNote_START = "createNewNote_START";
 export interface createNewNote_START_Action {
@@ -15,7 +16,7 @@ export interface createNewNote_START_Action {
 export const createNewNote_SUCCESS = "createNewNote_SUCCESS";
 export interface createNewNote_SUCCESS_Action {
     type: typeof createNewNote_SUCCESS
-    payload: msg.NoteUpdateResponse
+    payload: msg.NewNoteResponse
 }
 export const createNewNote_REJECTED = "createNewNote_REJECTED";
 export interface createNewNote_REJECTED_Action {
@@ -31,7 +32,7 @@ export const createNewNote = (name: string, note: Note | undefined) => {
             'createNewNote',
             {
                 'name': name,
-                'link_from': note?.note_id,
+                'link_from': (note !== undefined ? note.note_id : ""),
             },
             {
                 'headers': {
@@ -42,7 +43,9 @@ export const createNewNote = (name: string, note: Note | undefined) => {
         );
 
         if (response.status === 200) {
-            dispatch({type: createNewNote_SUCCESS, payload: msg.construct_NoteUpdateResponse(response.data)});
+            const newNoteResponse = msg.construct_NewNoteResponse(response.data);
+            dispatch({type: createNewNote_SUCCESS, payload: newNoteResponse});
+            dispatch({type: onNewNote, payload: newNoteResponse.new_note});
             if (note !== undefined) {
                 dispatch({
                     type: addNoteLink_SUCCESS,
@@ -52,7 +55,7 @@ export const createNewNote = (name: string, note: Note | undefined) => {
                             ...note,
                             links: [
                                 ...note.links,
-                                msg.construct_NoteHead(response.data['updatedNote']),
+                                newNoteResponse.new_note,
                             ],
                         } as Note,
                     } as NoteUpdateResponse,

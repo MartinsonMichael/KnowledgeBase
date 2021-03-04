@@ -4,7 +4,6 @@
 import axios from "../client"
 import * as msg from "../generated_messages"
 
-import { createNewNote_START_Action, createNewNote_SUCCESS_Action, createNewNote_REJECTED_Action } from "./createNewNote_action"
 
 
 export const getNote_START = "getNote_START";
@@ -312,9 +311,6 @@ export type NoteServiceActionType = (
     getNote_START_Action |
     getNote_SUCCESS_Action |
     getNote_REJECTED_Action |
-    createNewNote_START_Action |
-    createNewNote_SUCCESS_Action |
-    createNewNote_REJECTED_Action |
     addNoteTag_START_Action |
     addNoteTag_SUCCESS_Action |
     addNoteTag_REJECTED_Action |

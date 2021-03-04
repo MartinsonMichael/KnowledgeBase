@@ -1,11 +1,16 @@
-import { NoteHead } from "../store/generated_messages";
 import * as React from "react";
+import { connect, ConnectedProps } from "react-redux";
 import { Link } from "react-router-dom";
+
 import { IconButton } from "@material-ui/core";
 import DeleteIcon from '@material-ui/icons/Delete';
+
+import { NoteHead } from "../store/generated_messages";
+import { addBrowserHistoryNote, setNeedReload } from "../store/system/system_actions";
+
 import TagBar from "./TagBar";
-import {connect, ConnectedProps} from "react-redux";
-import {addBrowserHistoryNote, setNeedReload} from "../store/system/system_actions";
+
+
 
 const mapDispatchToProps = (dispatch: any) => {
     return {
@@ -39,8 +44,8 @@ class NoteLink extends React.Component<NoteLinkProps, {}> {
     render(): React.ReactNode {
         const { note_id, name, tags } = this.props.noteHead;
         return (
-            <div key={note_id} style={{ marginBottom: "10px" }}>
-                <div style={{ display: "flex" }}>
+            <div key={`note-link-${note_id}`} style={{ marginBottom: "10px" }}>
+                <div style={{ display: "flex" }} key={`note-link-line-${note_id}`}>
                     { this.props.onDelete === undefined ?
                         <div style={{ marginRight: "10px", marginLeft: "10px" }}/> :
                         this.delButton(note_id, this.props.onDelete)
@@ -57,7 +62,7 @@ class NoteLink extends React.Component<NoteLinkProps, {}> {
                     </Link>
                 </div>
                 <TagBar
-                    parentstring={ `link-of-${note_id}` }
+                    parentstring={ `tag-bar-${note_id}` }
                     tags={ tags }
                     size={ 10 }
                 />

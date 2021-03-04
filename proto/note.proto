@@ -45,17 +45,10 @@ message NoteUpdateResponse {
     Note updatedNote = 3;
 }
 
-message NewNote {
-    string name = 2;
-    string link_from = 3;
-}
 
 service NoteService {
 
     rpc getNote(NoteRequest) returns (Note) {}
-
-    @Generate-once-ts
-    rpc createNewNote(NewNote) returns (NoteUpdateResponse) {}
 
     // update note's tag
     rpc addNoteTag(NoteTagUpdate) returns (NoteUpdateResponse) {}

@@ -73,6 +73,27 @@ export function construct_TagCreateRequest(x: any): TagCreateRequest {
 }
 
 
+export interface NewNote {
+    name: string
+    link_from: string
+}
+export function construct_NewNote(x: any): NewNote {
+    return x as NewNote
+}
+
+
+export interface NewNoteResponse {
+    new_note: Note
+    head_store: NoteHeadStore
+}
+export function construct_NewNoteResponse(x: any): NewNoteResponse {
+    return {
+        'new_note': construct_Note(x['new_note']),
+        'head_store': construct_NoteHeadStore(x['head_store']),
+    } as NewNoteResponse
+}
+
+
 export interface Tag {
     tag_id: string
     name: string
@@ -157,15 +178,6 @@ export function construct_NoteUpdateResponse(x: any): NoteUpdateResponse {
         ...x,
         'updatedNote': construct_Note(x['updatedNote']),
     } as NoteUpdateResponse
-}
-
-
-export interface NewNote {
-    name: string
-    link_from: string
-}
-export function construct_NewNote(x: any): NewNote {
-    return x as NewNote
 }
 
 

@@ -1,4 +1,4 @@
-import {Note, NoteHead, NoteHeadStore, Tag, TagHead, TagStore} from "../store/generated_messages";
+import { Note, NoteHead, NoteHeadStore, Tag, TagHead, TagStore } from "../store/generated_messages";
 
 export function headStoreToList(noteHeadStore: NoteHeadStore | undefined): NoteHead[] {
     if (noteHeadStore === undefined) {
@@ -55,6 +55,16 @@ export function filterNoteList(noteList: NoteHead[] | Note[] | undefined, filter
             (tag: TagHead) => tag.name.toLowerCase().includes(LCFilterStr) || tag.color.toLowerCase().includes(LCFilterStr)
         ).length !== 0
     ))
+}
+
+export function makeID(length: number): string {
+   let result           = '';
+   let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   let charactersLength = characters.length;
+   for ( let i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
 }
 
 // export function tagIDListToObjectList(tagIDList: string[], tagStore: TagStore | undefined): Tag[] {

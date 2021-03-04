@@ -1,16 +1,22 @@
 import * as React from "react";
+
 import Autocomplete from "react-autocomplete";
-import {Button, Popover} from "@material-ui/core";
-// import {Button} from "@material-ui/core";
+import { Button } from "@material-ui/core";
+
+import { makeID } from "./utils";
 
 
 export type SelectProps<T> = {
     list: T[],
     onSelect: (tagObj: T) => void,
     textGetter: (obj: T) => string,
+    filterFunction?: (obj: T, str: string) => boolean,
     onNew?: (value: string) => void,
     onNewText?: (input: string) => string,
     focusOnOpen?: boolean,
+    selectedColor?: string,
+    notselectedColor?: string,
+    textColor?: string,
 }
 
 interface ListItem<T> {
@@ -21,6 +27,8 @@ interface ListItem<T> {
 interface SelectState<T> {
     inputText: string
     filteredList: ListItem<T>[]
+
+    selectorID: string
 }
 
 
@@ -28,6 +36,9 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
     static defaultProps = {
         focusOnOpen: true,
         onNewText: (v: string) => v,
+        selectedColor: "lightgray",
+        notselectedColor: "white",
+        textColor: "black"
     };
 
     constructor(props: SelectProps<T>) {
@@ -35,6 +46,8 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
         this.state = {
             inputText: "",
             filteredList: this.filterList(""),
+
+            selectorID: makeID(4),
         };
 
         this.valueGetter = this.valueGetter.bind(this);
@@ -44,7 +57,12 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
     filterList(str: string): ListItem<T>[] {
         const nl = this.props.list
             .filter(
-                (item: T) => this.props.textGetter(item).includes(str)
+                (item: T) => {
+                    if (this.props.filterFunction !== undefined) {
+                        return this.props.filterFunction(item, str)
+                    }
+                    return this.props.textGetter(item).includes(str)
+                }
             )
             .map((item: T) => {
                 return {item: item, type: "item"} as ListItem<T>;
@@ -67,13 +85,20 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
     renderItem(item: ListItem<T>, isHighlighted: boolean): React.ReactNode {
         if (item.type === "item") {
             return (
-                <div style={{background: isHighlighted ? 'lightgray' : 'white', margin: "3px"}}>
+                <div
+                    key={`selector-${this.state.selectorID}-${this.props.textGetter(item.item)}`}
+                    style={{
+                        background: isHighlighted ? this.props.selectedColor : this.props.notselectedColor,
+                        margin: "3px",
+                        color: this.props.textColor,
+                    }}
+                >
                     { this.props.textGetter(item.item) }
                 </div>
             )
         }
         return (
-            <Button onClick={() => console.log("new click")}>
+            <Button onClick={() => null} key={`selector-${this.state.selectorID}-new-item`}>
                 { this.props.onNewText !== undefined ? this.props.onNewText(this.state.inputText) : "Create new" }
             </Button>
         )
@@ -104,6 +129,7 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
                                 this.props.onNew(this.state.inputText);
                             }
                         }
+                        this.setState({inputText: ""});
                     }}
                 />
             </div>

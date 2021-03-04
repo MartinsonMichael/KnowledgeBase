@@ -1,11 +1,16 @@
-import { RootState } from "../store";
-import { connect, ConnectedProps } from "react-redux";
-import { NoteHead } from "../store/generated_messages";
 import * as React from "react";
-import Selector from "./Selector";
-import NoteLink from "./NoteLink";
+import { connect, ConnectedProps } from "react-redux";
+
 import { Button } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
+
+import { RootState } from "../store";
+import { NoteHead, TagHead } from "../store/generated_messages";
+
+import Selector from "./Selector";
+import NoteLink from "./NoteLink";
+
+
 
 const mapStoreStateToProps = (store: RootState) => ({
     noteHeadStore: store.structure.noteHeadStore,
@@ -63,6 +68,12 @@ class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState>
                 <Selector
                     list={ selectList }
                     textGetter={ (noteHead: NoteHead) => noteHead.name }
+                    filterFunction={ (noteHead: NoteHead, str: string) => {
+                        return (
+                            noteHead.name.toLowerCase().includes(str)
+                            || noteHead.tags.filter((tag: TagHead) => tag.name.toLowerCase().includes(str)).length !== 0
+                        )
+                    }}
                     onSelect={(noteHead: NoteHead) => {
                         this.setState({isAddTextLineVisible: false});
                         if (this.props.onAdd !== undefined) {

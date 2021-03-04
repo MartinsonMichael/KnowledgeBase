@@ -16,11 +16,11 @@ urlpatterns = [
     # urls for StructureService
     path('getStructure', service_StructureService.service_getStructure),
     path('createNewTag', service_StructureService.service_createNewTag),
+    path('createNewNote', service_StructureService.service_createNewNote),
     path('updateTag', service_StructureService.service_updateTag),
 
     # urls for NoteService
     path('getNote', service_NoteService.service_getNote),
-    path('createNewNote', service_NoteService.service_createNewNote),
     path('addNoteTag', service_NoteService.service_addNoteTag),
     path('delNoteTag', service_NoteService.service_delNoteTag),
     path('addNoteLink', service_NoteService.service_addNoteLink),

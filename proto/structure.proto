@@ -30,11 +30,25 @@ message TagCreateRequest {
     string add_to_note_id = 2;
 }
 
+message NewNote {
+    string name = 2;
+    string link_from = 3;
+}
+
+message NewNoteResponse {
+    Note new_note = 1;
+    NoteHeadStore head_store = 2;
+}
+
 service StructureService {
     rpc getStructure(Null) returns (Structure) {}
 
     // for this api method I need to use this changer, cause I will add some not standard logic
     @Generate-once-ts
     rpc createNewTag(TagCreateRequest) returns (TagStore) {}
+
+    @Generate-once-ts
+    rpc createNewNote(NewNote) returns (NewNoteResponse) {}
+
     rpc updateTag(Tag) returns (Tag) {}
 }

@@ -119,6 +119,44 @@ class TagCreateRequest:
         )
 
 
+class NewNote:
+    def __init__(self, name: str, link_from: str):
+        self.name: str = name
+        self.link_from: str = link_from
+
+    def to_json(self) -> Union[Dict, List]:
+        return {
+            'name': self.name,
+            'link_from': self.link_from,
+        }
+
+    @staticmethod
+    def from_json(obj: Dict) -> 'NewNote':
+        return NewNote(
+            name=obj['name'],
+            link_from=obj['link_from'],
+        )
+
+
+class NewNoteResponse:
+    def __init__(self, new_note: 'Note', head_store: 'NoteHeadStore'):
+        self.new_note: 'Note' = new_note
+        self.head_store: 'NoteHeadStore' = head_store
+
+    def to_json(self) -> Union[Dict, List]:
+        return {
+            'new_note': self.new_note.to_json(),
+            'head_store': self.head_store.to_json(),
+        }
+
+    @staticmethod
+    def from_json(obj: Dict) -> 'NewNoteResponse':
+        return NewNoteResponse(
+            new_note=Note.from_json(obj['new_note']),
+            head_store=NoteHeadStore.from_json(obj['head_store']),
+        )
+
+
 class Tag:
     def __init__(self, tag_id: str, name: str, description: str, color: str):
         self.tag_id: str = tag_id
@@ -280,25 +318,6 @@ class NoteUpdateResponse:
         return NoteUpdateResponse(
             msg=obj['msg'],
             updatedNote=Note.from_json(obj['updatedNote']),
-        )
-
-
-class NewNote:
-    def __init__(self, name: str, link_from: str):
-        self.name: str = name
-        self.link_from: str = link_from
-
-    def to_json(self) -> Union[Dict, List]:
-        return {
-            'name': self.name,
-            'link_from': self.link_from,
-        }
-
-    @staticmethod
-    def from_json(obj: Dict) -> 'NewNote':
-        return NewNote(
-            name=obj['name'],
-            link_from=obj['link_from'],
         )
 
 

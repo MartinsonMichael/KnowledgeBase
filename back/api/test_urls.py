@@ -28,8 +28,8 @@ def loadNotes(request: HttpRequest, **kwargs) -> HttpResponse:
                 if name[-1] == '.':
                     name = name[:-1]
 
-                tags = [x.replace(" ", "").replace("\n", "") for x in tags.split(";") if len(x) > 1]
-                tags = [x[1:] if x[0] == '#' else x for x in tags]
+                tags = [x.replace(" ", "").replace("\n", "") for x in tags.split(";")]
+                tags = [x[1:] if x[0] == '#' else x for x in tags if len(x) > 1]
 
                 tag_objs = []
 

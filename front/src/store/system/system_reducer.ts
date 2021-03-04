@@ -5,11 +5,17 @@ import {SystemActionType} from "./system_actions";
 export interface SystemState {
     needReloading: boolean
     noteBrowserHistory: string[]
+
+    needOpenNewNote: boolean
+    newNote?: msg.NoteHead
 }
 
 const initialState: SystemState = {
     needReloading: false,
     noteBrowserHistory: [],
+
+    needOpenNewNote: false,
+    newNote: undefined,
 } as SystemState;
 
 
@@ -41,6 +47,25 @@ export function SystemReducer(state = initialState, action: SystemActionType): S
             return {
                 ...state,
                 noteBrowserHistory: state.noteBrowserHistory,
+            } as SystemState;
+
+        case "needOpenNextNewNote":
+            return {
+                ...state,
+                needOpenNewNote: true,
+            } as SystemState;
+
+        case "openedNextNewNote":
+            return {
+                ...state,
+                needOpenNewNote: false,
+                newNote: undefined,
+            } as SystemState;
+
+        case "onNewNote":
+            return {
+                ...state,
+                newNote: action.payload,
             } as SystemState;
 
         default:

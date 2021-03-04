@@ -1,24 +1,25 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
-import { RootState } from "../store";
-import * as noteAct from "../store/noteService/noteService_actions";
 import { RouteComponentProps, withRouter } from "react-router";
-import TagBar from "../components/TagBar";
 import { Button, IconButton, TextField, Typography } from "@material-ui/core";
 import SettingsIcon from '@material-ui/icons/Settings';
 import SaveIcon from '@material-ui/icons/Save';
 import EditIcon from '@material-ui/icons/Edit';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
+import { RootState } from "../store";
+import { Note } from "../store/generated_messages";
+import * as noteAct from "../store/noteService/noteService_actions";
 import { renderUnsavedChangedMarker } from "../components/UnsaveTracker";
 import { renderError, renderSuccessMsg } from "../components/renderUtils";
-import NoteLinkList from "../components/NoteLinkList";
-import NoteBody from "../components/NoteBody";
 import { needBodyUpdate, removeSuccessMsg } from "../store/noteService/noteService_inplace_actions";
 import { addBrowserHistoryNote, unsetNeedReload } from "../store/system/system_actions";
 import { createNewTag } from "../store/structureService/createNewTag_action";
-import {Note, NoteHeadStore} from "../store/generated_messages";
-import {createNewNote} from "../store/noteService/createNewNote_action";
+import { createNewNote } from "../store/structureService/createNewNote_action";
+
+import TagBar from "../components/TagBar";
+import NoteLinkList from "../components/NoteLinkList";
+import NoteBody from "../components/NoteBody";
 
 
 
@@ -101,6 +102,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
         if (needID === undefined) {
             return
         }
+        console.log(`NOTE PAGE LOAD NOTE ${needID}`);
         this.props.loadNote(needID);
     }
 
@@ -154,6 +156,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
             return <span>No Note, khm, try to reload page.</span>
         }
         if (this.props.needReloading) {
+            console.log("NOTE PAGE RELOAD");
             this.loadNote();
             this.props.unsetNeedReload();
         }

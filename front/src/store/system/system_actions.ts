@@ -38,9 +38,36 @@ export function removeLastHistoryNote() {
     return {type: popHistoryNote, payload: undefined}
 }
 
+const needOpenNextNewNoteType = "needOpenNextNewNote";
+interface openNextNewNoteAction {
+    type: typeof needOpenNextNewNoteType,
+    payload: undefined
+}
+export function needOpenNextNewNote() {
+    return {type: needOpenNextNewNoteType, payload: undefined}
+}
+
+const openedNextNewNoteType = "openedNextNewNote";
+interface openedNextNewNoteAction {
+    type: typeof openedNextNewNoteType,
+    payload: undefined
+}
+export function openedNextNewNote() {
+    return {type: openedNextNewNoteType, payload: undefined}
+}
+
+export const onNewNote = "onNewNote";
+interface onNewNoteAction {
+    type: typeof onNewNote,
+    payload: msg.NoteHead
+}
+
 export type SystemActionType = (
     needReloadAction |
     noNeedReloadAction |
     newHistoryNoteAction |
-    popHistoryNoteAction
+    popHistoryNoteAction |
+    openNextNewNoteAction |
+    openedNextNewNoteAction |
+    onNewNoteAction
 )

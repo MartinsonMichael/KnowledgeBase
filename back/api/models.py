@@ -13,7 +13,7 @@ class NoteTag(models.Model):
 class NoteDB(models.Model):
     note_id = models.AutoField(primary_key=True, auto_created=True)
 
-    title = models.TextField(unique=True)
+    title = models.TextField()
 
     body = models.TextField(default="")
 

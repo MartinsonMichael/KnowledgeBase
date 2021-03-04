@@ -84,29 +84,6 @@ export function NoteServiceReducer(
             } as NoteServiceState;
 
 
-        case "createNewNote_START":
-            return {
-                ...state,
-                isLoading: true,
-                error: undefined,
-            } as NoteServiceState;
-
-        case "createNewNote_SUCCESS":
-            return {
-                ...state,
-                newNoteID: action.payload.updatedNote.note_id,
-                isLoading: false,
-                error: undefined,
-            } as NoteServiceState;
-
-        case "createNewNote_REJECTED":
-            return {
-                ...state,
-                isLoading: false,
-                error: action.payload,
-            } as NoteServiceState;
-
-
         case "addNoteTag_START":
             return {
                 ...state,

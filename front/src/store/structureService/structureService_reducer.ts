@@ -1,6 +1,6 @@
 import * as msg from "../generated_messages"
 import { StructureServiceActionType } from "./structureService_actions"
-import {TagHead, TagStore} from "../generated_messages";
+import {NoteHead} from "../generated_messages";
 
 
 export interface StructureServiceState {
@@ -20,8 +20,12 @@ const initialState: StructureServiceState = {
 } as StructureServiceState;
 
 
-export function StructureServiceReducer(state = initialState, action: StructureServiceActionType): StructureServiceState {
+export function StructureServiceReducer(
+    state = initialState,
+    action: StructureServiceActionType,
+): StructureServiceState {
     switch (action.type) {
+
         case "getStructure_START":
             return {
                 ...state,
@@ -67,6 +71,31 @@ export function StructureServiceReducer(state = initialState, action: StructureS
                 isLoading: false,
                 error: action.payload,
             } as StructureServiceState;
+
+
+        case "createNewNote_START":
+            return {
+                ...state,
+                isLoading: true,
+                error: undefined,
+            } as StructureServiceState;
+
+        case "createNewNote_SUCCESS":
+            return {
+                ...state,
+                noteHeadStore: action.payload.head_store,
+                isLoading: false,
+                error: undefined,
+            } as StructureServiceState;
+
+        case "createNewNote_REJECTED":
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            } as StructureServiceState;
+
+
 
         default:
             return state

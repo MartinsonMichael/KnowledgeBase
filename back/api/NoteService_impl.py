@@ -55,6 +55,7 @@ class NoteService(AbstractNoteService):
                 TagHead(tag_id=tag_id, name=tag_name, color=tag_color)
                 for tag_id, tag_name, tag_color
                 in zip(note_obj['tag_ids'], note_obj['tag_titles'], note_obj['tag_colors'])
+                if tag_id is not None and tag_name is not None
             ],
             links=[
                 NoteHead(
@@ -64,6 +65,7 @@ class NoteService(AbstractNoteService):
                         TagHead(tag_id=tag_id, name=tag_name, color=tag_color)
                         for tag_id, tag_name, tag_color
                         in zip(note_link['tag_ids'], note_link['tag_titles'], note_link['tag_colors'])
+                        if tag_id is not None and tag_name is not None
                     ],
                 )
                 for note_link in note_link_objs
@@ -165,22 +167,5 @@ class NoteService(AbstractNoteService):
         note_obj.save()
         return NoteUpdateResponse(
             msg="Body updated",
-            updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
-        )
-
-    def createNewNote(self, input_data: NewNote) -> NoteUpdateResponse:
-        note_obj: NoteDB = NoteDB(
-            title=input_data.name,
-        )
-        note_obj.save()
-
-        if input_data.link_from is not None:
-            note_obj_link_from: NoteDB = NoteDB.objects.filter(note_id=input_data.link_from).first()
-            if note_obj is not None:
-                note_obj_link_from.links.add(note_obj)
-                note_obj_link_from.save()
-
-        return NoteUpdateResponse(
-            msg="New note created",
             updatedNote=self.getNote(NoteRequest(note_id=note_obj.note_id)),
         )

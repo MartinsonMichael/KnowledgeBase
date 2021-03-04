@@ -25,6 +25,7 @@ class StructureService(AbstractStructureService):
                         TagHead(tag_id=tag_id, name=tag_name, color=tag_color)
                         for tag_id, tag_name, tag_color
                         in zip(note['tag_ids'], note['tag_titles'], note['tag_colors'])
+                        if tag_id is not None and tag_name is not None
                     ],
                 )
                 for note in (
@@ -71,4 +72,22 @@ class StructureService(AbstractStructureService):
             name=tag.title,
             description=tag.description,
             color=tag.color,
+        )
+
+    def createNewNote(self, input_data: NewNote) -> NewNoteResponse:
+        note_obj: NoteDB = NoteDB(
+            title=input_data.name,
+        )
+        note_obj.save()
+
+        if input_data.link_from is not None and input_data.link_from != "":
+            note_obj_link_from: NoteDB = NoteDB.objects.filter(note_id=input_data.link_from).first()
+            if note_obj is not None:
+                note_obj_link_from.links.add(note_obj)
+                note_obj_link_from.save()
+
+        from api.NoteService_impl import NoteService
+        return NewNoteResponse(
+            head_store=self._getNoteHeadStore(),
+            new_note=NoteService().getNote(NoteRequest(note_id=note_obj.note_id)),
         )

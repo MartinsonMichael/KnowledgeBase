@@ -1,8 +1,10 @@
-import {Tag, TagHead} from "../store/generated_messages";
 import * as React from "react";
+
 import { Link } from "react-router-dom";
-import {Snackbar} from "@material-ui/core";
-import {Alert} from "@material-ui/lab";
+import { Snackbar } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
+
+import { TagHead } from "../store/generated_messages";
 
 
 export function renderError(msg: string): React.ReactNode {
