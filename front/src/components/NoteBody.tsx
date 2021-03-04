@@ -100,7 +100,6 @@ class NoteBody extends React.Component<NoteBodyProps, NoteBodyState> {
     // }
 
     render(): React.ReactNode {
-        const { body, mode } = this.props;
         if (this.props.needUpdate) {
             // @ts-ignore
             this.props.updateNoteBody(this.props.note_id, this.props.body);
@@ -108,12 +107,10 @@ class NoteBody extends React.Component<NoteBodyProps, NoteBodyState> {
         }
         return (
             <div style={{ marginTop: "10px" }}>
-                {/*{ this.renderView() }*/}
-                {/*{ this.renderEdit() }*/}
                 <CKEditor
                     editor={ ClassicEditor }
                     data={ this.props.body }
-                    disabled={ mode === "view" }
+                    disabled={ this.props.mode === "view" }
                     onReady={ (editor: any) => {
                         console.log( 'Editor is ready to use!', editor );
                     } }

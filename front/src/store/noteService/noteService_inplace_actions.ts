@@ -1,6 +1,3 @@
-import * as msg from "../generated_messages";
-import axios from "../client";
-
 const RemoveMsg = "RemoveMsg";
 interface removeMsgAction {
     type: typeof RemoveMsg,

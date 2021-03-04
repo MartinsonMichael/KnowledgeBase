@@ -1,4 +1,5 @@
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import Count
 
 from api.models import NoteTag, NoteDB
 from .service_StructureService import AbstractStructureService
@@ -21,6 +22,7 @@ class StructureService(AbstractStructureService):
                 note['note_id']: NoteHead(
                     note_id=note['note_id'],
                     name=note['title'],
+                    last_update=note['last_update'].strftime("%m/%d/%Y, %H:%M:%S"),
                     tags=[
                         TagHead(tag_id=tag_id, name=tag_name, color=tag_color)
                         for tag_id, tag_name, tag_color
@@ -30,7 +32,7 @@ class StructureService(AbstractStructureService):
                 )
                 for note in (
                     NoteDB.objects
-                    .values("note_id", "title")
+                    .values("note_id", "title", "last_update")
                     .annotate(
                         tag_ids=ArrayAgg("tags__tag_id"),
                         tag_titles=ArrayAgg("tags__title"),
@@ -90,4 +92,33 @@ class StructureService(AbstractStructureService):
         return NewNoteResponse(
             head_store=self._getNoteHeadStore(),
             new_note=NoteService().getNote(NoteRequest(note_id=note_obj.note_id)),
+        )
+
+    def getNotesWithoutLinks(self) -> NoteHeadList:
+        return NoteHeadList(
+            list=[
+                NoteHead(
+                    note_id=note['note_id'],
+                    name=note['title'],
+                    last_update=note['last_update'].strftime("%m/%d/%Y, %H:%M:%S"),
+                    tags=[
+                        TagHead(tag_id=tag_id, name=tag_name, color=tag_color)
+                        for tag_id, tag_name, tag_color
+                        in zip(note['tag_ids'], note['tag_titles'], note['tag_colors'])
+                        if tag_id is not None and tag_name is not None
+                    ],
+                )
+                for note in (
+                    NoteDB.objects
+                    .values("note_id", "title", "last_update")
+                    .annotate(num_links=Count('links'))
+                    .filter(num_links__lte=0)
+                    .annotate(
+                        tag_ids=ArrayAgg("tags__tag_id"),
+                        tag_titles=ArrayAgg("tags__title"),
+                        tag_colors=ArrayAgg("tags__color"),
+                    )
+                    .all()
+                )
+            ]
         )

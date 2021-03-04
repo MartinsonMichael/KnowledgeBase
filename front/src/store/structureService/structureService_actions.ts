@@ -47,6 +47,45 @@ export const getStructure = () => {
 };
 
 
+export const getNotesWithoutLinks_START = "getNotesWithoutLinks_START";
+interface getNotesWithoutLinks_START_Action {
+    type: typeof getNotesWithoutLinks_START
+    payload: undefined
+}
+export const getNotesWithoutLinks_SUCCESS = "getNotesWithoutLinks_SUCCESS";
+interface getNotesWithoutLinks_SUCCESS_Action {
+    type: typeof getNotesWithoutLinks_SUCCESS
+    payload: msg.NoteHeadList
+}
+export const getNotesWithoutLinks_REJECTED = "getNotesWithoutLinks_REJECTED";
+interface getNotesWithoutLinks_REJECTED_Action {
+    type: typeof getNotesWithoutLinks_REJECTED
+    payload: string
+}
+
+export const getNotesWithoutLinks = () => {
+    return async (dispatch: any) => {
+        dispatch({type: getNotesWithoutLinks_START, payload: undefined});
+
+        const response = await axios.get(
+            'getNotesWithoutLinks',
+            {
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
+                },
+            },
+        );
+
+        if (response.status === 200) {
+            dispatch({type: getNotesWithoutLinks_SUCCESS, payload: msg.construct_NoteHeadList(response.data)});
+        } else {
+            dispatch({type: getNotesWithoutLinks_REJECTED, payload: response.data});
+        }
+    }
+};
+
+
 export const updateTag_START = "updateTag_START";
 interface updateTag_START_Action {
     type: typeof updateTag_START
@@ -97,6 +136,9 @@ export type StructureServiceActionType = (
     getStructure_START_Action |
     getStructure_SUCCESS_Action |
     getStructure_REJECTED_Action |
+    getNotesWithoutLinks_START_Action |
+    getNotesWithoutLinks_SUCCESS_Action |
+    getNotesWithoutLinks_REJECTED_Action |
     createNewTag_START_Action |
     createNewTag_SUCCESS_Action |
     createNewTag_REJECTED_Action |

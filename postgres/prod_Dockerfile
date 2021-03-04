@@ -1,0 +1,6 @@
+FROM postgres:12.0-alpine
+
+ENV POSTGRES_USER prod
+ENV POSTGRES_PASSWORD prod
+
+ENV POSTGRES_DB system2_prod

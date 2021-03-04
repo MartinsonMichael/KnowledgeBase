@@ -1,11 +1,12 @@
 import * as msg from "../generated_messages"
 import { StructureServiceActionType } from "./structureService_actions"
-import {NoteHead} from "../generated_messages";
 
 
 export interface StructureServiceState {
     noteHeadStore?: msg.NoteHeadStore,
     tagStore?: msg.TagStore,
+
+    notesWithoutLinks: msg.NoteHead[]
 
     isLoading: boolean
     error?: string
@@ -14,6 +15,8 @@ export interface StructureServiceState {
 const initialState: StructureServiceState = {
     noteHeadStore: undefined,
     tagStore: undefined,
+
+    notesWithoutLinks: [],
 
     isLoading: false,
     error: undefined,
@@ -95,6 +98,50 @@ export function StructureServiceReducer(
                 error: action.payload,
             } as StructureServiceState;
 
+
+        case "updateTag_START":
+            return {
+                ...state,
+                isLoading: true,
+                error: undefined,
+            } as StructureServiceState;
+
+        case "updateTag_SUCCESS":
+            return {
+                ...state,
+                isLoading: false,
+                error: undefined,
+            } as StructureServiceState;
+
+        case "updateTag_REJECTED":
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            } as StructureServiceState;
+
+
+        case "getNotesWithoutLinks_START":
+            return {
+                ...state,
+                isLoading: true,
+                error: undefined,
+            } as StructureServiceState;
+
+        case "getNotesWithoutLinks_SUCCESS":
+            return {
+                ...state,
+                notesWithoutLinks: action.payload.list,
+                isLoading: false,
+                error: undefined,
+            } as StructureServiceState;
+
+        case "getNotesWithoutLinks_REJECTED":
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            } as StructureServiceState;
 
 
         default:

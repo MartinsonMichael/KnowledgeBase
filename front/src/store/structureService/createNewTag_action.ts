@@ -3,8 +3,8 @@
 
 import axios from "../client"
 import * as msg from "../generated_messages"
-import {addNoteTag_SUCCESS} from "../noteService/noteService_actions";
-import {Note, NoteHeadStore, NoteUpdateResponse, TagHead} from "../generated_messages";
+import { addNoteTag_SUCCESS } from "../noteService/noteService_actions";
+import { Note , NoteUpdateResponse } from "../generated_messages";
 
 export const createNewTag_START = "createNewTag_START";
 export interface createNewTag_START_Action {

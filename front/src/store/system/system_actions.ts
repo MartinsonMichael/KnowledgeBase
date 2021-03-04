@@ -34,9 +34,9 @@ interface popHistoryNoteAction {
     type: typeof popHistoryNote,
     payload: undefined
 }
-export function removeLastHistoryNote() {
-    return {type: popHistoryNote, payload: undefined}
-}
+// export function removeLastHistoryNote() {
+//     return {type: popHistoryNote, payload: undefined}
+// }
 
 const needOpenNextNewNoteType = "needOpenNextNewNote";
 interface openNextNewNoteAction {

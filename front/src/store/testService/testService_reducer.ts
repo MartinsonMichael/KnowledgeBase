@@ -1,4 +1,3 @@
-import * as msg from "../generated_messages"
 import { TestServiceActionType } from "./testService_actions"
 
 

@@ -1,5 +1,5 @@
 import * as msg from "../generated_messages"
-import {SystemActionType} from "./system_actions";
+import { SystemActionType } from "./system_actions";
 
 
 export interface SystemState {

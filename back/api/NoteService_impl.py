@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.postgres.aggregates import ArrayAgg
 
 from .service_NoteService import AbstractNoteService
@@ -13,7 +15,7 @@ class NoteService(AbstractNoteService):
             NoteDB
             .objects
             .filter(note_id=int(input_data.note_id))
-            .values('note_id', 'title', 'body')
+            .values('note_id', 'title', 'body', 'last_update')
             .annotate(
                 tag_ids=ArrayAgg("tags__tag_id"),
                 tag_titles=ArrayAgg("tags__title"),
@@ -39,7 +41,7 @@ class NoteService(AbstractNoteService):
             NoteDB
             .objects
             .filter(note_id__in=note_links['link_ids'])
-            .values('note_id', 'title')
+            .values('note_id', 'title', 'last_update')
             .annotate(
                 tag_ids=ArrayAgg("tags__tag_id"),
                 tag_titles=ArrayAgg("tags__title"),
@@ -51,6 +53,7 @@ class NoteService(AbstractNoteService):
             note_id=note_obj['note_id'],
             name=note_obj['title'],
             body=note_obj['body'],
+            last_update=note_obj['last_update'].strftime("%m/%d/%Y, %H:%M:%S"),
             tags=[
                 TagHead(tag_id=tag_id, name=tag_name, color=tag_color)
                 for tag_id, tag_name, tag_color
@@ -61,6 +64,7 @@ class NoteService(AbstractNoteService):
                 NoteHead(
                     note_id=note_link['note_id'],
                     name=note_link['title'],
+                    last_update=note_link['last_update'].strftime("%m/%d/%Y, %H:%M:%S"),
                     tags=[
                         TagHead(tag_id=tag_id, name=tag_name, color=tag_color)
                         for tag_id, tag_name, tag_color
@@ -86,6 +90,7 @@ class NoteService(AbstractNoteService):
         if tag is None:
             raise ValueError(f"No tag with id `{input_data.tag_id}`")
         note_obj.tags.add(tag)
+        note_obj.last_update = datetime.now()
         note_obj.save()
         return NoteUpdateResponse(
             msg="Tag added",
@@ -104,6 +109,7 @@ class NoteService(AbstractNoteService):
             )
         for tag_obj in tags_already:
             note_obj.tags.remove(tag_obj)
+            note_obj.last_update = datetime.now()
         note_obj.save()
         return NoteUpdateResponse(
             msg="Tag deleted",
@@ -124,6 +130,7 @@ class NoteService(AbstractNoteService):
         if note_link_obj is None:
             raise ValueError(f"No such linked note with id `{input_data.link_note_id}`")
         note_obj.links.add(note_link_obj)
+        note_obj.last_update = datetime.now()
         note_obj.save()
         return NoteUpdateResponse(
             msg="Link added",
@@ -142,6 +149,7 @@ class NoteService(AbstractNoteService):
             )
         for obj in obj_to_del:
             note_obj.links.remove(obj)
+            note_obj.last_update = datetime.now()
         note_obj.save()
         return NoteUpdateResponse(
             msg="Link deleted",
@@ -153,6 +161,7 @@ class NoteService(AbstractNoteService):
         if note_obj is None:
             raise ValueError(f"No note with id={input_data.note_id}")
         note_obj.title = input_data.new_name
+        note_obj.last_update = datetime.now()
         note_obj.save()
         return NoteUpdateResponse(
             msg="Title changed",
@@ -164,6 +173,7 @@ class NoteService(AbstractNoteService):
         if note_obj is None:
             raise ValueError(f"No note with id={input_data.note_id}")
         note_obj.body = input_data.new_body
+        note_obj.last_update = datetime.now()
         note_obj.save()
         return NoteUpdateResponse(
             msg="Body updated",

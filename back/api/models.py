@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -15,6 +17,7 @@ class NoteDB(models.Model):
 
     title = models.TextField()
 
+    last_update = models.DateTimeField(default=datetime.now)
     body = models.TextField(default="")
 
     tags = models.ManyToManyField('NoteTag', db_index=False)

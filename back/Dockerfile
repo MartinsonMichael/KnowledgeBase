@@ -9,4 +9,4 @@ ENV DOCKER_LAUNCH "true"
 ADD . .
 
 EXPOSE 8000
-CMD python manage.py migrate && uwsgi --ini ./uwsgi.config
+CMD python manage.py makemigrations && python manage.py migrate && uwsgi --ini ./uwsgi.config

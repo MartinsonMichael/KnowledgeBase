@@ -15,6 +15,7 @@ export interface NoteHead {
     note_id: string
     name: string
     tags: TagHead[]
+    last_update: string
 }
 export function construct_NoteHead(x: any): NoteHead {
     return {
@@ -37,6 +38,18 @@ export function construct_NoteHeadStore(x: any): NoteHeadStore {
         (obj_key: string) => obj.heads[obj_key] = construct_NoteHead(x['heads'][obj_key])
     );
     return obj as NoteHeadStore;}
+
+
+export interface NoteHeadList {
+    list: NoteHead[]
+}
+export function construct_NoteHeadList(x: any): NoteHeadList {
+    return {
+        'list': [
+            ...x['list'].map((item: any) => construct_NoteHead(item))
+        ],
+    } as NoteHeadList
+}
 
 
 export interface TagStore {
@@ -111,6 +124,7 @@ export interface Note {
     tags: TagHead[]
     links: NoteHead[]
     body: string
+    last_update: string
 }
 export function construct_Note(x: any): Note {
     return {

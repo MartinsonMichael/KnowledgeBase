@@ -159,9 +159,10 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
             console.log("NOTE PAGE RELOAD");
             this.loadNote();
             this.props.unsetNeedReload();
+            return <span>Loading...</span>;
         }
 
-        const { note_id, tags, links } = this.props.note;
+        const { note_id, tags, links, last_update } = this.props.note;
         return (
             <div style={{margin: "20px", display: "flex" }}>
                 <div style={{ width: "70%", marginRight: "20px"}}>
@@ -176,7 +177,7 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     {/*    null*/}
                     {/*}*/}
 
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", flexDirection: "row" }}>
                         <Button
                             onClick={() => {
                                 const last_note_id = this.props.noteBrowserHistory.pop();
@@ -197,6 +198,9 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                         </IconButton>
                         { this.renderSaveButton() }
                         { renderUnsavedChangedMarker(this.props.changeNum) }
+                        <div style={{ color: "gray", marginLeft: "auto" }} >
+                            Updated: { last_update }
+                        </div>
                     </div>
 
                     <div style={{display: "flex", alignItems: "center" }}>

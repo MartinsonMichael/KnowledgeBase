@@ -1,5 +1,5 @@
 import * as msg from "../generated_messages"
-import { NoteServiceActionType, updateNoteBody } from "./noteService_actions"
+import { NoteServiceActionType } from "./noteService_actions"
 import { noteServiceInplaceActionType } from "./noteService_inplace_actions";
 
 

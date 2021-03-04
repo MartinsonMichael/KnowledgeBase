@@ -38,6 +38,25 @@ class AbstractStructureService:
         raise NotImplemented
 
     @csrf_exempt
+    def service_getNotesWithoutLinks(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if request.method == 'OPTIONS':
+            return make_response()
+        try:
+            output_data: NoteHeadList = self.getNotesWithoutLinks()
+        except ValueError as e:
+            return make_response(str(e), 400)
+        except Exception as e:
+            return make_response(f"error while processing request:\n{str(e)}", 400)
+
+        return make_response(
+            content=json.dumps(output_data.to_json()),
+            status=200,
+        )
+
+    def getNotesWithoutLinks(self) -> NoteHeadList:
+        raise NotImplemented
+
+    @csrf_exempt
     def service_createNewTag(self, request: HttpRequest, **kwargs) -> HttpResponse:
         if request.method == 'OPTIONS':
             return make_response()

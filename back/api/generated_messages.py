@@ -28,16 +28,18 @@ class TagHead:
 
 
 class NoteHead:
-    def __init__(self, note_id: str, name: str, tags: List['TagHead']):
+    def __init__(self, note_id: str, name: str, tags: List['TagHead'], last_update: str):
         self.note_id: str = note_id
         self.name: str = name
         self.tags: List['TagHead'] = tags
+        self.last_update: str = last_update
 
     def to_json(self) -> Union[Dict, List]:
         return {
             'note_id': self.note_id,
             'name': self.name,
             'tags': [x.to_json() for x in self.tags],
+            'last_update': self.last_update,
         }
 
     @staticmethod
@@ -46,6 +48,7 @@ class NoteHead:
             note_id=obj['note_id'],
             name=obj['name'],
             tags=[TagHead.from_json(x) for x in obj['tags']],
+            last_update=obj['last_update'],
         )
 
 
@@ -62,6 +65,22 @@ class NoteHeadStore:
     def from_json(obj: Dict) -> 'NoteHeadStore':
         return NoteHeadStore(
             heads={key: value.from_json() for key, value in obj['heads'].items()},
+        )
+
+
+class NoteHeadList:
+    def __init__(self, list: List['NoteHead']):
+        self.list: List['NoteHead'] = list
+
+    def to_json(self) -> Union[Dict, List]:
+        return {
+            'list': [x.to_json() for x in self.list],
+        }
+
+    @staticmethod
+    def from_json(obj: Dict) -> 'NoteHeadList':
+        return NoteHeadList(
+            list=[NoteHead.from_json(x) for x in obj['list']],
         )
 
 
@@ -183,12 +202,13 @@ class Tag:
 
 
 class Note:
-    def __init__(self, note_id: str, name: str, tags: List['TagHead'], links: List['NoteHead'], body: str):
+    def __init__(self, note_id: str, name: str, tags: List['TagHead'], links: List['NoteHead'], body: str, last_update: str):
         self.note_id: str = note_id
         self.name: str = name
         self.tags: List['TagHead'] = tags
         self.links: List['NoteHead'] = links
         self.body: str = body
+        self.last_update: str = last_update
 
     def to_json(self) -> Union[Dict, List]:
         return {
@@ -197,6 +217,7 @@ class Note:
             'tags': [x.to_json() for x in self.tags],
             'links': [x.to_json() for x in self.links],
             'body': self.body,
+            'last_update': self.last_update,
         }
 
     @staticmethod
@@ -207,6 +228,7 @@ class Note:
             tags=[TagHead.from_json(x) for x in obj['tags']],
             links=[NoteHead.from_json(x) for x in obj['links']],
             body=obj['body'],
+            last_update=obj['last_update'],
         )
 
 

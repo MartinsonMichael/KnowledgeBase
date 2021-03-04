@@ -10,10 +10,15 @@ message NoteHead {
     string note_id = 1;
     string name = 2;
     repeated TagHead tags = 3;
+    string last_update = 4;
 }
 
 message NoteHeadStore {
     map<string, NoteHead> heads = 1;
+}
+
+message NoteHeadList {
+    repeated NoteHead list = 1;
 }
 
 message TagStore {
@@ -42,6 +47,7 @@ message NewNoteResponse {
 
 service StructureService {
     rpc getStructure(Null) returns (Structure) {}
+    rpc getNotesWithoutLinks(Null) returns (NoteHeadList) {}
 
     // for this api method I need to use this changer, cause I will add some not standard logic
     @Generate-once-ts

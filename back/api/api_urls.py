@@ -15,6 +15,7 @@ service_TestService = TestService()
 urlpatterns = [
     # urls for StructureService
     path('getStructure', service_StructureService.service_getStructure),
+    path('getNotesWithoutLinks', service_StructureService.service_getNotesWithoutLinks),
     path('createNewTag', service_StructureService.service_createNewTag),
     path('createNewNote', service_StructureService.service_createNewNote),
     path('updateTag', service_StructureService.service_updateTag),
