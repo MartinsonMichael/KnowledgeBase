@@ -24,6 +24,7 @@ import TagPage from "./pages/TagPage";
 import TagListPage from "./pages/TagListPage";
 import NoteListPage from "./pages/NoteListPage";
 import Selector from "./components/Selector";
+import ProfilePage from "./pages/ProfilePage";
 
 
 const mapStoreStateToProps = (store: RootState) => ({
@@ -173,13 +174,14 @@ class App extends React.Component<AppProps, AppState>{
                 {/*    close={() => this.setState({ isNewNoteCreatorOpen: false })}*/}
                 {/*/>*/}
                 <Switch>
+                    <Route path='/profile' render={() => <ProfilePage/>}/>
                     <Route path='/home' render={() => <HomePage/>}/>
                     <Route path='/fullList' render={() => <NoteListPage/>} />
                     <Route path='/note/:note_id' render={() => <NotePage/>} />
                     <Route path='/tag/:tag_id' render={() => <TagPage/>} />
                     <Route path='/tag_list' render={() => <TagListPage/>} />
 
-                    <Redirect from="/" to="/home" />
+                    {/*<Redirect from="/" to="/home" />*/}
                 </Switch>
             </div>
         );

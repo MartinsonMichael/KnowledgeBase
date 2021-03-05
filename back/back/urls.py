@@ -19,6 +19,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.api_urls')),
+    path('backup/', include('api.backup_tools')),
 
     # just for test TODO remove in prod
     path('test/', include('api.test_urls')),

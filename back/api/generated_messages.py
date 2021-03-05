@@ -343,6 +343,56 @@ class NoteUpdateResponse:
         )
 
 
+class BackupRestoreRequest:
+    def __init__(self, zip_body: str, merge_policy: str):
+        self.zip_body: str = zip_body
+        self.merge_policy: str = merge_policy
+
+    def to_json(self) -> Union[Dict, List]:
+        return {
+            'zip_body': self.zip_body,
+            'merge_policy': self.merge_policy,
+        }
+
+    @staticmethod
+    def from_json(obj: Dict) -> 'BackupRestoreRequest':
+        return BackupRestoreRequest(
+            zip_body=obj['zip_body'],
+            merge_policy=obj['merge_policy'],
+        )
+
+
+class BackupRestoreResponse:
+    def __init__(self, notes_restored: int, notes_new: int, notes_failed: int, tags_restored: int, tags_new: int, tags_failed: int):
+        self.notes_restored: int = notes_restored
+        self.notes_new: int = notes_new
+        self.notes_failed: int = notes_failed
+        self.tags_restored: int = tags_restored
+        self.tags_new: int = tags_new
+        self.tags_failed: int = tags_failed
+
+    def to_json(self) -> Union[Dict, List]:
+        return {
+            'notes_restored': self.notes_restored,
+            'notes_new': self.notes_new,
+            'notes_failed': self.notes_failed,
+            'tags_restored': self.tags_restored,
+            'tags_new': self.tags_new,
+            'tags_failed': self.tags_failed,
+        }
+
+    @staticmethod
+    def from_json(obj: Dict) -> 'BackupRestoreResponse':
+        return BackupRestoreResponse(
+            notes_restored=obj['notes_restored'],
+            notes_new=obj['notes_new'],
+            notes_failed=obj['notes_failed'],
+            tags_restored=obj['tags_restored'],
+            tags_new=obj['tags_new'],
+            tags_failed=obj['tags_failed'],
+        )
+
+
 class SimpleMsg:
     def __init__(self, integer_field: int, float_field: float, string_field: str, boolean_field: List[bool]):
         self.integer_field: int = integer_field

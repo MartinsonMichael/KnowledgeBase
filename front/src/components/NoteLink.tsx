@@ -1,6 +1,6 @@
 import * as React from "react";
 import { connect, ConnectedProps } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link } from "@material-ui/core";
 
 import { IconButton } from "@material-ui/core";
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -46,12 +46,13 @@ class NoteLink extends React.Component<NoteLinkProps, {}> {
         return (
             <div key={`note-link-${note_id}`} style={{ marginBottom: "10px" }}>
                 <div style={{ display: "flex" }} key={`note-link-line-${note_id}`}>
+                    {/*<div style={{ marginRight: "10px", marginLeft: "10px" }}/> :*/}
                     { this.props.onDelete === undefined ?
-                        <div style={{ marginRight: "10px", marginLeft: "10px" }}/> :
+                        null :
                         this.delButton(note_id, this.props.onDelete)
                     }
                     <Link
-                        to={`/note/${ note_id }`}
+                        href={`/note/${ note_id }`}
                         onClick={ () => {
                             console.log("hm?");
                             this.props.addBrowserHistoryNote(note_id);

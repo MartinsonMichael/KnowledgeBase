@@ -195,6 +195,28 @@ export function construct_NoteUpdateResponse(x: any): NoteUpdateResponse {
 }
 
 
+export interface BackupRestoreRequest {
+    zip_body: string
+    merge_policy: string
+}
+export function construct_BackupRestoreRequest(x: any): BackupRestoreRequest {
+    return x as BackupRestoreRequest
+}
+
+
+export interface BackupRestoreResponse {
+    notes_restored: number
+    notes_new: number
+    notes_failed: number
+    tags_restored: number
+    tags_new: number
+    tags_failed: number
+}
+export function construct_BackupRestoreResponse(x: any): BackupRestoreResponse {
+    return x as BackupRestoreResponse
+}
+
+
 export interface SimpleMsg {
     integer_field: number
     float_field: number

@@ -41,7 +41,8 @@ export const createNewTag = (name: string, add_to_note_id: string,  note: Note |
         );
 
         if (response.status === 200) {
-            dispatch({type: createNewTag_SUCCESS, payload: msg.construct_Tag(response.data)});
+            const newTagStore = msg.construct_TagStore(response.data);
+            dispatch({type: createNewTag_SUCCESS, payload: newTagStore});
             if (note !== undefined) {
                 dispatch({
                     type: addNoteTag_SUCCESS,
@@ -51,7 +52,11 @@ export const createNewTag = (name: string, add_to_note_id: string,  note: Note |
                             ...note,
                             tags: [
                                 ...note.tags,
-                                msg.construct_TagHead(response.data),
+                                ...Object.keys(newTagStore.tags).filter(
+                                    (tag_id: string) => newTagStore.tags[tag_id].name === name
+                                ).map(
+                                    (tag_id: string) => newTagStore.tags[tag_id]
+                                ),
                             ],
                         } as Note,
                     } as NoteUpdateResponse,

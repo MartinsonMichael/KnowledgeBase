@@ -11,6 +11,8 @@ class NoteTag(models.Model):
     color = models.TextField(default="")
     description = models.TextField(default="")
 
+    last_update = models.DateTimeField(default=datetime.now)
+
 
 class NoteDB(models.Model):
     note_id = models.AutoField(primary_key=True, auto_created=True)
@@ -26,3 +28,9 @@ class NoteDB(models.Model):
 
 class KbUser(models.Model):
     user_id = models.AutoField(primary_key=True, auto_created=True)
+    name = models.TextField()
+
+    password_hash = models.TextField()
+    token_hash = models.TextField()
+
+    last_backup_time = models.DateTimeField()

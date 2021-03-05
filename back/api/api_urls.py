@@ -5,11 +5,13 @@ from django.urls import path
 
 from .StructureService_impl import StructureService
 from .NoteService_impl import NoteService
+from .BackupService_impl import BackupService
 from .TestService_impl import TestService
 
 
 service_StructureService = StructureService()
 service_NoteService = NoteService()
+service_BackupService = BackupService()
 service_TestService = TestService()
 
 urlpatterns = [
@@ -28,6 +30,9 @@ urlpatterns = [
     path('delNoteLink', service_NoteService.service_delNoteLink),
     path('updateNoteName', service_NoteService.service_updateNoteName),
     path('updateNoteBody', service_NoteService.service_updateNoteBody),
+
+    # urls for BackupService
+    path('applyBackup', service_BackupService.service_applyBackup),
 
     # urls for TestService
     path('getSimpleMsg', service_TestService.service_getSimpleMsg),
