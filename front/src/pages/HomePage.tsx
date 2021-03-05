@@ -11,7 +11,6 @@ import { NoteHead } from "../store/generated_messages";
 
 import NoteLinkList from "../components/NoteLinkList";
 import {getNotesWithoutLinks} from "../store/structureService/structureService_actions";
-import {applyBackup} from "../store/backupService/backupService_actions";
 
 
 
@@ -28,7 +27,7 @@ const mapStoreStateToProps = (store: RootState) => ({
 const mapDispatchToProps = (dispatch: any) => {
     return {
         getNotesWithoutLinks: () => dispatch(getNotesWithoutLinks()),
-        applyBackup: (zip_body: string, merge_policy: string) => dispatch(applyBackup(zip_body, merge_policy)),
+        // applyBackup: (zip_body: string, merge_policy: string) => dispatch(applyBackup(zip_body, merge_policy)),
     }
 };
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
@@ -121,7 +120,8 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
                 <p/>
                 loaded { Object.keys(this.props.noteHeadStore.heads).length } note heads
                 <p/>
-                <Link href="http://localhost:8000/backup/makeBackup" target="_blank">Make backup</Link>
+                {/*<Link href="http://localhost:8000/backup/makeBackup" target="_blank">Make backup</Link>*/}
+                <Link href={"/backup/makeBackup"} target="_blank">Make backup</Link>
                 <p/>
                 <input
                     type="file"
@@ -134,7 +134,7 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
                             // this.props.applyBackup(formData, "recreate");
 
                             const axiosInstanse = axios.create({
-                                baseURL: "http://localhost:8000/backup/",
+                                baseURL: "/backup/",
                                 responseType: "json",
                             });
                             const formData = new FormData();
