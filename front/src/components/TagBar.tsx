@@ -102,18 +102,27 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
     }
 
     render(): React.ReactNode {
-        const { tags, size } = this.props;
+        const { tags } = this.props;
         return (
             <div
-                style={{ display: "flex", fontSize: size, alignItems: "center"  }}
+                style={{ display: "flex", alignItems: "center", flexDirection: "row"  }}
                 key={ this.props.parentstring + 'tagbar' }
             >
                 { tags.map((tag: TagHead) => (
-                    <div style={{ marginRight: "5px" }} key={ this.props.parentstring + tag.name + 'div' }>
+                    <div
+                        style={{ marginRight: "5px", paddingBottom: "0.5em", paddingTop: "0.5em", display: "flex", flexDirection: "row" }}
+                        key={ this.props.parentstring + tag.name + 'div' }
+                    >
                         <Chip
                             clickable
                             onClick={() => this.props.history.push(`/tag/${tag.tag_id}`)}
                             label={ "#" + tag.name }
+                            // onDelete={  e => {
+                            //         if (this.props.showDeleteButtons && this.props.onTagDelete !== undefined) {
+                            //             this.props.onTagDelete(tag.tag_id)
+                            //         }
+                            //     }
+                            // }
                             onDelete={ (this.props.showDeleteButtons ? e => {
                                     if (this.props.onTagDelete !== undefined) {
                                         this.props.onTagDelete(tag.tag_id)
@@ -123,7 +132,14 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
                             }
                             size="small"
                             variant="outlined"
+                            // style={{
+                            //     paddingRight: (this.props.showDeleteButtons ? "0em" : "1.1em"),
+                            //     paddingLeft: "1.1em",
+                            // }}
                         />
+                        <div style={{
+                            paddingRight: (this.props.showDeleteButtons ? "0em" : "0.95em"),
+                        }}/>
                     </div>
                 ))}
                 { this.renderTagAdd() }

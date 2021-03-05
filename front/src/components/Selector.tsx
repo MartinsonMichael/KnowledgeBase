@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Autocomplete from "react-autocomplete";
-import {Button, TextField} from "@material-ui/core";
+import {Button, TextField, Typography} from "@material-ui/core";
 
 import { makeID } from "./utils";
 
@@ -114,7 +114,7 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
                         color: this.props.textColor,
                     }}
                 >
-                    { this.props.textGetter(item.item) }
+                    <Typography>{ this.props.textGetter(item.item) }</Typography>
                 </div>
             )
         }

@@ -164,8 +164,8 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
 
         const { note_id, tags, links, last_update } = this.props.note;
         return (
-            <div style={{margin: "20px", display: "flex" }}>
-                <div style={{ width: "70%", marginRight: "20px"}}>
+            <div style={{margin: "1em", display: "flex" }}>
+                <div style={{ width: "70%", marginRight: "1em"}}>
                     {/*{ this.state.bodyState === "edit" ?*/}
                     {/*    <Link*/}
                     {/*        href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet"*/}
@@ -178,41 +178,59 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                     {/*}*/}
 
                     <div style={{ display: "flex", alignItems: "center", flexDirection: "row" }}>
-                        <Button
-                            onClick={() => {
-                                const last_note_id = this.props.noteBrowserHistory.pop();
-                                if (last_note_id !== undefined) {
-                                    this.props.history.push(`/note/${last_note_id}`)
-                                }
-                            } }
-                            size="small"
-                            disabled={ this.props.noteBrowserHistory.length === 1 }
-                        >
-                            <ArrowBackIcon/>
-                            Back
-                        </Button>
-                        <IconButton
-                            onClick={() => this.setState({showNoteSettings: true})}
-                        >
-                            <SettingsIcon/>
-                        </IconButton>
-                        { this.renderSaveButton() }
-                        { renderUnsavedChangedMarker(this.props.changeNum) }
+                        <TextField
+                            style={{ paddingLeft: "0.2em" }}
+                            InputProps={{
+                                disableUnderline: true,
+                            }}
+                            fullWidth
+                            disabled={ this.state.bodyState === "view" }
+                            size="medium"
+                            value={ this.props.note.name }
+                            onChange={e => this.props.updateName(note_id, e.target.value)}
+                        />
+
+                        {/*<Button*/}
+                        {/*    onClick={() => {*/}
+                        {/*        const last_note_id = this.props.noteBrowserHistory.pop();*/}
+                        {/*        if (last_note_id !== undefined) {*/}
+                        {/*            this.props.history.push(`/note/${last_note_id}`)*/}
+                        {/*        }*/}
+                        {/*    } }*/}
+                        {/*    size="small"*/}
+                        {/*    disabled={ this.props.noteBrowserHistory.length === 1 }*/}
+                        {/*>*/}
+                        {/*    <ArrowBackIcon/>*/}
+                        {/*    Back*/}
+                        {/*</Button>*/}
+                        {/*<IconButton*/}
+                        {/*    onClick={() => this.setState({showNoteSettings: true})}*/}
+                        {/*>*/}
+                        {/*    <SettingsIcon/>*/}
+                        {/*</IconButton>*/}
+
+                        <div style={{ flexGrow: 1}}/>
+                        <div style={{ marginRight: "1em"}}>
+                            { this.renderSaveButton() }
+                        </div>
+                        <div style={{ marginRight: "1em"}}>
+                            { renderUnsavedChangedMarker(this.props.changeNum) }
+                        </div>
                         <div style={{ color: "gray", marginLeft: "auto" }} >
                             Updated: { last_update }
                         </div>
                     </div>
 
                     <div style={{display: "flex", alignItems: "center" }}>
-                        {this.state.bodyState === "view" ?
-                            <Typography>{ this.props.note.name }</Typography>
-                            :
-                            <TextField
-                                size="small"
-                                value={ this.props.note.name }
-                                onChange={e => this.props.updateName(note_id, e.target.value)}
-                            />
-                        }
+                        {/*{this.state.bodyState === "view" ?*/}
+                        {/*    <Typography>{ this.props.note.name }</Typography>*/}
+                        {/*    :*/}
+                        {/*    <TextField*/}
+                        {/*        size="small"*/}
+                        {/*        value={ this.props.note.name }*/}
+                        {/*        onChange={e => this.props.updateName(note_id, e.target.value)}*/}
+                        {/*    />*/}
+                        {/*}*/}
                         {/*<TextField*/}
                         {/*    */}
                         {/*    disabled={ this.state.bodyState === "view" }*/}
