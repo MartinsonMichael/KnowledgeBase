@@ -83,16 +83,18 @@ class App extends React.Component<AppProps, AppState>{
             <AppBar position="static">
                 <Toolbar variant="dense">
                     <Button onClick={() => this.props.history.push(`/home`)}>
-                        <HomeIcon color="action"/>
-                        Home
+                        <div style={{ alignItems: "center", flexDirection: "row", display: "flex" }}>
+                            <HomeIcon color="action" style={{ fill: "white" }}/>
+                            <div style={{ color: "white", marginLeft: "5px", paddingTop: "5px" }}>Home</div>
+                        </div>
                     </Button>
                     <Button onClick={() => this.props.history.push("/fullList")}>
-                        <ListIcon/>
-                        Note List
+                        <ListIcon style={{ fill: "white" }}/>
+                        <div style={{ color: "white", marginLeft: "5px", paddingTop: "5px" }}>Note List</div>
                     </Button>
                     <Button onClick={() => this.setState({ isNewNoteCreatorOpen: true })}>
-                        <AddIcon/>
-                        Add Note
+                        <AddIcon style={{ fill: "white" }}/>
+                        <div style={{ color: "white", marginLeft: "5px", paddingTop: "5px" }}>Add Note</div>
                     </Button>
                     { this.state.isNewNoteCreatorOpen ?
                         <Selector
@@ -108,48 +110,50 @@ class App extends React.Component<AppProps, AppState>{
                             }}
                         /> : null
                     }
+                    <div style={{ flexGrow: 1 }}/>
+                    {/*<div style={{  display: 'flex', alignItems: 'center', justifyContent: 'center', }}>*/}
+                    {/*    <Typography*/}
+                    {/*        variant="h6"*/}
+                    {/*        noWrap*/}
+                    {/*        style={{ flexGrow: 1, alignItems: "center" }}*/}
+                    {/*    >*/}
+                    {/*        Knowledge Base App*/}
+                    {/*    </Typography>*/}
+                    {/*</div>*/}
 
                     <IconButton onClick={() => this.setState({isSearchOpen: !this.state.isSearchOpen})}>
-                        <SearchIcon/>
+                        <SearchIcon style={{ fill: "white" }}/>
                     </IconButton>
-                    { this.state.isSearchOpen ?
-                        <Selector
-                            list={ headStoreToList(this.props.noteHeadStore) }
-                            textGetter={ (noteHead: NoteHead) => noteHead.name }
-                            filterFunction={ (noteHead: NoteHead, str: string) => {
-                                return (
-                                    noteHead.name.toLowerCase().includes(str)
-                                    || noteHead.tags.filter((tag: TagHead) => tag.name.toLowerCase().includes(str)).length !== 0
-                                )
-                            }}
-                            onSelect={(noteHead: NoteHead) => {
-                                this.props.history.push(`/note/${noteHead.note_id}`);
-                                this.props.setNeedReload();
-                                this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
-                            }}
-                            onNewText={(input: string) => `Create new note ${input}`}
-                            onNew={(noteName: string) => {
-                                this.props.openedNextNewNote();
-                                this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
-                                this.props.createNewNote(noteName);
-                                this.props.needOpenNextNewNote();
-                            }}
-                        />
-                        : null
-                    }
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        style={{ flexGrow: 1 }}
-                    >
-                        Knowledge Base App
-                    </Typography>
+                    <Selector
+                        list={ headStoreToList(this.props.noteHeadStore) }
+                        textGetter={ (noteHead: NoteHead) => noteHead.name }
+                        filterFunction={ (noteHead: NoteHead, str: string) => {
+                            return (
+                                noteHead.name.toLowerCase().includes(str)
+                                || noteHead.tags.filter((tag: TagHead) => tag.name.toLowerCase().includes(str)).length !== 0
+                            )
+                        }}
+                        onSelect={(noteHead: NoteHead) => {
+                            this.props.history.push(`/note/${noteHead.note_id}`);
+                            this.props.setNeedReload();
+                            this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
+                        }}
+                        onNewText={(input: string) => `Create new note ${input}`}
+                        onNew={(noteName: string) => {
+                            this.props.openedNextNewNote();
+                            this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
+                            this.props.createNewNote(noteName);
+                            this.props.needOpenNextNewNote();
+                        }}
+                    />
+
+
                     <Button onClick={() => this.props.history.push("/tag_list")}>
-                        <ListIcon/>
-                        Tag List
+                        <ListIcon style={{ fill: "white" }}/>
+                        <div style={{ color: "white", marginLeft: "5px", paddingTop: "5px" }}>Tag List</div>
                     </Button>
                     <IconButton onClick={() => this.props.history.push("/profile")}>
-                        <AccountCircleIcon/>
+                        <AccountCircleIcon style={{ fill: "white" }}/>
                     </IconButton>
                 </Toolbar>
             </AppBar>

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect, ConnectedProps } from 'react-redux'
 
-import { Link } from "@material-ui/core";
+import {Button, Card, Link} from "@material-ui/core";
 
 import { RootState } from "../store";
 import axios from "axios";
@@ -10,7 +10,7 @@ import { headStoreToList, shuffleArray } from "../components/utils";
 import { NoteHead } from "../store/generated_messages";
 
 import NoteLinkList from "../components/NoteLinkList";
-import {getNotesWithoutLinks} from "../store/structureService/structureService_actions";
+import {getNotesWithoutLinks, getStructure} from "../store/structureService/structureService_actions";
 
 
 
@@ -26,6 +26,7 @@ const mapStoreStateToProps = (store: RootState) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
     return {
+        load: () => dispatch(getStructure()),
         getNotesWithoutLinks: () => dispatch(getNotesWithoutLinks()),
         // applyBackup: (zip_body: string, merge_policy: string) => dispatch(applyBackup(zip_body, merge_policy)),
     }
@@ -33,7 +34,12 @@ const mapDispatchToProps = (dispatch: any) => {
 const connector = connect(mapStoreStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-export interface HomePageState {}
+export interface HomePageState {
+    showAllNotesWithoutLinks: boolean
+    showAllNotesWithoutTags: boolean
+
+    showDebug: boolean
+}
 
 type PathParamsType = {}
 
@@ -45,10 +51,15 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
     constructor(props: HomePageProps) {
         super(props);
         this.state = {
+            showAllNotesWithoutLinks: false,
+            showAllNotesWithoutTags: false,
+
+            showDebug: false
         };
     }
 
     componentDidMount(): void {
+        this.props.load();
         this.props.getNotesWithoutLinks();
     }
 
@@ -58,22 +69,25 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
                 .sort((a: NoteHead, b: NoteHead) => a.last_update < b.last_update ? 1 : -1)
                 .slice(0, 5)
         );
+        return HomePage.renderList(recentList, "Recently edited");
+    }
+
+    static renderList(list: NoteHead[], title: string): React.ReactNode {
         return (
-            <div style={{ border: '1px solid rgba(0, 0, 0, 0.5)', padding: "5px", borderRadius: "5px", marginBottom: "20px" }} >
-                <span style={{ alignItems: "center", fontWeight: "bold", marginBottom: "10px" }} >Recently edited</span>
-                <NoteLinkList noteList={ recentList } />
-            </div>
+            <Card variant="outlined" style={{ marginBottom: "20px" }}>
+                <div style={{ margin: "20px" }}>
+                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "20px"}} >
+                        { title }
+                    </div>
+                    <NoteLinkList noteList={ list } />
+                </div>
+            </Card>
         )
     }
 
     renderRandomNotes(): React.ReactNode {
         const randomList = shuffleArray(headStoreToList(this.props.noteHeadStore)).slice(0, 8);
-        return (
-            <div style={{ border: '1px solid rgba(0, 0, 0, 0.5)', padding: "5px", borderRadius: "5px", marginBottom: "20px" }} >
-                <span style={{ alignItems: "center", fontWeight: "bold", marginBottom: "10px" }} >Random selection</span>
-                <NoteLinkList noteList={ randomList } />
-            </div>
-        )
+        return HomePage.renderList(randomList, "Random selection");
     }
 
     renderNoTags(): React.ReactNode {
@@ -85,11 +99,27 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
             return null;
         }
         return (
-            <div style={{ border: '1px solid rgba(0, 0, 0, 0.5)', padding: "5px", borderRadius: "5px", marginBottom: "20px" }} >
-                <span style={{ alignItems: "center", fontWeight: "bold", marginBottom: "10px" }} >Notes without Tags</span>
-                <NoteLinkList noteList={ noTagList } />
-            </div>
-        )
+            <Card variant="outlined" style={{ marginBottom: "20px" }}>
+                <div style={{ margin: "20px" }}>
+                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "20px", display: "flex", flexDirection: "row"}} >
+                        { "Notes without tags" }
+                        <div style={{ flexGrow: 1 }}/>
+                        { noTagList.length > 5 ?
+                            <Button
+                                onClick={
+                                    () => this.setState({showAllNotesWithoutTags: !this.state.showAllNotesWithoutTags})
+                                }
+                            >
+                                    { this.state.showAllNotesWithoutTags ? "Hide" : "Show all" }
+                            </Button>
+                            :
+                            null
+                        }
+                    </div>
+                    <NoteLinkList noteList={noTagList.slice(0, (this.state.showAllNotesWithoutTags ? undefined : 5)) } />
+                </div>
+            </Card>
+        );
     }
 
     renderNoLinks(): React.ReactNode {
@@ -97,10 +127,26 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
             return null;
         }
         return (
-            <div style={{ border: '1px solid rgba(0, 0, 0, 0.5)', padding: "5px", borderRadius: "5px", marginBottom: "20px" }} >
-                <span style={{ alignItems: "center", fontWeight: "bold", marginBottom: "10px" }} >Notes without Links</span>
-                <NoteLinkList noteList={ this.props.notesWithoutLinks.slice(0, 7) } />
-            </div>
+            <Card variant="outlined" style={{ marginBottom: "20px" }}>
+                <div style={{ margin: "20px" }}>
+                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "20px", display: "flex", flexDirection: "row"}} >
+                        { "Notes without links" }
+                        <div style={{ flexGrow: 1 }}/>
+                        { this.props.notesWithoutLinks.length > 5 ?
+                            <Button
+                                onClick={
+                                    () => this.setState({showAllNotesWithoutLinks: !this.state.showAllNotesWithoutLinks})
+                                }
+                            >
+                                    { this.state.showAllNotesWithoutLinks ? "Hide" : "Show all" }
+                            </Button>
+                            :
+                            null
+                        }
+                    </div>
+                    <NoteLinkList noteList={ this.props.notesWithoutLinks.slice(0, (this.state.showAllNotesWithoutLinks ? undefined : 5)) } />
+                </div>
+            </Card>
         )
     }
 
@@ -113,46 +159,55 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
             )
         }
         return (
-            <div style={{ border: '1px solid rgba(0, 0, 0, 0.5)', padding: "5px", borderRadius: "5px", marginBottom: "20px" }} >
-                Debug info:
-                <p/>
-                loaded { Object.keys(this.props.tagStore.tags).length } tags
-                <p/>
-                loaded { Object.keys(this.props.noteHeadStore.heads).length } note heads
-                <p/>
-                {/*<Link href="http://localhost:8000/backup/makeBackup" target="_blank">Make backup</Link>*/}
-                <Link href={"/backup/makeBackup"} target="_blank">Make backup</Link>
-                <p/>
-                <input
-                    type="file"
-                    onChange={event => {
-                        if (event !== null && event !== undefined) {
-                            // @ts-ignore
-                            const file = event.target.files[0];
-                            // const formData = new FormData();
-                            // formData.append("backup", file);
-                            // this.props.applyBackup(formData, "recreate");
+            <Card variant="outlined" style={{ marginBottom: "20px" }}>
+                <div style={{ margin: "20px" }}>
+                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "20px", display: "flex", flexDirection: "row"}} >
+                        { "Debug info" }
+                        <div style={{ flexGrow: 1 }}/>
+                        <Button onClick={() => this.setState({showDebug: !this.state.showDebug})}>
+                                { this.state.showDebug ? "Hide" : "Show all" }
+                        </Button>
+                    </div>
+                    <p/>
+                    loaded { Object.keys(this.props.tagStore.tags).length } tags
+                    <p/>
+                    loaded { Object.keys(this.props.noteHeadStore.heads).length } note heads
+                    <p/>
+                    {/*<Link href="http://localhost:8000/backup/makeBackup" target="_blank">Make backup</Link>*/}
+                    <Link href={"/backup/makeBackup"} target="_blank">Make backup</Link>
+                    <p/>
+                    <input
+                        type="file"
+                        onChange={event => {
+                            if (event !== null && event !== undefined) {
+                                // @ts-ignore
+                                const file = event.target.files[0];
+                                // const formData = new FormData();
+                                // formData.append("backup", file);
+                                // this.props.applyBackup(formData, "recreate");
 
-                            const axiosInstanse = axios.create({
-                                baseURL: "/backup/",
-                                responseType: "json",
-                            });
-                            const formData = new FormData();
-                            formData.append("backup", file);
-                            axiosInstanse.post(
-                                'restoreFromBackup',
-                                formData,
-                                {
-                                    'headers': {
-                                        'Access-Control-Allow-Origin': '*',
-                                        'Access-Control-Allow-Headers': '*',
-                                    },
-                                }
-                            )
-                        }
-                    }}
-                />
-            </div>
+                                const axiosInstanse = axios.create({
+                                    // baseURL: "http://localhost:8000/backup/",
+                                    baseURL: "/backup/",
+                                    responseType: "json",
+                                });
+                                const formData = new FormData();
+                                formData.append("backup", file);
+                                axiosInstanse.post(
+                                    'restoreFromBackup',
+                                    formData,
+                                    {
+                                        'headers': {
+                                            'Access-Control-Allow-Origin': '*',
+                                            'Access-Control-Allow-Headers': '*',
+                                        },
+                                    }
+                                )
+                            }
+                        }}
+                    />
+                </div>
+            </Card>
         )
     }
 
@@ -160,14 +215,14 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
 
         return (
             <div style={{margin: "20px", display: "flex", flexDirection: "row" }}>
-                <div style={{ width: "50%", marginRight: "10px"}}>
+                <div style={{ width: "50%", marginRight: "20px", marginLeft: "80px"}}>
                     { this.renderRecentNotes() }
                     { this.renderNoTags() }
                     { this.renderNoLinks() }
                 </div>
-                <div style={{ width: "50%", marginLeft: "10px"}}>
-                    { this.renderDEBUG() }
+                <div style={{ width: "50%", marginLeft: "20px", marginRight: "80px"}}>
                     { this.renderRandomNotes() }
+                    { this.renderDEBUG() }
                 </div>
             </div>
         );

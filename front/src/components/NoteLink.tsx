@@ -45,7 +45,7 @@ class NoteLink extends React.Component<NoteLinkProps, {}> {
         const { note_id, name, tags } = this.props.noteHead;
         return (
             <div key={`note-link-${note_id}`} style={{ marginBottom: "10px" }}>
-                <div style={{ display: "flex" }} key={`note-link-line-${note_id}`}>
+                <div style={{ display: "flex", marginBottom: "3px"}} key={`note-link-line-${note_id}`}>
                     {/*<div style={{ marginRight: "10px", marginLeft: "10px" }}/> :*/}
                     { this.props.onDelete === undefined ?
                         null :
