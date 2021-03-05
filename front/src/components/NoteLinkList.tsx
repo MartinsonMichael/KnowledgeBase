@@ -86,6 +86,7 @@ class NoteLinkList extends React.Component<NoteLinkListProps, NoteLinkListState>
                         }
                     }}
                     onNewText={ (input: string) => `New child Note with name '${input}'`}
+                    onClose={ () => this.setState({isAddTextLineVisible: false}) }
                 />
             )
         }

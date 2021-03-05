@@ -85,16 +85,16 @@ class App extends React.Component<AppProps, AppState>{
                     <Button onClick={() => this.props.history.push(`/home`)}>
                         <div style={{ alignItems: "center", flexDirection: "row", display: "flex" }}>
                             <HomeIcon color="action" style={{ fill: "white" }}/>
-                            <div style={{ color: "white", marginLeft: "5px", paddingTop: "5px" }}>Home</div>
+                            <div className="topbartext">Home</div>
                         </div>
                     </Button>
                     <Button onClick={() => this.props.history.push("/fullList")}>
                         <ListIcon style={{ fill: "white" }}/>
-                        <div style={{ color: "white", marginLeft: "5px", paddingTop: "5px" }}>Note List</div>
+                        <div className="topbartext">Note List</div>
                     </Button>
                     <Button onClick={() => this.setState({ isNewNoteCreatorOpen: true })}>
                         <AddIcon style={{ fill: "white" }}/>
-                        <div style={{ color: "white", marginLeft: "5px", paddingTop: "5px" }}>Add Note</div>
+                        <div className="topbartext">Add Note</div>
                     </Button>
                     { this.state.isNewNoteCreatorOpen ?
                         <Selector
@@ -124,33 +124,38 @@ class App extends React.Component<AppProps, AppState>{
                     <IconButton onClick={() => this.setState({isSearchOpen: !this.state.isSearchOpen})}>
                         <SearchIcon style={{ fill: "white" }}/>
                     </IconButton>
-                    <Selector
-                        list={ headStoreToList(this.props.noteHeadStore) }
-                        textGetter={ (noteHead: NoteHead) => noteHead.name }
-                        filterFunction={ (noteHead: NoteHead, str: string) => {
-                            return (
-                                noteHead.name.toLowerCase().includes(str)
-                                || noteHead.tags.filter((tag: TagHead) => tag.name.toLowerCase().includes(str)).length !== 0
-                            )
-                        }}
-                        onSelect={(noteHead: NoteHead) => {
-                            this.props.history.push(`/note/${noteHead.note_id}`);
-                            this.props.setNeedReload();
-                            this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
-                        }}
-                        onNewText={(input: string) => `Create new note ${input}`}
-                        onNew={(noteName: string) => {
-                            this.props.openedNextNewNote();
-                            this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
-                            this.props.createNewNote(noteName);
-                            this.props.needOpenNextNewNote();
-                        }}
-                    />
+                    <div style={{ color: "white" }}>
+                        <Selector
+                            list={ headStoreToList(this.props.noteHeadStore) }
+                            textGetter={ (noteHead: NoteHead) => noteHead.name }
+                            filterFunction={ (noteHead: NoteHead, str: string) => {
+                                return (
+                                    noteHead.name.toLowerCase().includes(str)
+                                    || noteHead.tags.filter((tag: TagHead) => tag.name.toLowerCase().includes(str)).length !== 0
+                                )
+                            }}
+                            onSelect={(noteHead: NoteHead) => {
+                                this.props.history.push(`/note/${noteHead.note_id}`);
+                                this.props.setNeedReload();
+                                this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
+                            }}
+                            onNewText={(input: string) => `Create new note ${input}`}
+                            onNew={(noteName: string) => {
+                                this.props.openedNextNewNote();
+                                this.setState({isSearchOpen: false, isNewNoteCreatorOpen: false});
+                                this.props.createNewNote(noteName);
+                                this.props.needOpenNextNewNote();
+                            }}
+                            placeholder="Search notes..."
+                            variant={ undefined }
+                            focusOnOpen={ false }
+                        />
+                    </div>
 
 
                     <Button onClick={() => this.props.history.push("/tag_list")}>
                         <ListIcon style={{ fill: "white" }}/>
-                        <div style={{ color: "white", marginLeft: "5px", paddingTop: "5px" }}>Tag List</div>
+                        <div className="topbartext">Tag List</div>
                     </Button>
                     <IconButton onClick={() => this.props.history.push("/profile")}>
                         <AccountCircleIcon style={{ fill: "white" }}/>

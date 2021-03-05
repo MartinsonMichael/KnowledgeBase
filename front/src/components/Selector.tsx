@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import Autocomplete from "react-autocomplete";
-import { Button } from "@material-ui/core";
+import {Button, TextField} from "@material-ui/core";
 
 import { makeID } from "./utils";
 
@@ -11,12 +11,15 @@ export type SelectProps<T> = {
     onSelect: (tagObj: T) => void,
     textGetter: (obj: T) => string,
     filterFunction?: (obj: T, str: string) => boolean,
+    placeholder?: string,
+    variant?: "filled" | "outlined" | "standard" | undefined
     onNew?: (value: string) => void,
     onNewText?: (input: string) => string,
     focusOnOpen?: boolean,
     selectedColor?: string,
     notselectedColor?: string,
     textColor?: string,
+    onClose?: () => void,
 }
 
 interface ListItem<T> {
@@ -38,7 +41,8 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
         onNewText: (v: string) => v,
         selectedColor: "lightgray",
         notselectedColor: "white",
-        textColor: "black"
+        textColor: "black",
+        variant: "outlined",
     };
 
     constructor(props: SelectProps<T>) {
@@ -52,6 +56,23 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
 
         this.valueGetter = this.valueGetter.bind(this);
         this.renderItem = this.renderItem.bind(this);
+
+        this.escFunction = this.escFunction.bind(this);
+    }
+
+    escFunction(event: any){
+        if(event.keyCode === 27) {
+            if (this.props.onClose !== undefined) {
+                this.props.onClose()
+            }
+        }
+    }
+    componentDidMount(){
+        document.addEventListener("keydown", this.escFunction, false);
+    }
+
+    componentWillUnmount(){
+        document.removeEventListener("keydown", this.escFunction, false);
     }
 
     filterList(str: string): ListItem<T>[] {
@@ -112,6 +133,22 @@ class Selector<T> extends React.Component<SelectProps<T>, SelectState<T>> {
             <div style={{ zIndex: 30 }}>
                 <Autocomplete
                     getItemValue={ this.valueGetter }
+                    renderInput={
+                        props =>
+                        <TextField
+                            autoFocus={ this.props.focusOnOpen }
+                            size="small"
+                            inputProps={ props }
+                            placeholder={ this.props.placeholder }
+                            variant={ this.props.variant }
+                            onBlur={e => {
+                                if (this.props.onClose !== undefined) {
+                                    this.props.onClose();
+                                }
+                            }}
+                            // onChange={event => this.setState({inputText: event.target.value})}
+                        />
+                    }
                     items={ this.state.filteredList }
                     renderItem={ this.renderItem }
                     value={ this.state.inputText }

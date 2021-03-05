@@ -74,9 +74,9 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
 
     static renderList(list: NoteHead[], title: string): React.ReactNode {
         return (
-            <Card variant="outlined" style={{ marginBottom: "20px" }}>
-                <div style={{ margin: "20px" }}>
-                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "20px"}} >
+            <Card variant="outlined" style={{ marginBottom: "1.5em" }}>
+                <div style={{ margin: "1em" }}>
+                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "1em"}} >
                         { title }
                     </div>
                     <NoteLinkList noteList={ list } />
@@ -99,9 +99,9 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
             return null;
         }
         return (
-            <Card variant="outlined" style={{ marginBottom: "20px" }}>
-                <div style={{ margin: "20px" }}>
-                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "20px", display: "flex", flexDirection: "row"}} >
+            <Card variant="outlined" style={{ marginBottom: "1.5em" }}>
+                <div style={{ margin: "1em" }}>
+                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "1em", display: "flex", flexDirection: "row"}} >
                         { "Notes without tags" }
                         <div style={{ flexGrow: 1 }}/>
                         { noTagList.length > 5 ?
@@ -127,9 +127,9 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
             return null;
         }
         return (
-            <Card variant="outlined" style={{ marginBottom: "20px" }}>
-                <div style={{ margin: "20px" }}>
-                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "20px", display: "flex", flexDirection: "row"}} >
+            <Card variant="outlined" style={{ marginBottom: "1.5em" }}>
+                <div style={{ margin: "1em" }}>
+                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "1em", display: "flex", flexDirection: "row"}} >
                         { "Notes without links" }
                         <div style={{ flexGrow: 1 }}/>
                         { this.props.notesWithoutLinks.length > 5 ?
@@ -159,9 +159,9 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
             )
         }
         return (
-            <Card variant="outlined" style={{ marginBottom: "20px" }}>
-                <div style={{ margin: "20px" }}>
-                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "20px", display: "flex", flexDirection: "row"}} >
+            <Card variant="outlined" style={{ marginBottom: "1.5em" }}>
+                <div style={{ margin: "1em" }}>
+                    <div style={{ alignItems: "center", fontWeight: "bold", marginBottom: "1em", display: "flex", flexDirection: "row"}} >
                         { "Debug info" }
                         <div style={{ flexGrow: 1 }}/>
                         <Button onClick={() => this.setState({showDebug: !this.state.showDebug})}>
@@ -214,13 +214,13 @@ class HomePage extends React.Component<HomePageProps, HomePageState> {
     render(): React.ReactNode {
 
         return (
-            <div style={{margin: "20px", display: "flex", flexDirection: "row" }}>
-                <div style={{ width: "50%", marginRight: "20px", marginLeft: "80px"}}>
+            <div style={{margin: "1.5em", display: "flex", flexDirection: "row" }}>
+                <div style={{ width: "50%", marginRight: "1.5em", marginLeft: "3em"}}>
                     { this.renderRecentNotes() }
                     { this.renderNoTags() }
                     { this.renderNoLinks() }
                 </div>
-                <div style={{ width: "50%", marginLeft: "20px", marginRight: "80px"}}>
+                <div style={{ width: "50%", marginLeft: "1.5em", marginRight: "8em"}}>
                     { this.renderRandomNotes() }
                     { this.renderDEBUG() }
                 </div>

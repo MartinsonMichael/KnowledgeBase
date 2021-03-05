@@ -95,10 +95,8 @@ class TagBar extends React.Component<TagBarProps, TagBarState> {
                         }
                     }}
                     onNewText={ (input: string) => `Create new tag '${input}'`}
+                    onClose={ () => this.setState({tagAddPress: false}) }
                 />
-                <button onClick={() => this.setState({tagAddPress: false})}>
-                    x
-                </button>
             </div>
         )
     }

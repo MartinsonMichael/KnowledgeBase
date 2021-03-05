@@ -208,12 +208,18 @@ class NotePage extends React.Component<NotePageProps, NotePageState> {
                             <Typography>{ this.props.note.name }</Typography>
                             :
                             <TextField
-                                fullWidth
                                 size="small"
                                 value={ this.props.note.name }
                                 onChange={e => this.props.updateName(note_id, e.target.value)}
                             />
                         }
+                        {/*<TextField*/}
+                        {/*    */}
+                        {/*    disabled={ this.state.bodyState === "view" }*/}
+                        {/*    size="small"*/}
+                        {/*    value={ this.props.note.name }*/}
+                        {/*    onChange={e => this.props.updateName(note_id, e.target.value)}*/}
+                        {/*/>*/}
                     </div>
                     <div style={{ display: "flex", alignItems: "center" }}>
                         <TagBar
