@@ -3,11 +3,8 @@ import { connect, ConnectedProps } from 'react-redux'
 
 import { RootState } from "../store";
 import { RouteComponentProps, withRouter } from "react-router";
-import { headStoreToList, shuffleArray } from "../components/utils";
-import { NoteHead } from "../store/generated_messages";
 
-import NoteLinkList from "../components/NoteLinkList";
-import {Button, Card, Link} from "@material-ui/core";
+import { Button, Card, Link } from "@material-ui/core";
 import axios from "axios";
 
 

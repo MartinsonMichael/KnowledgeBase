@@ -3,7 +3,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { RouteComponentProps } from "react-router";
 import { Route, Switch, Redirect, withRouter } from "react-router-dom";
 
-import { Button, Typography, Toolbar, IconButton, AppBar } from "@material-ui/core";
+import { Button, Toolbar, IconButton, AppBar } from "@material-ui/core";
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/ControlPoint';
 import HomeIcon from '@material-ui/icons/Home';
@@ -185,7 +185,7 @@ class App extends React.Component<AppProps, AppState>{
                     <Route path='/tag/:tag_id' render={() => <TagPage/>} />
                     <Route path='/tag_list' render={() => <TagListPage/>} />
 
-                    {/*<Redirect from="/" to="/home" />*/}
+                    <Redirect from="/" to="/home" />
                 </Switch>
             </div>
         );

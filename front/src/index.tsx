@@ -9,6 +9,8 @@ import thunk from 'redux-thunk';
 import { BrowserRouter} from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 
+import "./styles/index.css";
+
 const store = createStore(rootReducer, undefined, applyMiddleware(thunk));
 
 ReactDOM.render(

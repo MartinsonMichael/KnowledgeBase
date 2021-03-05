@@ -44,7 +44,7 @@ class StructureService(AbstractStructureService):
         )
 
     def getStructure(self) -> Structure:
-        
+
         # TODO
         if NoteTag.objects.count() == 0:
             NoteTag(title='test').save()
